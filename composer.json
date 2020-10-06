@@ -1,0 +1,26 @@
+{
+	"name": "essefx/lib-pg-connector",
+	"description": "Payment gateway API connector libraries",
+	"keywords": [
+		"payment gateway",
+		"payment processing",
+		"api"
+	],
+	"homepage": "https://growinc.dev/",
+	"type": "library",
+	"authors": [
+		{
+			"name": "Sean A.",
+			"email": "essefx@gmail.com"
+		}
+	],
+	"require": {
+		"php": "^7.2.5",
+		"guzzlehttp/guzzle": "^7.0"
+	},
+	"autoload": {
+		"psr-4": {
+			"Growinc\\Payment\\": "lib/"
+		}
+	}
+}
