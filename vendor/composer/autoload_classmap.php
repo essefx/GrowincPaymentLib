@@ -6,6 +6,11 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'Growinc\\Payment\\HttpClient\\GuzzleHttpClient' => $baseDir . '/src/HttpClient/GuzzleHttpClient.php',
+    'Growinc\\Payment\\Setup' => $baseDir . '/src/Setup.php',
+    'Growinc\\Payment\\Transaction' => $baseDir . '/src/Transaction.php',
+    'Growinc\\Payment\\Vendors\\Duitku' => $baseDir . '/src/Vendors/Duitku.php',
+    'Growinc\\Payment\\Vendors\\VendorInterface' => $baseDir . '/src/Vendors/VendorInterface.php',
     'GuzzleHttp\\Client' => $vendorDir . '/guzzlehttp/guzzle/src/Client.php',
     'GuzzleHttp\\ClientInterface' => $vendorDir . '/guzzlehttp/guzzle/src/ClientInterface.php',
     'GuzzleHttp\\ClientTrait' => $vendorDir . '/guzzlehttp/guzzle/src/ClientTrait.php',

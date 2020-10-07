@@ -1,88 +1,35 @@
 <?php
-
 namespace Growinc\Payment;
 
-use GuzzleHttp\Client as Guzzle;
-
-use Growinc\Payment\Client;
+use Growinc\Payment\HttpClient\GuzzleHttpClient;
+use Growinc\Payment\Setup;
 
 class	Transaction
 {
 
-	private $base_url;
-	private $query_url;
-	//
-	private $time;
-	private $request;
-	private $response;
+	public $request;
+	public $response;
 
-	public function Post(Client $client, $url, $data, $headers = [])
+	public function Post(Setup $setup, $url, $data, $headers = [])
 	{
 		$this->request['time'] = time();
-		// Request
-		// $this->request['mid'] = $client->mid;
-		// $this->request['secret'] = $client->secret;
-		// $this->request['token'] = $client->token;
-		//
+		$this->request['method'] = 'POST';
 		$this->request['url'] = $url;
-		$this->request['headers'] = $headers ?? [
-				'Content-Type' => 'application/json',
-				'Content-Length' => strlen(json_encode($this->request['data'])),
-			];
+		$this->request['headers'] = $headers;
 		$this->request['data'] = $data;
-		// Response
-		// $this->response = Curl::to($this->request['url'])
-		// 	->withHeader($this->request['headers'])
-		// 	->withOption('SSL_VERIFYHOST', '0')
-		// 	->withOption('SSLVERSION', '6')
-		// 	->withOption('SSL_VERIFYPEER', false)
-		// 	->withTimeout(60)
-		// 	->returnResponseObject()
-		// 	->withData($this->request['data'])
-		// 	->asJson()
-		// 	->post();
-		$this->post = (new Guzzle)->request('POST', $this->request['url'], [
-					'verify' => false,
-					'headers' => $this->request['headers'],
-					'form_params' => $this->request['data'],
-				]);
-		$this->response = [
-				'content' => (string) $this->post->getBody(),
-				'status_code' => (string) $this->post->getStatusCode(),
-			];
+		$guzzle = new GuzzleHttpClient($setup);
+		$this->response = $guzzle->Request($this->request);
 		return [$this->request, $this->response];
 	}
 
-	public function Get(Client $client, $url, $headers = [])
+	public function Get(Setup $setup, $url, $headers = [])
 	{
 		$this->request['time'] = time();
-		// Request
-		// $this->request['mid'] = $client->mid;
-		// $this->request['secret'] = $client->secret;
-		// $this->request['token'] = $client->token;
-		//
+		$this->request['method'] = 'GET';
 		$this->request['url'] = $url;
-		$this->request['headers'] = $headers ?? [
-				'Content-Type' => 'application/json',
-				'Content-Length' => strlen(json_encode($this->request['data'])),
-			];
-		// Response
-		// $this->response = Curl::to($this->request['url'])
-		// 	->withHeader($this->request['headers'])
-		// 	->withOption('SSL_VERIFYHOST', '0')
-		// 	->withOption('SSLVERSION', '6')
-		// 	->withOption('SSL_VERIFYPEER', false)
-		// 	->withTimeout(60)
-		// 	->returnResponseObject()
-		// 	->get();
-		$this->get = (new Guzzle)->request('GET', $this->request['url'], [
-					'verify' => false,
-					'headers' => $this->request['headers'],
-				]);
-		$this->response = [
-				'content' => (string) $this->get->getBody(),
-				'status_code' => (string) $this->get->getStatusCode(),
-			];
+		$this->request['headers'] = $headers;
+		$guzzle = new GuzzleHttpClient($setup);
+		$this->response = $guzzle->Request($this->request);
 		return [$this->request, $this->response];
 	}
 

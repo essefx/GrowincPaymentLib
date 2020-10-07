@@ -51,11 +51,16 @@ class ComposerStaticInit9137ee347290c17acec3219ecbf118d0
         ),
         'Growinc\\Payment\\' => 
         array (
-            0 => __DIR__ . '/../..' . '/lib',
+            0 => __DIR__ . '/../..' . '/src',
         ),
     );
 
     public static $classMap = array (
+        'Growinc\\Payment\\HttpClient\\GuzzleHttpClient' => __DIR__ . '/../..' . '/src/HttpClient/GuzzleHttpClient.php',
+        'Growinc\\Payment\\Setup' => __DIR__ . '/../..' . '/src/Setup.php',
+        'Growinc\\Payment\\Transaction' => __DIR__ . '/../..' . '/src/Transaction.php',
+        'Growinc\\Payment\\Vendors\\Duitku' => __DIR__ . '/../..' . '/src/Vendors/Duitku.php',
+        'Growinc\\Payment\\Vendors\\VendorInterface' => __DIR__ . '/../..' . '/src/Vendors/VendorInterface.php',
         'GuzzleHttp\\Client' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/Client.php',
         'GuzzleHttp\\ClientInterface' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/ClientInterface.php',
         'GuzzleHttp\\ClientTrait' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/ClientTrait.php',
