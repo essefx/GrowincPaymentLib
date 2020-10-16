@@ -7,7 +7,8 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Growinc\\Payment\\HttpClient\\GuzzleHttpClient' => $baseDir . '/src/HttpClient/GuzzleHttpClient.php',
-    'Growinc\\Payment\\Setup' => $baseDir . '/src/Setup.php',
+    'Growinc\\Payment\\Init' => $baseDir . '/src/Init.php',
+    'Growinc\\Payment\\Requestor' => $baseDir . '/src/Requestor.php',
     'Growinc\\Payment\\Transaction' => $baseDir . '/src/Transaction.php',
     'Growinc\\Payment\\Vendors\\Duitku' => $baseDir . '/src/Vendors/Duitku.php',
     'Growinc\\Payment\\Vendors\\VendorInterface' => $baseDir . '/src/Vendors/VendorInterface.php',

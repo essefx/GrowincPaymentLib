@@ -1,46 +1,134 @@
 <?php
+
 namespace Growinc\Payment\HttpClient;
 
+// use Exception;
 use GuzzleHttp\Client as GuzzleClient;
 // use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\RequestException;
 // use GuzzleHttp\Exception\ServerException;
-// use GuzzleHttp\Psr7;
-use Growinc\Payment\Exceptions\ApiException;
+use GuzzleHttp\Psr7;
+// use Growinc\Payment\Exceptions\ApiException;
 
-use Growinc\Payment\Setup;
+// use Growinc\Payment\Setup;
 
 class GuzzleHttpClient
 {
 
-	private $_client;
+	private static $_guzzle_instance;
+	// private static $_client;
 
-	public function __construct(Setup $setup)
+	public function __construct()
 	{
-		$this->_client = new GuzzleClient([
-				'base_uri' => $setup->base_uri,
-				'verify' => false,
-				'timeout' => 60,
-			]);
+		if (!SELF::$_guzzle_instance) {
+			SELF::$_guzzle_instance = new GuzzleClient([
+					// 'base_uri' => $setup->base_uri,
+					'verify' => false,
+					'timeout' => 60,
+				]);
+		}
+		// if (!$this->_client) {
+		// 	$this->_client = new GuzzleClient([
+		// 			// 'base_uri' => $this->,
+		// 			'verify' => false,
+		// 			'timeout' => 60,
+		// 		]);
+		// }
 	}
 
-	public function Request($param)
+	public static function getInstance()
 	{
-		extract($param);
-		$request['time'] = $time ?? time();
-		$request['method'] = $method;
-		$request['url'] = $url;
-		$request['headers'] = $headers ?? [];
-		$request['data'] = $data ?? [];
-		$response = [];
+		return SELF::$_guzzle_instance;
+	}
+
+	public function sendRequest(string $method, string $url, $data, array $headers)
+	{
 		try {
+			$res = SELF::$_guzzle_instance->request((string) $method, (string) $url, [
+					'headers' => [(array) $headers],
+					(strtoupper($method) === 'GET' ? 'query' : 'form_params') => (array) $data,
+				]);
+			$response = [
+					'content' => $res->getBody()->getContents(),
+					'status_code' => $res->getStatusCode(),
+					// 'headers' => $res->getHeaders(),
+				];
+			// $response = new Psr7\Response($res->getStatusCode(), $res->getHeaders(), $res->getBody()->getContents());
+		} catch (RequestException $e) {
+			if ($e->hasResponse()) {
+				$response = [
+						'content' => $e->getResponse()->getBody()->getContents(),
+						'headers' => $e->getResponse()->getHeaders(),
+						'status_code' => $e->getResponse()->getStatusCode(),
+					];
+			}
+		}
+		return $response;
+	}
+
+	public function _sendRequest($method, string $url, $data, array $headers)
+	{
+
+	// public function Request($param)
+	// {
+		// print_r($param);
+		// exit();
+		// ob_start();
+		// extract($param);
+		// $request['time'] = $time ?? time();
+		// $request['method'] = $method;
+		// $request['url'] = $url;
+		// $request['headers'] = $headers;
+		// $request['data'] = $data;
+		// $response = [];
+
+		// try {
+		// 	$ch = curl_init();
+		// 	curl_setopt($ch, CURLOPT_URL, $url);
+		// 	curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+		// 	curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+		// 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		// 	curl_setopt($ch, CURLOPT_HTTPHEADER, [
+		// 			'Content-Type: application/json',
+		// 			'Content-Length: ' . strlen(json_encode($data)),
+		// 		]);
+		// 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+		// 	$response = curl_exec($ch);
+		// 	$status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		// 	if ($status_code == 200) {
+		// 		//
+		// 	}
+		// } catch (Exception $e) {
+		// 	http_response_code(404);
+		// 	//throw $th;
+		// }
+		// print_r($response);
+		// exit();
+		// ob_end_flush();
+
+
+		try {
+			$res = $this->_client->request('POST', $url, [
+					'headers' => [$headers],
+					'form_params' => $data,
+				]);
+
+
+			// $raw =  [
+			// 		'headers' => $request['headers'],
+			// 		(strtoupper($request['method']) === 'GET' ? 'query' : 'form_params') => $request['data'],
+			// 		\GuzzleHttp\RequestOptions::JSON => $request['data'],
+			// 		// 'http_errors ' => true,
+			// 	];
+			// print_r($raw);
+			// exit();
 			// switch (strtoupper($request['method'])) {
 			// 	case 'GET':
-					$res = $this->_client->request($request['method'], $request['url'], [
-							'headers' => $request['headers'],
-							(strtoupper($request['method']) === 'GET' ? 'query' : 'form_params') => $request['data'],
-							'http_errors ' => true,
-						]);
+					// $res = $this->_client->request(
+					// 		$request['method'],
+					// 		$request['url'],
+					// 		$raw
+					// 	);
 			// 		break;
 			// 	case 'POST':
 			// 		$res = $this->_client->request($request['method'], $request['url'], [
@@ -55,11 +143,17 @@ class GuzzleHttpClient
 					'headers' => $res->getHeaders(),
 					'status_code' => $res->getStatusCode(),
 				];
+			$response = new Psr7\Response($res->getStatusCode(), $res->getHeaders(), $res->getBody()->getContents());
 		} catch (RequestException $e) {
 			if ($e->hasResponse()) {
+				$response = [
+						'content' => $e->getResponse()->getBody()->getContents(),
+						'headers' => $e->getResponse()->getHeaders(),
+						'status_code' => $e->getResponse()->getStatusCode(),
+					];
 				// $response = '';
-				$body = $e->getResponse()->getBody();
-				$response = $body->getContents();
+				// $body = $e->getResponse()->getBody()->getContents();
+				// $response = $body->getContents();
 				// print_r(strlen($body));
 				// exit();
 				// while (!$body->eof()) {
@@ -74,19 +168,21 @@ class GuzzleHttpClient
 
 			// throw new \Exception(SELF::_ShowError($e), 1);
 		// } catch (ServerException $e) {
-			// throw new \Exception(SELF::_ShowError($e), 1);
+			// throw new \Exception($response, 1);
 			// echo Psr7\str($e->getRequest());
 			// if ($e->hasResponse()) {
 			// 	echo Psr7\str($e->getResponse());
 			// }
 		}
-		return [$request, $response];
+		// echo $response['content'];
+		return $response;
+		// return ['request' => $request ?? [], 'response' => $response ?? []];
 	}
 
-	public static function _ShowError($e)
-	{
-		// Debug show file & line
-		return implode(':', [$e->getMessage(), basename($e->getFile()), $e->getLine()]);
-	}
+	// public static function _ShowError($e)
+	// {
+	// 	// Debug show file & line
+	// 	return implode(':', [$e->getMessage(), basename($e->getFile()), $e->getLine()]);
+	// }
 
 }

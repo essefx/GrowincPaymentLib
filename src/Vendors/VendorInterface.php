@@ -1,21 +1,24 @@
 <?php
+
 namespace Growinc\Payment\Vendors;
 
 interface VendorInterface
 {
+
 	public function Index();
-	public function GetToken($param);
+	public function GetToken($args);
 	//
-	public function CreateDummyForm($param);
-	public function RedirectPayment($param);
+	public function CreateDummyForm($args);
+	public function RedirectPayment();
 	//
-	public function SecurePayment($param);
-	public function Callback($param);
-	public function CallbackAlt($param);
+	public function SecurePayment($args);
+	public function Callback($args);
+	public function CallbackAlt($args);
 	//
-	public function Inquiry($param);
-	public function Cancel($param);
-	public function Settle($param);
-	public function Refund($param);
-	public function RefundStatus($param);
+	public function Inquiry($args);
+	public function Cancel($args);
+	public function Settle($args);
+	public function Refund($args);
+	public function RefundStatus($args);
+
 }

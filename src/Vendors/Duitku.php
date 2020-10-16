@@ -1,78 +1,79 @@
 <?php
+
 namespace Growinc\Payment\Vendors;
 
-use Growinc\Payment\Setup;
-use Growinc\Payment\Transaction;
+// use Growinc\Payment\Init;
+use Growinc\Payment\Requestor;
+// use Growinc\Payment\Transaction;
 use Growinc\Payment\Vendors\VendorInterface;
 
-class Duitku extends Transaction implements VendorInterface
+class Duitku extends Requestor implements VendorInterface
 {
 
-	protected $setup;
-	protected $payment;
+	protected $form;
 
-	public function __construct(Setup $setup)
-	{
-		$this->setup = $setup;
-	}
+	// public function __construct(Setup $setup)
+	// {
+	// 	$this->setup = $setup;
+	// 	$this->form = (object) [];
+	// }
 
 	public function Index()
 	{
-		$get = $this->Get($this->setup, $this->setup->payment_url, []);
-		print_r($get);
+		// $get = $this->Get($this->setup, $this->setup->payment_url, []);
+		// print_r($get);
 	}
 
 	public function GetToken($param)
 	{
+
 	}
 
 	public function CreateDummyForm($param)
 	{
+
 	}
 
-	public function RedirectPayment($param)
+	public function RedirectPayment()
 	{
-		extract($param);
-		// Format
-		$this->payment->time = time();
-		$this->payment->order_id = $order_id ?? ('00' . substr($this->payment->time, 2, strlen($this->payment->time)));
-		$this->payment->invoice_no = $invoice_no ?? ('INV' . substr($this->payment->time, 2, strlen($this->payment->time)));
-		$this->payment->amount = $amount ?? 0;
-		$this->payment->currency = $currency ?? 'IDR';
+		$this->form['order_id'] = $this->transaction->getOrderID();
+		$this->form['invoice_no'] = $this->transaction->getInvoiceNo();
+		$this->form['amount'] = $this->transaction->getAmount();
+		$this->form['description'] = $this->transaction->getDescription();
+		$this->form['currency'] = $this->transaction->getCurrency();
 		//
-		$this->payment->customer_name = $customer_name ?? '';
-		$this->payment->customer_email = $customer_email ?? '';
-		$this->payment->customer_phone = $customer_phone ?? '';
-		$this->payment->customer_address = $customer_address ?? '';
-		$this->payment->country_code = $country_code ?? 'ID';
-		$this->payment->billing_address = $billing_address ?? [
-				'firstName' => $this->payment->customer_name,
+		$this->form['customer_name'] = $this->transaction->getCustomerName();
+		$this->form['customer_email'] = $this->transaction->getCustomerEmail();
+		$this->form['customer_phone'] = $this->transaction->getCustomerPhone();
+		$this->form['customer_address'] = $this->transaction->getCustomerAddress();
+		$this->form['country_code'] = $this->transaction->getCountryCode();
+		//
+		$this->form['billing_address'] = [
+				'firstName' => $this->form['customer_name'],
 				'lastName' => '',
-				'address' => $this->payment->customer_address,
+				'address' => $this->form['customer_address'],
 				'city' => '',
 				'postalCode' => '',
-				'phone' => $this->payment->customer_phone,
-				'countryCode' => $this->payment->country_code,
+				'phone' => $this->form['customer_phone'],
+				'countryCode' => $this->form['country_code'],
 			];
-		$this->payment->shipping_address = $shipping_address ?? [
-				'firstName' => $this->payment->customer_name,
+		$this->form['shipping_address'] = [
+				'firstName' => $this->form['customer_name'],
 				'lastName' => '',
-				'address' => $this->payment->customer_address,
+				'address' => $this->form['customer_address'],
 				'city' => '',
 				'postalCode' => '',
-				'phone' => $this->payment->customer_phone,
-				'countryCode' => $this->payment->country_code,
+				'phone' => $this->form['customer_phone'],
+				'countryCode' => $this->form['country_code'],
 			];
-		$this->payment->customer_details = [
-				'firstName' => $this->payment->customer_name,
+		$this->form['customer_details'] = [
+				'firstName' => $this->form['customer_name'],
 				'lastName' => '',
-				'email' => $this->payment->customer_email,
-				'phoneNumber' => $this->payment->customer_phone,
-				'billingAddress' => $this->payment->billing_address,
-				'shippingAddress' => $this->payment->shipping_address,
+				'email' => $this->form['customer_email'],
+				'phoneNumber' => $this->form['customer_phone'],
+				'billingAddress' => $this->form['billing_address'],
+				'shippingAddress' => $this->form['shipping_address'],
 			];
-		//
-		$this->payment->payment_description = $description ?? ('Payment for order ' . $this->payment->order_id);
 		// VC	Credit Card (Visa / Master)
 		// BK	BCA KlikPay
 		// M1	Mandiri Virtual Account
@@ -88,9 +89,9 @@ class Duitku extends Transaction implements VendorInterface
 		// SA	Shopee Pay Apps
 		// AG	Bank Artha Graha
 		// S1	Bank Sahabat Sampoerna
-		$this->payment->payment_method = $payment_method ?? 'VC';
-		$this->payment->payment_url = $this->setup->payment_url . '/v2/inquiry'; // 'https://sandbox.duitku.com/webapi/api/merchant/v2/inquiry'
-		$this->payment->callback_url = $callback_url;
+		$this->form['payment_method'] = $this->transaction->getPaymentMethod();
+		$this->form['payment_url'] = $this->init->getPaymentURL() . '/v2/inquiry';
+		$this->form['callback_url'] = $this->init->getCallbackURL();
 		// Redirect
 		// merchantOrderId: Nomor transaksi dari merchant abcde12345
 		// reference: Nomor referensi transaksi dari Duitku. Mohon disimpan untuk keperluan pencatatan atau pelacakan transaksi. d011111
@@ -98,78 +99,83 @@ class Duitku extends Transaction implements VendorInterface
 		// 00 - Success
 		// 01 - Pending
 		// 02 - Canceled
-		$this->payment->return_url = $return_url;
+		$this->form['return_url'] = $this->init->getReturnURL();
 		// Request parameter
-		$this->payment->expiry_period = 100; // minutes
+		$this->form['expiry_period'] = $this->transaction->getExpireAt(); // minutes
 		// Go
-		$signature = md5(
-				$this->setup->mid .
-				$this->payment->order_id .
-				(float) $this->payment->amount .
-				$this->setup->secret
+		$this->form['signature'] = md5(
+				$this->init->getMID() .
+				$this->form['order_id'] .
+				(float) $this->form['amount'] .
+				$this->init->getSecret()
 			);
-		$data = [
-				'merchantCode' => $this->setup->mid,
-				'paymentAmount' => $this->payment->amount,
-				'paymentMethod' => $this->payment->payment_method,
-				'merchantOrderId' => $this->payment->order_id,
-				'productDetails' => $this->payment->payment_description,
+		$this->form['time'] = $this->transaction->getTime();
+		$this->form['url'] = $this->form['payment_url'];
+		$this->form['data'] = [
+				'merchantCode' => $this->init->getMID(),
+				'paymentAmount' => $this->form['amount'],
+				'paymentMethod' => $this->form['payment_method'],
+				'merchantOrderId' => $this->form['order_id'],
+				'productDetails' => $this->form['description'],
 				'additionalParam' => '', // optional
 				'merchantUserInfo' => '', // optional
-				'customerVaName' => $this->payment->customer_name,
-				'email' => $this->payment->customer_email,
-				'phoneNumber' => $this->payment->customer_phone,
+				'customerVaName' => $this->form['customer_name'],
+				'email' => $this->form['customer_email'],
+				'phoneNumber' => $this->form['customer_phone'],
 				'itemDetails' => [],
-				'customerDetail' => $this->payment->customer_details,
-				'callbackUrl' => $this->payment->callback_url,
-				'returnUrl' => $this->payment->return_url,
-				'signature' => $signature,
-				'expiryPeriod' => $this->payment->expiry_period,
+				'customerDetail' => $this->form['customer_details'],
+				'callbackUrl' => $this->form['callback_url'],
+				'returnUrl' => $this->form['return_url'],
+				'signature' => $this->form['signature'],
+				'expiryPeriod' => $this->form['expiry_period'],
 			];
-		$headers = [
+		$this->form['headers'] = [
 				'Content-Type' => 'application/json',
-				'Content-Length' => strlen(json_encode($data)),
+				'Content-Length' => strlen(json_encode($this->form['data'])),
 			];
-		$post = $this->Post(
-				$this->setup,
-				$this->payment->payment_url,
-				$data,
-				$headers
-			);
+		$post = $this->Request('POST', $this->form);
 		// extract($post[1]);
 		print_r($post);
 	}
 
-	public function SecurePayment($args)
+	public function SecurePayment($param)
 	{
+
 	}
 
-	public function Callback($args)
+	public function Callback($param)
 	{
+
 	}
 
-	public function CallbackAlt($args)
+	public function CallbackAlt($param)
 	{
+
 	}
 
-	public function Inquiry($args)
+	public function Inquiry($param)
 	{
+
 	}
 
-	public function Cancel($args)
+	public function Cancel($param)
 	{
+
 	}
 
-	public function Settle($args)
+	public function Settle($param)
 	{
+
 	}
 
-	public function Refund($args)
+	public function Refund($param)
 	{
+
 	}
 
-	public function RefundStatus($args)
+	public function RefundStatus($param)
 	{
+
 	}
 
 }

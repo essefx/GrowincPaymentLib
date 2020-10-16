@@ -1,51 +1,11 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
-
-$init = new \Growinc\Payment\Init('D6677', '9180265c1850e3ec2286f3b139d4c260');
-$init->setBaseURI('https://sandbox.duitku.com/webapi/api/merchant');
-$init->setPaymentURL('https://sandbox.duitku.com/webapi/api/merchant');
-$init->setCallbackURL('https://ibank.growinc.dev/oanwef4851ashrb/pg/dk/redapi_result');
-$init->setReturnURL('https://ibank.growinc.dev/oanwef4851ashrb/pg/dk/redapi_form');
-
-$transaction = new \Growinc\Payment\Transaction();
-$transaction->setCustomerName('SEAN');
-$transaction->setCustomerEmail('essefx@gmail.com');
-$transaction->setCustomerPhone('081298983535');
-$transaction->setAmount(100000);
-$transaction->setPaymentMethod('VC');
-
-$request = new \Growinc\Payment\Vendors\Duitku($init, $transaction);
-$result = $request->RedirectPayment();
-
-// print_r($result);
-
-// $setup->setURL([
-// 		'payment_url' => 'https://sandbox.duitku.com/webapi/api/merchant',
-// 		// 'payment_url' => 'https://google.com',
-// 		'callback_url' => 'https://ibank.growinc.dev/oanwef4851ashrb/pg/dk/redapi_result',
-// 		'return_url' => 'https://ibank.growinc.dev/oanwef4851ashrb/pg/dk/redapi_form',
-// 	]);
-
-// $duitku = new \Growinc\Payment\Vendors\Duitku($setup);
-// $duitku->Index();
-// $duitku->RedirectPayment([
-// 		'amount' => 10000,
-// 		'customer_name' => 'SEAN',
-// 		'customer_email' => 'essefx@gmail.com',
-// 		'customer_phone' => '081298983535',
-// 	]);
-
-// print_r($setup);
-// print_r($duitku);
-
-/*
 	$time = time();
 	$payment = (object) [];
 	$payment->payment_url = 'https://pga.growinc.dev/webapi/pay/create';
 	$payment->merchant_code = 'PGA20YQMX';
 	$payment->secret = 'v8WkpFB$TUBXGS4Kn3LkPt2L6';
-	$payment->redirect_url = 'http://localhost/git/GrowincPaymentLib/examples/callback.php';
+	$payment->redirect_url = 'http://localhost/callback.php';
 	$payment->invoice_no = 'INV' . substr($time, 2, strlen($time));
 	$payment->description = 'Payment for order ' . $payment->invoice_no;
 	$payment->customer_name = 'SEAN';
@@ -53,7 +13,7 @@ $result = $request->RedirectPayment();
 	$payment->customer_phone = '081298983535';
 	$payment->expire_id = '100';
 	$payment->pattern = $payment->merchant_code . ':' . $payment->invoice_no;
-	$payment->signature = hash_hmac('sha256', $payment->pattern, $payment->secret, false);	//Compute hash value
+	$payment->signature = hash_hmac('sha256', $payment->pattern, $payment->secret, false);
 
 	echo '
 <!DOCTYPE HTML>
@@ -81,4 +41,5 @@ $result = $request->RedirectPayment();
 </body>
 </html>
 ';
-*/
+
+?>
