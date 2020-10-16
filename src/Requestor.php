@@ -2,10 +2,6 @@
 
 namespace Growinc\Payment;
 
-// use Growinc\Payment\Init;
-// use Growinc\Payment\Transaction;
-use Growinc\Payment\HttpClient\GuzzleHttpClient;
-
 class	Requestor
 {
 
@@ -17,68 +13,54 @@ class	Requestor
 	protected $request;
 	protected $response;
 
-	public function __construct(Init $init, Transaction $transaction)
+	public function __construct(\Growinc\Payment\Init $init)
 	{
 		$this->init = $init;
-		$this->transaction = $transaction;
 	}
 
-	private static function _GetClient()
+	private static function _GetClient($args)
 	{
 		if (!SELF::$_client) {
-			SELF::$_client = GuzzleHttpClient::getInstance();
+			SELF::$_client = \Growinc\Payment\HttpClient\GuzzleHttpClient::getInstance($args);
 		}
 		return SELF::$_client;
 	}
 
-	public function Request(string $method, $request)
+	public function DoRequest(string $method, $request)
 	{
-		// $this->request['time'] = $this->transaction->getTime();
-		// $this->request['method'] = $method;
-		// $this->request['url'] = $url;
-		// $this->request['data'] = $data;
-		// $this->request['headers'] = $headers;
-		// $guzzle = new GuzzleHttpClient();
-		$this->request = $request;
-		$this->response = SELF::_GetClient()->sendRequest(
-				$method,
-				$this->request['url'],
-				$this->request['data'],
-				$this->request['headers']
-			);
-		/*
-		$this->response = SELF::_GetClient()->sendRequest(
-				// $this->request['method'],
-				// $this->request['url'],
-				// $this->request['data'],
-				// $this->request['headers'],
-				$method,
-				$this->request['url'],
-				$this->request['data'],
-				$this->request['headers'],
-			);
-		*/
-		return [
-				'request' => [
-						'time' => $this->request['time'],
-						'url' => $this->request['url'],
-						'data' => $this->request['data'],
-						'headers' => $this->request['headers'],
-					],
-				'response' => $this->response
-			];
-		//->getBody()->getContents();
+		try {
+			$this->request = $request;
+			$this->response = SELF::_GetClient([
+					'base_uri' => $this->init->getBaseURI(),
+				])->sendRequest(
+					$method,
+					$this->request['url'],
+					$this->request['data'],
+					$this->request['headers'],
+				);
+			return [
+					'request' => [
+							'time' => $this->request['time'],
+							'url' => $this->request['url'],
+							'data' => $this->request['data'],
+							'headers' => $this->request['headers'],
+						],
+					// 'response' => $this->response // return as PSR7 resposne
+					'response' => [
+							'content' => $this->response->getBody()->getContents(),
+							'status_code' => $this->response->getStatusCode(),
+							'headers' => $this->response->getHeaders(),
+						],
+				];
+		} catch (\Throwable $e) {
+			throw new \Exception(SELF::_ShowError($e), 1);
+		}
 	}
 
-	// public function Get(Setup $setup, $url, $headers = [])
-	// {
-	// 	$this->request['time'] = time();
-	// 	$this->request['method'] = 'GET';
-	// 	$this->request['url'] = $url;
-	// 	$this->request['headers'] = $headers;
-	// 	$guzzle = new GuzzleHttpClient($setup);
-	// 	$this->response = $guzzle->Request($this->request);
-	// 	return $this->response;
-	// }
+	private static function _ShowError($e)
+	{
+		// Debug show file & line
+		return implode(':', [$e->getMessage(), basename($e->getFile()), $e->getLine()]);
+	}
 
 }

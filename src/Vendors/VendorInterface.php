@@ -9,9 +9,9 @@ interface VendorInterface
 	public function GetToken($args);
 	//
 	public function CreateDummyForm($args);
-	public function RedirectPayment();
+	public function RedirectPayment(\Growinc\Payment\Transaction $transaction);
 	//
-	public function SecurePayment($args);
+	public function SecurePayment(\Growinc\Payment\Transaction $transaction);
 	public function Callback($args);
 	public function CallbackAlt($args);
 	//

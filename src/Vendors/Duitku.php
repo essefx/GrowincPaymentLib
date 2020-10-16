@@ -2,9 +2,7 @@
 
 namespace Growinc\Payment\Vendors;
 
-// use Growinc\Payment\Init;
 use Growinc\Payment\Requestor;
-// use Growinc\Payment\Transaction;
 use Growinc\Payment\Vendors\VendorInterface;
 
 class Duitku extends Requestor implements VendorInterface
@@ -12,30 +10,24 @@ class Duitku extends Requestor implements VendorInterface
 
 	protected $form;
 
-	// public function __construct(Setup $setup)
-	// {
-	// 	$this->setup = $setup;
-	// 	$this->form = (object) [];
-	// }
-
 	public function Index()
 	{
-		// $get = $this->Get($this->setup, $this->setup->payment_url, []);
-		// print_r($get);
+
 	}
 
-	public function GetToken($param)
+	public function GetToken($args)
 	{
 
 	}
 
-	public function CreateDummyForm($param)
+	public function CreateDummyForm($args)
 	{
 
 	}
 
-	public function RedirectPayment()
+	public function RedirectPayment(\Growinc\Payment\Transaction $transaction)
 	{
+		$this->transaction = $transaction;
 		$this->form['order_id'] = $this->transaction->getOrderID();
 		$this->form['invoice_no'] = $this->transaction->getInvoiceNo();
 		$this->form['amount'] = $this->transaction->getAmount();
@@ -100,7 +92,7 @@ class Duitku extends Requestor implements VendorInterface
 		// 01 - Pending
 		// 02 - Canceled
 		$this->form['return_url'] = $this->init->getReturnURL();
-		// Request parameter
+		// Request argseter
 		$this->form['expiry_period'] = $this->transaction->getExpireAt(); // minutes
 		// Go
 		$this->form['signature'] = md5(
@@ -117,7 +109,7 @@ class Duitku extends Requestor implements VendorInterface
 				'paymentMethod' => $this->form['payment_method'],
 				'merchantOrderId' => $this->form['order_id'],
 				'productDetails' => $this->form['description'],
-				'additionalParam' => '', // optional
+				'additionalargs' => '', // optional
 				'merchantUserInfo' => '', // optional
 				'customerVaName' => $this->form['customer_name'],
 				'email' => $this->form['customer_email'],
@@ -133,53 +125,46 @@ class Duitku extends Requestor implements VendorInterface
 				'Content-Type' => 'application/json',
 				'Content-Length' => strlen(json_encode($this->form['data'])),
 			];
-		// print_r($this->form);
-		$post = $this->Request('POST', $this->form);
-		extract($post);
-		$response = [
-				'content' => $response->getBody()->getContents(),
-				'status_code' => $response->getStatusCode(),
-				// 'headers' => $response->getHeaders(),
-			];
-		print_r($response);
+		$post = $this->DoRequest('POST', $this->form);
+		return $post;
 	}
 
-	public function SecurePayment($param)
+	public function SecurePayment($args)
 	{
 
 	}
 
-	public function Callback($param)
+	public function Callback($args)
 	{
 
 	}
 
-	public function CallbackAlt($param)
+	public function CallbackAlt($args)
 	{
 
 	}
 
-	public function Inquiry($param)
+	public function Inquiry($args)
 	{
 
 	}
 
-	public function Cancel($param)
+	public function Cancel($args)
 	{
 
 	}
 
-	public function Settle($param)
+	public function Settle($args)
 	{
 
 	}
 
-	public function Refund($param)
+	public function Refund($args)
 	{
 
 	}
 
-	public function RefundStatus($param)
+	public function RefundStatus($args)
 	{
 
 	}
