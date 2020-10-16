@@ -2,8 +2,8 @@
 
 namespace Growinc\Payment;
 
-use Growinc\Payment\Init;
-use Growinc\Payment\Transaction;
+// use Growinc\Payment\Init;
+// use Growinc\Payment\Transaction;
 use Growinc\Payment\HttpClient\GuzzleHttpClient;
 
 class	Requestor
@@ -41,6 +41,13 @@ class	Requestor
 		// $guzzle = new GuzzleHttpClient();
 		$this->request = $request;
 		$this->response = SELF::_GetClient()->sendRequest(
+				$method,
+				$this->request['url'],
+				$this->request['data'],
+				$this->request['headers']
+			);
+		/*
+		$this->response = SELF::_GetClient()->sendRequest(
 				// $this->request['method'],
 				// $this->request['url'],
 				// $this->request['data'],
@@ -50,6 +57,7 @@ class	Requestor
 				$this->request['data'],
 				$this->request['headers'],
 			);
+		*/
 		return [
 				'request' => [
 						'time' => $this->request['time'],

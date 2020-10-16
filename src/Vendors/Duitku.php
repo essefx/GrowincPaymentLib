@@ -133,9 +133,15 @@ class Duitku extends Requestor implements VendorInterface
 				'Content-Type' => 'application/json',
 				'Content-Length' => strlen(json_encode($this->form['data'])),
 			];
+		// print_r($this->form);
 		$post = $this->Request('POST', $this->form);
-		// extract($post[1]);
-		print_r($post);
+		extract($post);
+		$response = [
+				'content' => $response->getBody()->getContents(),
+				'status_code' => $response->getStatusCode(),
+				// 'headers' => $response->getHeaders(),
+			];
+		print_r($response);
 	}
 
 	public function SecurePayment($param)

@@ -4,10 +4,13 @@ namespace Growinc\Payment\HttpClient;
 
 // use Exception;
 use GuzzleHttp\Client as GuzzleClient;
+// use GuzzleHttp\ClientInterface;
 // use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\RequestException;
 // use GuzzleHttp\Exception\ServerException;
-use GuzzleHttp\Psr7;
+// use GuzzleHttp\Psr7;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
 // use Growinc\Payment\Exceptions\ApiException;
 
 // use Growinc\Payment\Setup;
@@ -15,13 +18,13 @@ use GuzzleHttp\Psr7;
 class GuzzleHttpClient
 {
 
+	protected $_guzzle_http;
 	private static $_guzzle_instance;
-	// private static $_client;
 
 	public function __construct()
 	{
-		if (!SELF::$_guzzle_instance) {
-			SELF::$_guzzle_instance = new GuzzleClient([
+		if (!$this->_guzzle_http) {
+			$this->_guzzle_http = new GuzzleClient([
 					// 'base_uri' => $setup->base_uri,
 					'verify' => false,
 					'timeout' => 60,
@@ -38,34 +41,40 @@ class GuzzleHttpClient
 
 	public static function getInstance()
 	{
+		if (!SELF::$_guzzle_instance) {
+			SELF::$_guzzle_instance = new SELF();
+		}
 		return SELF::$_guzzle_instance;
 	}
 
 	public function sendRequest(string $method, string $url, $data, array $headers)
 	{
 		try {
-			$res = SELF::$_guzzle_instance->request((string) $method, (string) $url, [
+			$response = $this->_guzzle_http->request((string) $method, (string) $url, [
 					'headers' => [(array) $headers],
 					(strtoupper($method) === 'GET' ? 'query' : 'form_params') => (array) $data,
 				]);
-			$response = [
-					'content' => $res->getBody()->getContents(),
-					'status_code' => $res->getStatusCode(),
-					// 'headers' => $res->getHeaders(),
-				];
+			if (isset($data['option']['json']) && $data['option']['json'] == '1') {
+				$response = [
+						'content' => $response->getBody()->getContents(),
+						'status_code' => $response->getStatusCode(),
+						'headers' => $response->getHeaders(),
+					];
+			}
 			// $response = new Psr7\Response($res->getStatusCode(), $res->getHeaders(), $res->getBody()->getContents());
 		} catch (RequestException $e) {
 			if ($e->hasResponse()) {
 				$response = [
 						'content' => $e->getResponse()->getBody()->getContents(),
-						'headers' => $e->getResponse()->getHeaders(),
 						'status_code' => $e->getResponse()->getStatusCode(),
+						'headers' => $e->getResponse()->getHeaders(),
 					];
 			}
 		}
 		return $response;
 	}
 
+	/*
 	public function _sendRequest($method, string $url, $data, array $headers)
 	{
 
@@ -184,5 +193,6 @@ class GuzzleHttpClient
 	// 	// Debug show file & line
 	// 	return implode(':', [$e->getMessage(), basename($e->getFile()), $e->getLine()]);
 	// }
+	*/
 
 }
