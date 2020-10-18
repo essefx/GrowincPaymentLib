@@ -18,7 +18,8 @@ $transaction->setPaymentMethod('VC');
 $vendor = new \Growinc\Payment\Vendors\Duitku($init);
 
 try {
-	$result = $vendor->SecurePayment($transaction);
+	$result = $vendor->SecurePayment($transaction); // return payment URL
+	// $result = $vendor->RedirectPayment($transaction); // redirect to vendor URL
 	extract($result);
 	print_r($response);
 } catch (\Throwable $e) {

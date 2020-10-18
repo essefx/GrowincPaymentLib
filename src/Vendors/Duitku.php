@@ -131,11 +131,37 @@ class Duitku extends Requestor implements VendorInterface
 				'Content-Length' => strlen(json_encode($this->form['data'])),
 			];
 		$post = $this->DoRequest('POST', $this->form);
+		// Success
+		/*
+		{
+			"merchantCode": "D6677",
+			"reference": "D6677FWEYAXOZ3IUUG37",
+			"paymentUrl": "http://sandbox.duitku.com/topup/topupdirectv2.aspx?ref=VCTO3XQC1Q4IVRA5E",
+			"amount": "100000",
+			"statusCode": "00",
+			"statusMessage": "SUCCESS"
+		}
+		*/
 		return $post;
 	}
 
 	public function Callback($request)
 	{
+		// Example
+		/*
+		{
+			"merchantCode": "D6677",
+			"amount": "100000",
+			"merchantOrderId": "0001285662",
+			"productDetail": "Payment for order 0001285662",
+			"additionalParam": null,
+			"resultCode": "00",
+			"signature": "439030a6da086ee13558137f07d4a27d",
+			"paymentCode": "VC",
+			"merchantUserId": null,
+			"reference": "D6677JXVYL752HMAV0AD"
+		}
+		*/
 		try {
 			$signature = md5(
 					$this->init->getMID() .
