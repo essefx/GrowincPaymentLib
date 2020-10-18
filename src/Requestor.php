@@ -36,31 +36,36 @@ class	Requestor
 					$method,
 					$this->request['url'],
 					$this->request['data'],
-					$this->request['headers'],
+					($this->request['headers'] ?? []),
 				);
-			return [
+			$result = [
 					'request' => [
 							'time' => $this->request['time'],
 							'url' => $this->request['url'],
 							'data' => $this->request['data'],
-							'headers' => $this->request['headers'],
+							'headers' => ($this->request['headers'] ?? []),
 						],
 					// 'response' => $this->response // return as PSR7 resposne
 					'response' => [
 							'content' => $this->response->getBody()->getContents(),
-							'status_code' => $this->response->getStatusCode(),
+							'status_code' => (int) $this->response->getStatusCode(),
 							'headers' => $this->response->getHeaders(),
 						],
 				];
 		} catch (\Throwable $e) {
 			throw new \Exception(SELF::_ShowError($e), 1);
 		}
+		return $result;
 	}
 
-	private static function _ShowError($e)
+	public static function _ShowError($e) // Debug show file & line
 	{
-		// Debug show file & line
 		return implode(':', [$e->getMessage(), basename($e->getFile()), $e->getLine()]);
+	}
+
+	public static function _ObjectToArray(object $object)
+	{
+		return json_decode(json_encode($object), true);
 	}
 
 }

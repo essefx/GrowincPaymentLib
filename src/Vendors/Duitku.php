@@ -12,20 +12,25 @@ class Duitku extends Requestor implements VendorInterface
 
 	public function Index()
 	{
-
+		// Inapplicable
 	}
 
 	public function GetToken($args)
 	{
-
+		// Inapplicable
 	}
 
 	public function CreateDummyForm($args)
 	{
-
+		// Inapplicable
 	}
 
 	public function RedirectPayment(\Growinc\Payment\Transaction $transaction)
+	{
+		// Inapplicable
+	}
+
+	public function SecurePayment(\Growinc\Payment\Transaction $transaction)
 	{
 		$this->transaction = $transaction;
 		$this->form['order_id'] = $this->transaction->getOrderID();
@@ -94,13 +99,13 @@ class Duitku extends Requestor implements VendorInterface
 		$this->form['return_url'] = $this->init->getReturnURL();
 		// Request argseter
 		$this->form['expiry_period'] = $this->transaction->getExpireAt(); // minutes
-		// Go
 		$this->form['signature'] = md5(
 				$this->init->getMID() .
 				$this->form['order_id'] .
 				(float) $this->form['amount'] .
 				$this->init->getSecret()
 			);
+		// Go
 		$this->form['time'] = $this->transaction->getTime();
 		$this->form['url'] = $this->form['payment_url'];
 		$this->form['data'] = [
@@ -129,44 +134,139 @@ class Duitku extends Requestor implements VendorInterface
 		return $post;
 	}
 
-	public function SecurePayment($args)
+	public function Callback($request)
 	{
-
+		try {
+			$signature = md5(
+					$this->init->getMID() .
+					(float) ($request->amount ?? '') .
+					($request->merchantOrderId ?? '') .
+					$this->init->getSecret()
+				);
+			if (strcmp($signature, ($request->signature ?? '')) === 0) {
+				/*
+				$result = [
+						'response' => [
+								'status' => '000',
+								'message' => 'Success',
+								'data' => (array) $request,
+							],
+					];
+				*/
+				$result = [
+						'response' => [
+								'content' => json_encode($request),
+								'status_code' => 200,
+							],
+					];
+			} else {
+				throw new \Exception(__FUNCTION__ . " signature check failed", 1);
+			}
+		} catch (\Throwable $e) {
+			throw new \Exception(__FUNCTION__ . ' failed', 1);
+		}
+		return $result;
 	}
 
-	public function Callback($args)
+	public function CallbackAlt($request)
 	{
-
+		// Inapplicable
 	}
 
-	public function CallbackAlt($args)
+	public function Inquiry($request)
 	{
-
+		try {
+			$signature = md5(
+					$this->init->getMID() .
+					($request->order_id ?? '') .
+					$this->init->getSecret()
+				);
+			// Go
+			$this->form['time'] = time();
+			$this->form['url'] = $this->init->getPaymentURL() . '/transactionStatus';
+			$this->form['data'] = [
+					'merchantCode' => $this->init->getMID(),
+					'merchantOrderId' => ($request->order_id ?? ''),
+					'signature' => $signature,
+				];
+			$this->form['headers'] = [
+					'Content-Type' => 'application/json',
+					'Content-Length' => strlen(json_encode($this->form['data'])),
+				];
+			$post = $this->DoRequest('POST', $this->form);
+			$response = (array) $post['response'];
+			extract($response);
+			if (!empty($status_code) && $status_code === 200) {
+				$content = (object) json_decode($content);
+				if (	!empty($content->statusMessage)
+						&& $content->statusMessage == "SUCCESS"
+						&& $content->merchantOrderId == $request->order_id
+				) {
+					// Success
+					/*
+					{
+						"merchantOrderId": "0001297441",
+						"reference": "D6677KW403DFH8VOFMRJ",
+						"amount": "100000",
+						"fee": "0.00",
+						"statusCode": "00",
+						"statusMessage": "SUCCESS"
+					}
+					*/
+					/*
+					$data = [
+							'status' => '000',
+							'data' => [
+									'response_code' => $content->statusCode,
+									'response_message' => $content->statusMessage,
+									//
+									'order_id' => $content->merchantOrderId,
+									'merchant_id' => $this->init->getMID(),
+									'reference_id' => $content->reference,
+									'amount' => (float) $content->amount,
+									'fee' => (float) $content->fee,
+									'_content' => $content,
+								],
+						];
+					*/
+					$result = [
+							'response' => [
+									// 'content' => json_encode($data),
+									'content' => json_encode($content),
+									'status_code' => 200,
+									'headers' => $headers,
+								],
+						];
+				} else {
+					throw new \Exception($content->statusMessage, 1);
+				}
+			} else {
+				throw new \Exception($content, 1);
+			}
+		} catch (\Throwable $e) {
+			throw new \Exception(__FUNCTION__ . ' failed', 1);
+		}
+		return $result ?? [];
 	}
 
-	public function Inquiry($args)
+	public function Cancel($request)
 	{
-
+		// Inapplicable
 	}
 
-	public function Cancel($args)
+	public function Settle($request)
 	{
-
+		// Inapplicable
 	}
 
-	public function Settle($args)
+	public function Refund($request)
 	{
-
+		// Inapplicable
 	}
 
-	public function Refund($args)
+	public function RefundStatus($request)
 	{
-
-	}
-
-	public function RefundStatus($args)
-	{
-
+		// Inapplicable
 	}
 
 }

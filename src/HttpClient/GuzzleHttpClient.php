@@ -40,7 +40,7 @@ class GuzzleHttpClient
 			if (isset($data['option']['json']) && $data['option']['json'] == '1') {
 				$response = [
 						'content' => $response->getBody()->getContents(),
-						'status_code' => $response->getStatusCode(),
+						'status_code' => (int) $response->getStatusCode(),
 						'headers' => $response->getHeaders(),
 					];
 			} else {
@@ -50,7 +50,7 @@ class GuzzleHttpClient
 			if ($e->hasResponse()) {
 				$response = [
 						'content' => $e->getResponse()->getBody()->getContents(),
-						'status_code' => $e->getResponse()->getStatusCode(),
+						'status_code' => (int) $e->getResponse()->getStatusCode(),
 						'headers' => $e->getResponse()->getHeaders(),
 					];
 			}
