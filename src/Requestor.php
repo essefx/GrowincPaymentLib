@@ -5,6 +5,8 @@ namespace Growinc\Payment;
 class	Requestor
 {
 
+	use Helper;
+
 	protected $init;
 	protected $transaction;
 	//
@@ -18,6 +20,8 @@ class	Requestor
 		$this->init = $init;
 	}
 
+	//
+
 	private static function _GetClient($args)
 	{
 		if (!SELF::$_client) {
@@ -25,6 +29,20 @@ class	Requestor
 		}
 		return SELF::$_client;
 	}
+
+	//
+
+	public function getRequest(): ?object
+	{
+		return (object) $this->request;
+	}
+
+	public function getResponse(): ?object // PSR7 object
+	{
+		return $this->response;
+	}
+
+	//
 
 	public function DoRequest(string $method, $request)
 	{
@@ -45,7 +63,6 @@ class	Requestor
 							'data' => $this->request['data'],
 							'headers' => ($this->request['headers'] ?? []),
 						],
-					// 'response' => $this->response // return as PSR7 resposne
 					'response' => [
 							'content' => $this->response->getBody()->getContents(),
 							'status_code' => (int) $this->response->getStatusCode(),
@@ -53,19 +70,9 @@ class	Requestor
 						],
 				];
 		} catch (\Throwable $e) {
-			throw new \Exception(SELF::_ShowError($e), 1);
+			throw new \Exception($this->ShowError($e), 1);
 		}
 		return $result;
-	}
-
-	public static function _ShowError($e) // Debug show file & line
-	{
-		return implode(':', [$e->getMessage(), basename($e->getFile()), $e->getLine()]);
-	}
-
-	public static function _ObjectToArray(object $object)
-	{
-		return json_decode(json_encode($object), true);
 	}
 
 }

@@ -12,13 +12,13 @@ interface VendorInterface
 	public function RedirectPayment(\Growinc\Payment\Transaction $transaction);
 	//
 	public function SecurePayment(\Growinc\Payment\Transaction $transaction);
-	public function Callback($request);
-	public function CallbackAlt($request);
+	public function Callback(object $request);
+	public function CallbackAlt(object $request);
 	//
-	public function Inquiry($request);
-	public function Cancel($request);
-	public function Settle($request);
-	public function Refund($request);
-	public function RefundStatus($request);
+	public function Inquiry(object $request);
+	public function Cancel(object $request);
+	public function Settle(object $request);
+	public function Refund(object $request);
+	public function RefundStatus(object $request);
 
 }

@@ -22,6 +22,19 @@ class GuzzleHttpClient
 		}
 	}
 
+	//
+
+	private static function _HandleError($response)
+	{
+		$content = $response['content'];
+		$status_code = $response['status_code'];
+		$message = $content['message'] ?? $content;
+		$error_code = $content['error_code'] ?? '0';
+		throw new ApiException($message, $status_code, $error_code);
+	}
+
+	//
+
 	public static function getInstance($args)
 	{
 		if (!SELF::$_guzzle_instance) {
@@ -44,7 +57,7 @@ class GuzzleHttpClient
 						'headers' => $response->getHeaders(),
 					];
 			} else {
-				// return as PSR7 response
+				// Default is return as PSR7 response
 			}
 		} catch (RequestException $e) {
 			if ($e->hasResponse()) {
@@ -59,15 +72,6 @@ class GuzzleHttpClient
 			}
 		}
 		return $response;
-	}
-
-	private static function _HandleError($response)
-	{
-		$content = $response['content'];
-		$status_code = $response['status_code'];
-		$message = $content['message'] ?? $content;
-		$error_code = $content['error_code'] ?? '0';
-		throw new ApiException($message, $status_code, $error_code);
 	}
 
 }

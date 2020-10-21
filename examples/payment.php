@@ -13,7 +13,7 @@ $transaction->setCustomerName('SEAN');
 $transaction->setCustomerEmail('essefx@gmail.com');
 $transaction->setCustomerPhone('081298983535');
 $transaction->setAmount(100000);
-$transaction->setPaymentMethod('VC');
+$transaction->setPaymentMethod('B1');
 
 $vendor = new \Growinc\Payment\Vendors\Duitku($init);
 
@@ -22,6 +22,9 @@ try {
 	// $result = $vendor->RedirectPayment($transaction); // redirect to vendor URL
 	extract($result);
 	print_r($response);
+	//
+	print_r($vendor->getRequest());
+	print_r($vendor->getResponse()); // Get  PSR7 object
 } catch (\Throwable $e) {
-	echo 'Failed to transaction: ' . $e->getCode();
+	echo 'Payment failed: ' . $e->getCode();
 }

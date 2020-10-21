@@ -35,37 +35,37 @@ class Midtrans extends Requestor implements VendorInterface
 		// Inapplicable
 	}
 
-	public function Callback($request)
+	public function Callback(object $request)
 	{
 		// Inapplicable
 	}
 
-	public function CallbackAlt($request)
+	public function CallbackAlt(object $request)
 	{
 		// Inapplicable
 	}
 
-	public function Inquiry($request)
+	public function Inquiry(object $request)
 	{
 		// Inapplicable
 	}
 
-	public function Cancel($request)
+	public function Cancel(object $request)
 	{
 		// Inapplicable
 	}
 
-	public function Settle($request)
+	public function Settle(object $request)
 	{
 		// Inapplicable
 	}
 
-	public function Refund($request)
+	public function Refund(object $request)
 	{
 		// Inapplicable
 	}
 
-	public function RefundStatus($request)
+	public function RefundStatus(object $request)
 	{
 		// Inapplicable
 	}

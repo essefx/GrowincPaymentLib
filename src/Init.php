@@ -10,7 +10,8 @@ class	Init
 	protected $token;
 	//
 	protected $base_uri;
-	protected $payment_url;
+	protected $payment_url; // Specific for DoPayment only
+	protected $request_url;
 	protected $callback_url;
 	protected $return_url;
 
@@ -19,6 +20,8 @@ class	Init
 		$this->mid = $mid;
 		$this->secret = $secret;
 	}
+
+	//
 
 	public function setMID(string $mid): void
 	{
@@ -40,6 +43,8 @@ class	Init
 		return $this->secret;
 	}
 
+	//
+
 	public function setBaseURI(string $base_uri): void
 	{
 		$this->base_uri = $base_uri;
@@ -58,6 +63,16 @@ class	Init
 	public function getPaymentURL(): ?string
 	{
 		return $this->payment_url;
+	}
+
+	public function setRequestURL(string $request_url): void
+	{
+		$this->request_url = $request_url;
+	}
+
+	public function getRequestURL(): ?string
+	{
+		return $this->request_url;
 	}
 
 	public function setCallbackURL(string $callback_url): void
