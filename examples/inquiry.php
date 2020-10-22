@@ -15,5 +15,5 @@ try {
 	extract($result);
 	print_r($response);
 } catch (\Throwable $e) {
-	echo 'Inquiry failed: ' . $e->getMessage();
+	echo 'Inquiry failed: ' . $e->getMessage() . ':' . $e->getCode();
 }

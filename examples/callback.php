@@ -26,5 +26,5 @@ try {
 	extract($result);
 	print_r($response);
 } catch (\Throwable $e) {
-	echo 'Callback failed: ' . $e->getMessage();
+	echo 'Callback failed: ' . $e->getMessage() . ':' . $e->getCode();
 }

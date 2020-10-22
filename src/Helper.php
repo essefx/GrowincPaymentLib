@@ -2,7 +2,7 @@
 
 namespace Growinc\Payment;
 
-use InvalidArgumentException;
+use Growinc\Payment\Exceptions\InvalidArgumentException;
 
 trait Helper
 {
@@ -12,9 +12,30 @@ trait Helper
 	 * Debug show file & line
 	 *
 	 */
-	public static function ShowError($e) : string
+	public static function ThrowError($e) : string
 	{
-		return implode(':', [$e->getMessage(), basename($e->getFile()), $e->getLine()]);
+		if ($e instanceof \Exception) {
+			return implode(':', [$e->getMessage(), basename($e->getFile()), $e->getLine()]);
+		}
+		return $e;
+	}
+
+	/**
+	 *
+	 * Debug show file & line as JSON
+	 *
+	 */
+	public static function JSONError($e) : string
+	{
+		return json_encode([
+				'content' => json_encode([
+						'error_message' => $e->getMessage(),
+						'error_file' => $e->getFile(),
+						'error_line' => $e->getLine(),
+					]),
+				'status_code' => (int) $e->getResponse()->getStatusCode(),
+				'headers' => $e->getResponse()->getHeaders(),
+			]);
 	}
 
 	/**

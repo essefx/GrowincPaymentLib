@@ -133,21 +133,44 @@ class Duitku extends Requestor implements VendorInterface
 					'Content-Length' => strlen(json_encode($this->request['data'])),
 				];
 			$post = $this->DoRequest('POST', $this->request);
-			$result = $post;
-			// Success
-			/*
-			{
-				"merchantCode": "D6677",
-				"reference": "D66774XLQY7KUDPP0WGA",
-				"paymentUrl": "http://sandbox.duitku.com/topup/topupdirectv2.aspx?ref=B1Q3XQMO6CY44R7F2",
-				"vaNumber": "11990140616361",
-				"amount": "100000",
-				"statusCode": "00",
-				"statusMessage": "SUCCESS"
+			$response = (array) $post['response'];
+			extract($response);
+			if (!empty($status_code) && $status_code === 200) {
+				$content = (object) json_decode($content);
+				if (	!empty($content->statusMessage)
+						&& $content->statusMessage == "SUCCESS"
+				) {
+					// Success
+					/*
+					{
+						"merchantCode": "D6677",
+						"reference": "D66774XLQY7KUDPP0WGA",
+						"paymentUrl": "http://sandbox.duitku.com/topup/topupdirectv2.aspx?ref=B1Q3XQMO6CY44R7F2",
+						"vaNumber": "11990140616361",
+						"amount": "100000",
+						"statusCode": "00",
+						"statusMessage": "SUCCESS"
+					}
+					*/
+					$content = [
+							'status' => '000',
+							'data' => (array) $content,
+						];
+					$result = [
+							'request' => (array) $this->request,
+							'response' => [
+									'content' => json_encode($content),
+									'status_code' => 200,
+								],
+						];
+				} else {
+					throw new \Exception($content->statusMessage);
+				}
+			} else {
+				throw new \Exception($content);
 			}
-			*/
 		} catch (\Throwable $e) {
-			throw new \Exception(__FUNCTION__ . ' failed', 1);
+			throw new \Exception($this->ThrowError($e));
 		}
 		return $result ?? [];
 	}
@@ -170,34 +193,30 @@ class Duitku extends Requestor implements VendorInterface
 		}
 		*/
 		try {
-			SELF::Validate($request, ['amount', 'merchantOrderId']);
+			SELF::Validate($request, ['amount', 'merchantOrderId', 'signature']);
 			$signature = md5(
 					$this->init->getMID() .
 					(float) $request->amount .
 					$request->merchantOrderId .
 					$this->init->getSecret()
 				);
-			if (strcmp($signature, ($request->signature ?? '')) === 0) {
-				/*
-				$result = [
-						'response' => [
-								'status' => '000',
-								'message' => 'Success',
-								'data' => (array) $request,
-							],
+			if (strcmp($signature, $request->signature) === 0) {
+				$content = [
+						'status' => '000',
+						'data' => (array) $request,
 					];
-				*/
 				$result = [
+						'request' => (array) $request,
 						'response' => [
-								'content' => json_encode($request),
+								'content' => json_encode($content),
 								'status_code' => 200,
 							],
 					];
 			} else {
-				throw new \Exception(__FUNCTION__ . " signature check failed", 1);
+				throw new \Exception('Signature check failed');
 			}
 		} catch (\Throwable $e) {
-			throw new \Exception(__FUNCTION__ . ' failed', 1);
+			throw new \Exception($this->ThrowError($e));
 		}
 		return $result ?? [];
 	}
@@ -228,6 +247,9 @@ class Duitku extends Requestor implements VendorInterface
 					'Content-Type' => 'application/json',
 					'Content-Length' => strlen(json_encode($this->request['data'])),
 				];
+			$this->request['option'] = [
+					'to_json' => false,
+				];
 			$post = $this->DoRequest('POST', $this->request);
 			$response = (array) $post['response'];
 			extract($response);
@@ -248,38 +270,25 @@ class Duitku extends Requestor implements VendorInterface
 						"statusMessage": "SUCCESS"
 					}
 					*/
-					/*
-					$data = [
+					$content = [
 							'status' => '000',
-							'data' => [
-									'response_code' => $content->statusCode,
-									'response_message' => $content->statusMessage,
-									//
-									'order_id' => $content->merchantOrderId,
-									'merchant_id' => $this->init->getMID(),
-									'reference_id' => $content->reference,
-									'amount' => (float) $content->amount,
-									'fee' => (float) $content->fee,
-									'_content' => $content,
-								],
+							'data' => (array) $content,
 						];
-					*/
 					$result = [
+							'request' => (array) $request,
 							'response' => [
-									// 'content' => json_encode($data),
 									'content' => json_encode($content),
 									'status_code' => 200,
-									'headers' => $headers,
 								],
 						];
 				} else {
-					throw new \Exception($content->statusMessage, 1);
+					throw new \Exception($content->statusMessage);
 				}
 			} else {
-				throw new \Exception($content, 1);
+				throw new \Exception($content);
 			}
 		} catch (\Throwable $e) {
-			throw new \Exception(__FUNCTION__ . ' failed', 1);
+			throw new \Exception($this->ThrowError($e));
 		}
 		return $result ?? [];
 	}

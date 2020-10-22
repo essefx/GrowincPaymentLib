@@ -21,10 +21,10 @@ try {
 	$result = $vendor->SecurePayment($transaction); // return payment URL
 	// $result = $vendor->RedirectPayment($transaction); // redirect to vendor URL
 	extract($result);
-	print_r($response);
+	print_r($result);
 	//
-	print_r($vendor->getRequest());
-	print_r($vendor->getResponse()); // Get  PSR7 object
+	// print_r($vendor->getRequest());
+	// print_r($vendor->getResponse()); // Get  PSR7 object
 } catch (\Throwable $e) {
-	echo 'Payment failed: ' . $e->getCode();
+	echo 'Payment failed: ' . $e->getMessage() . ':' . $e->getCode();
 }

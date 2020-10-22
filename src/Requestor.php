@@ -55,13 +55,14 @@ class	Requestor
 					$this->request['url'],
 					$this->request['data'],
 					($this->request['headers'] ?? []),
+					($this->request['option'] ?? []),
 				);
 			$result = [
 					'request' => [
 							'time' => $this->request['time'],
 							'url' => $this->request['url'],
 							'data' => $this->request['data'],
-							'headers' => ($this->request['headers'] ?? []),
+							'headers' => $this->request['headers'],
 						],
 					'response' => [
 							'content' => $this->response->getBody()->getContents(),
@@ -70,7 +71,7 @@ class	Requestor
 						],
 				];
 		} catch (\Throwable $e) {
-			throw new \Exception($this->ShowError($e), 1);
+			throw new \Exception($this->ThrowError($e));
 		}
 		return $result;
 	}

@@ -4,6 +4,7 @@ namespace Growinc\Payment\HttpClient;
 
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\RequestException;
+
 use Growinc\Payment\Exceptions\ApiException;
 
 class GuzzleHttpClient
@@ -24,12 +25,11 @@ class GuzzleHttpClient
 
 	//
 
-	private static function _HandleError($response)
+	private static function _HandleAPIError($e)
 	{
-		$content = $response['content'];
-		$status_code = $response['status_code'];
-		$message = $content['message'] ?? $content;
-		$error_code = $content['error_code'] ?? '0';
+		$message = trim($e->getMessage());
+		$status_code = (int) $e->getResponse()->getStatusCode();
+		$error_code = $e->getCode();
 		throw new ApiException($message, $status_code, $error_code);
 	}
 
@@ -43,14 +43,14 @@ class GuzzleHttpClient
 		return SELF::$_guzzle_instance;
 	}
 
-	public function sendRequest(string $method, string $url, $data, array $headers)
+	public function sendRequest(string $method, string $url, $data, array $headers = [], array $option = [])
 	{
 		try {
 			$response = $this->_guzzle_http->request((string) $method, (string) $url, [
 					'headers' => [(array) $headers],
 					(strtoupper($method) === 'GET' ? 'query' : 'form_params') => (array) $data,
 				]);
-			if (isset($data['option']['json']) && $data['option']['json'] == '1') {
+			if (isset($option['to_json']) && !empty($option['to_json'])) {
 				$response = [
 						'content' => $response->getBody()->getContents(),
 						'status_code' => (int) $response->getStatusCode(),
@@ -61,14 +61,7 @@ class GuzzleHttpClient
 			}
 		} catch (RequestException $e) {
 			if ($e->hasResponse()) {
-				$response = [
-						'content' => $e->getResponse()->getBody()->getContents(),
-						'status_code' => (int) $e->getResponse()->getStatusCode(),
-						'headers' => $e->getResponse()->getHeaders(),
-					];
-			}
-			if (!isset($skip_error)) {
-				SELF::_HandleError($response);
+				SELF::_HandleAPIError($e);
 			}
 		}
 		return $response;
