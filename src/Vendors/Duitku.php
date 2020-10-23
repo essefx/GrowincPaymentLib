@@ -34,6 +34,7 @@ class Duitku extends Requestor implements VendorInterface
 	{
 		try {
 			$this->transaction = $transaction;
+			//
 			$this->form['order_id'] = $this->transaction->getOrderID();
 			$this->form['invoice_no'] = $this->transaction->getInvoiceNo();
 			$this->form['amount'] = $this->transaction->getAmount();

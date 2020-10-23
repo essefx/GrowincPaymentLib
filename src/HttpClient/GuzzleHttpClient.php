@@ -3,6 +3,7 @@
 namespace Growinc\Payment\HttpClient;
 
 use GuzzleHttp\Client as GuzzleClient;
+use GuzzleHttp\TransferStats;
 use GuzzleHttp\Exception\RequestException;
 
 use Growinc\Payment\Exceptions\ApiException;
@@ -12,6 +13,8 @@ class GuzzleHttpClient
 
 	protected $_guzzle_http;
 	private static $_guzzle_instance;
+	//
+	protected $effective_uri;
 
 	public function __construct($args)
 	{
@@ -49,6 +52,9 @@ class GuzzleHttpClient
 			$response = $this->_guzzle_http->request((string) $method, (string) $url, [
 					'headers' => [(array) $headers],
 					(strtoupper($method) === 'GET' ? 'query' : 'form_params') => (array) $data,
+					'on_stats' => function(TransferStats $stats) {
+							$this->effective_uri = $stats->getEffectiveUri();
+						}
 				]);
 			if (isset($option['to_json']) && !empty($option['to_json'])) {
 				$response = [
@@ -56,6 +62,8 @@ class GuzzleHttpClient
 						'status_code' => (int) $response->getStatusCode(),
 						'headers' => $response->getHeaders(),
 					];
+			} elseif (isset($option['to_uri']) && !empty($option['to_uri'])) {
+				$response = (string) strval($this->effective_uri);
 			} else {
 				// Default is return as PSR7 response
 			}

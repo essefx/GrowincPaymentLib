@@ -57,19 +57,23 @@ class	Requestor
 					($this->request['headers'] ?? []),
 					($this->request['option'] ?? []),
 				);
-			$result = [
-					'request' => [
-							'time' => $this->request['time'],
-							'url' => $this->request['url'],
-							'data' => $this->request['data'],
-							'headers' => $this->request['headers'],
-						],
-					'response' => [
-							'content' => $this->response->getBody()->getContents(),
-							'status_code' => (int) $this->response->getStatusCode(),
-							'headers' => $this->response->getHeaders(),
-						],
-				];
+			if (is_object($this->response)) {
+				$result = [
+						'request' => [
+								'time' => $this->request['time'],
+								'url' => $this->request['url'],
+								'data' => $this->request['data'],
+								'headers' => $this->request['headers'],
+							],
+						'response' => [
+								'content' => $this->response->getBody()->getContents(),
+								'status_code' => (int) $this->response->getStatusCode(),
+								'headers' => $this->response->getHeaders(),
+							],
+					];
+			} elseif (is_string($this->response)) {
+				$result = $this->response;
+			}
 		} catch (\Throwable $e) {
 			throw new \Exception($this->ThrowError($e));
 		}
