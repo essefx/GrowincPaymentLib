@@ -14,6 +14,7 @@ class	Init
 	protected $request_url;
 	protected $callback_url;
 	protected $return_url;
+	protected $token_url;
 
 	public function __construct($mid, $secret = '')
 	{
@@ -94,5 +95,14 @@ class	Init
 	{
 		return $this->return_url;
 	}
+	// token cc
+	public function setTokenUrl(string $token_url): void
+	{
+		$this->token_url = $token_url;
+	}
 
+	public function getTokenUrl(): ?string
+	{
+		return $this->token_url;
+	}
 }

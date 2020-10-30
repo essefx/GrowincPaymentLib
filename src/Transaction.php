@@ -21,7 +21,16 @@ class	Transaction
 	//
 	protected $payment_method;
 	protected $expire_at;
-
+	//
+	protected $payment_type;
+	protected $item;
+	protected $customer_userid;
+	// cc
+	protected $cc_card_number;
+	protected $cc_card_exp_month;
+	protected $cc_card_exp_year;
+	protected $cc_card_cvv;
+	
 	public function __construct()
 	{
 		$this->time = time();
@@ -167,4 +176,68 @@ class	Transaction
 	{
 		return $this->expire_at;
 	}
+	
+	public function setPaymentType($payment_type): void
+	{
+		$this->payment_type = $payment_type;
+	}
+
+	public function getPaymentType(): ?string
+	{
+		return $this->payment_type;
+	}
+	
+	public function setItem(&$item_detail): void
+	{
+		$this->item = $item_detail;
+	}
+	
+	public function getItem(): ?array
+	{
+		return $this->item;
+	}
+	// bca_klikbca
+	public function setCustomerUserid(string $customer_userid): void
+	{
+		$this->customer_userid = $customer_userid;
+	}
+
+	public function getCustomerUserid(): ?string
+	{
+		return $this->customer_userid;
+	}
+	// credit card start
+	public function setCardNumber(string $cc_card_number): void
+	{
+		$this->cc_card_number = $cc_card_number;
+	}
+	public function getCardNumber(): ?string
+	{
+		return $this->cc_card_number;
+	}
+	public function setCardExpMonth(int $cc_card_exp_month): void
+	{
+		$this->cc_card_exp_month = $cc_card_exp_month;
+	}
+	public function getCardExpMonth(): ?int
+	{
+		return $this->cc_card_exp_month;
+	}
+	public function setCardExpYear(int $cc_card_exp_year): void
+	{
+		$this->cc_card_exp_year = $cc_card_exp_year;
+	}
+	public function gettCardExpYear(): ?int
+	{
+		return $this->cc_card_exp_year;
+	}
+	public function setCardExpCvv(int $cc_card_cvv): void
+	{
+		$this->cc_card_cvv = $cc_card_cvv;
+	}
+	public function getCardExpCvv(): ?int
+	{
+		return $this->cc_card_cvv;
+	}
+	// credit card end
 }
