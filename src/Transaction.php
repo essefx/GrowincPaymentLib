@@ -12,6 +12,7 @@ class	Transaction
 	protected $amount;
 	protected $description;
 	protected $currency;
+	protected $currency_code;
 	//
 	protected $customer_name;
 	protected $customer_email;
@@ -25,12 +26,12 @@ class	Transaction
 	protected $payment_type;
 	protected $item;
 	protected $customer_userid;
-	// cc
+	// CC
 	protected $cc_card_number;
 	protected $cc_card_exp_month;
 	protected $cc_card_exp_year;
 	protected $cc_card_cvv;
-	
+
 	public function __construct()
 	{
 		$this->time = time();
@@ -101,6 +102,16 @@ class	Transaction
 	public function getCurrency(): ?string
 	{
 		return $this->currency;
+	}
+
+	public function setCurrencyCode(string $currency_code): void
+	{
+		$this->currency_code = $currency_code;
+	}
+
+	public function getCurrencyCode(): ?string
+	{
+		return $this->currency_code;
 	}
 
 	//
@@ -176,7 +187,9 @@ class	Transaction
 	{
 		return $this->expire_at;
 	}
-	
+
+	//
+
 	public function setPaymentType($payment_type): void
 	{
 		$this->payment_type = $payment_type;
@@ -186,17 +199,19 @@ class	Transaction
 	{
 		return $this->payment_type;
 	}
-	
+
 	public function setItem(&$item_detail): void
 	{
 		$this->item = $item_detail;
 	}
-	
+
 	public function getItem(): ?array
 	{
 		return $this->item;
 	}
+
 	// bca_klikbca
+
 	public function setCustomerUserid(string $customer_userid): void
 	{
 		$this->customer_userid = $customer_userid;
@@ -206,7 +221,9 @@ class	Transaction
 	{
 		return $this->customer_userid;
 	}
+
 	// credit card start
+
 	public function setCardNumber(string $cc_card_number): void
 	{
 		$this->cc_card_number = $cc_card_number;
@@ -239,5 +256,4 @@ class	Transaction
 	{
 		return $this->cc_card_cvv;
 	}
-	// credit card end
 }

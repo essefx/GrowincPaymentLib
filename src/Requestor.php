@@ -63,7 +63,8 @@ class	Requestor
 								'time' => $this->request['time'],
 								'url' => $this->request['url'],
 								'data' => $this->request['data'],
-								'headers' => $this->request['headers'],
+								'data_raw' => $this->request['data_raw'] ?? [],
+								'headers' => $this->request['headers'] ?? [],
 							],
 						'response' => [
 								'content' => $this->response->getBody()->getContents(),

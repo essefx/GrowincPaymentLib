@@ -49,18 +49,17 @@ class GuzzleHttpClient
 	public function sendRequest(string $method, string $url, $data, array $headers = [], array $option = [])
 	{
 		try {
-			if(strtoupper($method) === 'GET') {
+			if (strtoupper($method) === 'GET') {
 				$type = 'query';
 			} else {
 				$type = 'form_params';
-				if(isset($option['request_opt']) && !empty($option['request_opt'])){
+				if (isset($option['request_opt']) && !empty($option['request_opt'])){
 					$type = $option['request_opt'];
 				}
 			}
-			
 			$response = $this->_guzzle_http->request((string) $method, (string) $url, [
-					'headers' => (array) $headers, 
-					$type => (array) $data,
+					'headers' => (array) $headers,
+					$type => $data,
 					'on_stats' => function(TransferStats $stats) {
 							$this->effective_uri = $stats->getEffectiveUri();
 						}
@@ -83,5 +82,5 @@ class GuzzleHttpClient
 		}
 		return $response;
 	}
-	
+
 }
