@@ -283,7 +283,18 @@ class Duitku extends Requestor implements VendorInterface
 								],
 						];
 				} else {
-					throw new \Exception($content->statusMessage);
+					// throw new \Exception($content->statusMessage);
+					$content = [
+							'status' => str_pad($content->statusCode, 3, '0', STR_PAD_LEFT),
+							'data' => (array) $content,
+						];
+					$result = [
+							'request' => (array) $request,
+							'response' => [
+									'content' => json_encode($content),
+									'status_code' => 200,
+								],
+						];
 				}
 			} else {
 				throw new \Exception($content);
