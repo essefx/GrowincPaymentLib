@@ -37,7 +37,7 @@ class	Requestor
 		return (object) $this->request;
 	}
 
-	public function getResponse(): ?object // PSR7 object
+	public function getResponse(): ?object // PSR7 stream object
 	{
 		return $this->response;
 	}
@@ -47,38 +47,40 @@ class	Requestor
 	public function DoRequest(string $method, $request)
 	{
 		try {
-			$this->request = $request;
-			$this->response = SELF::_GetClient([
+			$response = SELF::_GetClient([
 					'base_uri' => $this->init->getBaseURI(),
 				])->sendRequest(
 					$method,
-					$this->request['url'],
-					$this->request['data'],
-					($this->request['headers'] ?? []),
-					($this->request['option'] ?? []),
+					$request['url'],
+					$request['data'],
+					$request['headers'] ?? [],
+					$request['option'] ?? [],
 				);
-			if (is_object($this->response)) {
-				$result = [
+			if (is_object($response)) {
+				$return = [
 						'request' => [
-								'time' => $this->request['time'],
-								'url' => $this->request['url'],
-								'data' => $this->request['data'],
-								'data_raw' => $this->request['data_raw'] ?? [],
-								'headers' => $this->request['headers'] ?? [],
+								'time' => $request['time'],
+								'url' => $request['url'],
+								'data' => $request['data'],
+								'data_raw' => $request['data_raw'] ?? [],
+								'headers' => $request['headers'] ?? [],
 							],
 						'response' => [
-								'content' => $this->response->getBody()->getContents(),
-								'status_code' => (int) $this->response->getStatusCode(),
-								'headers' => $this->response->getHeaders(),
+								'content' => $response->getBody()->getContents(),
+								'status_code' => (int) $response->getStatusCode(),
+								'headers' => $response->getHeaders(),
 							],
 					];
-			} elseif (is_string($this->response)) {
-				$result = $this->response;
+			} elseif (is_string($response)) {
+				$return = $response;
 			}
 		} catch (\Throwable $e) {
 			throw new \Exception($this->ThrowError($e));
 		}
-		return $result;
+		$response->getBody()->rewind();
+		$this->request = $request;
+		$this->response = $response;
+		return $return;
 	}
 
 }

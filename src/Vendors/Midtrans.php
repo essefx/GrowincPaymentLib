@@ -279,7 +279,7 @@ class Midtrans extends Requestor implements VendorInterface
 			];
 
 			$this->request['option'] = [
-				'request_opt' => 'json'
+				'as_json' => true,
 			];
 			$post = $this->DoRequest('POST', $this->request);
 

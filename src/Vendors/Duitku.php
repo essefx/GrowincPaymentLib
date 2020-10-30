@@ -129,9 +129,12 @@ class Duitku extends Requestor implements VendorInterface
 					'signature' => $this->form['signature'],
 					'expiryPeriod' => $this->form['expiry_period'],
 				];
-			$this->request['headers'] = [
+			$this->request['headers'] = [[
 					'Content-Type' => 'application/json',
 					'Content-Length' => strlen(json_encode($this->request['data'])),
+				]];
+			$this->request['option'] = [
+					'to_json' => true,
 				];
 			$post = $this->DoRequest('POST', $this->request);
 			$response = (array) $post['response'];
@@ -153,27 +156,34 @@ class Duitku extends Requestor implements VendorInterface
 						"statusMessage": "SUCCESS"
 					}
 					*/
-					$content = [
+					$res = [
 							'status' => '000',
 							'data' => (array) $content,
 						];
-					$result = [
-							'request' => (array) $this->request,
-							'response' => [
-									'content' => json_encode($content),
-									'status_code' => 200,
-								],
-						];
 				} else {
-					throw new \Exception($content->statusMessage);
+					// throw new \Exception($content->statusMessage);
+					// Other status
+					/*
+					*/
+					$res = [
+							'status' => str_pad($content->statusCode, 3, '0', STR_PAD_LEFT),
+							'data' => (array) $content,
+						];
 				}
+				$return = [
+						'request' => (array) $this->request,
+						'response' => [
+								'content' => json_encode($res),
+								'status_code' => 200,
+							],
+					];
 			} else {
 				throw new \Exception($content);
 			}
 		} catch (\Throwable $e) {
 			throw new \Exception($this->ThrowError($e));
 		}
-		return $result ?? [];
+		return $return ?? [];
 	}
 
 	public function Callback(object $request)
@@ -202,14 +212,14 @@ class Duitku extends Requestor implements VendorInterface
 					$this->init->getSecret()
 				);
 			if (strcmp($signature, $request->signature) === 0) {
-				$content = [
+				$res = [
 						'status' => '000',
 						'data' => (array) $request,
 					];
-				$result = [
+				$return = [
 						'request' => (array) $request,
 						'response' => [
-								'content' => json_encode($content),
+								'content' => json_encode($res),
 								'status_code' => 200,
 							],
 					];
@@ -219,7 +229,7 @@ class Duitku extends Requestor implements VendorInterface
 		} catch (\Throwable $e) {
 			throw new \Exception($this->ThrowError($e));
 		}
-		return $result ?? [];
+		return $return ?? [];
 	}
 
 	public function CallbackAlt(object $request)
@@ -271,38 +281,42 @@ class Duitku extends Requestor implements VendorInterface
 						"statusMessage": "SUCCESS"
 					}
 					*/
-					$content = [
+					$res = [
 							'status' => '000',
 							'data' => (array) $content,
 						];
-					$result = [
-							'request' => (array) $request,
-							'response' => [
-									'content' => json_encode($content),
-									'status_code' => 200,
-								],
-						];
 				} else {
 					// throw new \Exception($content->statusMessage);
-					$content = [
+					// Other status
+					/*
+					{
+						"merchantOrderId": "2010301604055355913",
+						"reference": "D7129VXO1GMATZCJJXMX",
+						"amount": "19405",
+						"fee": "4000.00",
+						"statusCode": "01",
+						"statusMessage": "PROCESS"
+					}
+					*/
+					$res = [
 							'status' => str_pad($content->statusCode, 3, '0', STR_PAD_LEFT),
 							'data' => (array) $content,
 						];
-					$result = [
-							'request' => (array) $request,
-							'response' => [
-									'content' => json_encode($content),
-									'status_code' => 200,
-								],
-						];
 				}
+				$return = [
+						'request' => (array) $this->request,
+						'response' => [
+								'content' => json_encode($res),
+								'status_code' => 200,
+							],
+					];
 			} else {
 				throw new \Exception($content);
 			}
 		} catch (\Throwable $e) {
 			throw new \Exception($this->ThrowError($e));
 		}
-		return $result ?? [];
+		return $return ?? [];
 	}
 
 	public function Cancel(object $request)
