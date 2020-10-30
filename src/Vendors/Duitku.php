@@ -244,10 +244,10 @@ class Duitku extends Requestor implements VendorInterface
 					'merchantOrderId' => $request->order_id,
 					'signature' => $signature,
 				];
-			$this->request['headers'] = [
+			$this->request['headers'] = [[
 					'Content-Type' => 'application/json',
 					'Content-Length' => strlen(json_encode($this->request['data'])),
-				];
+				]];
 			$this->request['option'] = [
 					'to_json' => false,
 				];

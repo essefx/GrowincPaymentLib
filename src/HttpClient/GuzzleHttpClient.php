@@ -53,12 +53,14 @@ class GuzzleHttpClient
 				$type = 'query';
 			} else {
 				$type = 'form_params';
-				if (isset($option['request_opt']) && !empty($option['request_opt'])){
+				if (isset($option['request_opt']) && !empty($option['request_opt'])) {
 					$type = $option['request_opt'];
 				}
 			}
 			$response = $this->_guzzle_http->request((string) $method, (string) $url, [
-					'headers' => (array) $headers,
+					// 'headers' => (array) $headers,
+					'headers' => $headers,
+					// $type => (array) $data,
 					$type => $data,
 					'on_stats' => function(TransferStats $stats) {
 							$this->effective_uri = $stats->getEffectiveUri();

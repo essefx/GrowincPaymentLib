@@ -473,8 +473,8 @@ class TCTP extends Requestor implements VendorInterface
 			$data = [
 					'payload' => JWT::encode($this->request['data_raw'], $this->init->getSecret(), 'HS256'),
 				];
-			$this->request['data'] = json_encode($data);
-			print_r($this->request);
+			$this->request['data'] = $data;
+			// print_r($this->request);
 			// print_r($data);
 			// print_r(json_encode($data));
 			// $decode_data = JWT::decode($data, $this->init->getSecret(), array('HS256'));
