@@ -1,17 +1,15 @@
 <?php
-
 namespace GuzzleHttp;
 
 use GuzzleHttp\Exception\InvalidArgumentException;
-use GuzzleHttp\Handler\CurlHandler;
-use GuzzleHttp\Handler\CurlMultiHandler;
-use GuzzleHttp\Handler\Proxy;
-use GuzzleHttp\Handler\StreamHandler;
 use Psr\Http\Message\UriInterface;
+use Symfony\Polyfill\Intl\Idn\Idn;
 
 final class Utils
 {
     /**
+<<<<<<< Updated upstream
+=======
      * Debug function used to describe the provided value type and class.
      *
      * @param mixed $input
@@ -49,9 +47,7 @@ final class Utils
 
         foreach ($lines as $line) {
             $parts = \explode(':', $line, 2);
-            $headers[\trim($parts[0])][] = isset($parts[1])
-                ? \trim($parts[1])
-                : null;
+            $headers[\trim($parts[0])][] = isset($parts[1]) ? \trim($parts[1]) : null;
         }
 
         return $headers;
@@ -106,8 +102,7 @@ final class Utils
                 ? Proxy::wrapStreaming($handler, new StreamHandler())
                 : new StreamHandler();
         } elseif (!$handler) {
-            throw new \RuntimeException('GuzzleHttp requires cURL, the '
-                . 'allow_url_fopen ini setting, or a custom HTTP handler.');
+            throw new \RuntimeException('GuzzleHttp requires cURL, the allow_url_fopen ini setting, or a custom HTTP handler.');
         }
 
         return $handler;
@@ -280,9 +275,7 @@ EOT
     {
         $data = \json_decode($json, $assoc, $depth, $options);
         if (\JSON_ERROR_NONE !== \json_last_error()) {
-            throw new InvalidArgumentException(
-                'json_decode error: ' . \json_last_error_msg()
-            );
+            throw new InvalidArgumentException('json_decode error: ' . \json_last_error_msg());
         }
 
         return $data;
@@ -303,9 +296,7 @@ EOT
     {
         $json = \json_encode($value, $options, $depth);
         if (\JSON_ERROR_NONE !== \json_last_error()) {
-            throw new InvalidArgumentException(
-                'json_encode error: ' . \json_last_error_msg()
-            );
+            throw new InvalidArgumentException('json_encode error: ' . \json_last_error_msg());
         }
 
         /** @var string */
@@ -313,31 +304,35 @@ EOT
     }
 
     /**
+>>>>>>> Stashed changes
      * Wrapper for the hrtime() or microtime() functions
      * (depending on the PHP version, one of the two is used)
      *
-     * @return float UNIX timestamp
+     * @return float|mixed UNIX timestamp
      *
      * @internal
      */
-    public static function currentTime(): float
+    public static function currentTime()
     {
-        return (float) \function_exists('hrtime') ? \hrtime(true) / 1e9 : \microtime(true);
+        return function_exists('hrtime') ? hrtime(true) / 1e9 : microtime(true);
     }
 
     /**
+     * @param int $options
+     *
+     * @return UriInterface
      * @throws InvalidArgumentException
      *
      * @internal
      */
-    public static function idnUriConvert(UriInterface $uri, int $options = 0): UriInterface
+    public static function idnUriConvert(UriInterface $uri, $options = 0)
     {
         if ($uri->getHost()) {
             $asciiHost = self::idnToAsci($uri->getHost(), $options, $info);
             if ($asciiHost === false) {
-                $errorBitSet = $info['errors'] ?? 0;
+                $errorBitSet = isset($info['errors']) ? $info['errors'] : 0;
 
-                $errorConstants = array_filter(array_keys(get_defined_constants()), static function ($name) {
+                $errorConstants = array_filter(array_keys(get_defined_constants()), function ($name) {
                     return substr($name, 0, 11) === 'IDNA_ERROR_';
                 });
 
@@ -354,10 +349,11 @@ EOT
                 }
 
                 throw new InvalidArgumentException($errorMessage);
-            }
-            if ($uri->getHost() !== $asciiHost) {
-                // Replace URI only if the ASCII version is different
-                $uri = $uri->withHost($asciiHost);
+            } else {
+                if ($uri->getHost() !== $asciiHost) {
+                    // Replace URI only if the ASCII version is different
+                    $uri = $uri->withHost($asciiHost);
+                }
             }
         }
 
@@ -365,30 +361,29 @@ EOT
     }
 
     /**
-     * @internal
-     */
-    public static function getenv(string $name): ?string
-    {
-        if (isset($_SERVER[$name])) {
-            return (string) $_SERVER[$name];
-        }
-
-        if (\PHP_SAPI === 'cli' && ($value = \getenv($name)) !== false && $value !== null) {
-            return (string) $value;
-        }
-
-        return null;
-    }
-
-    /**
+     * @param string $domain
+     * @param int    $options
+     * @param array  $info
+     *
      * @return string|false
      */
-    private static function idnToAsci(string $domain, int $options, ?array &$info = [])
+    private static function idnToAsci($domain, $options, &$info = [])
     {
-        if (\function_exists('idn_to_ascii') && \defined('INTL_IDNA_VARIANT_UTS46')) {
-            return \idn_to_ascii($domain, $options, \INTL_IDNA_VARIANT_UTS46, $info);
+        if (\preg_match('%^[ -~]+$%', $domain) === 1) {
+            return $domain;
         }
 
-        throw new \Error('ext-idn or symfony/polyfill-intl-idn not loaded or too old');
+        if (\extension_loaded('intl') && defined('INTL_IDNA_VARIANT_UTS46')) {
+            return \idn_to_ascii($domain, $options, INTL_IDNA_VARIANT_UTS46, $info);
+        }
+
+        /*
+         * The Idn class is marked as @internal. Verify that class and method exists.
+         */
+        if (method_exists(Idn::class, 'idn_to_ascii')) {
+            return Idn::idn_to_ascii($domain, $options, Idn::INTL_IDNA_VARIANT_UTS46, $info);
+        }
+
+        throw new \RuntimeException('ext-intl or symfony/polyfill-intl-idn not loaded or too old');
     }
 }

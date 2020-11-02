@@ -1,8 +1,13 @@
 <?php
-
 namespace GuzzleHttp\Exception;
 
+<<<<<<< Updated upstream
+use GuzzleHttp\Promise\PromiseInterface;
+=======
+use GuzzleHttp\BodySummarizer;
+use GuzzleHttp\BodySummarizerInterface;
 use Psr\Http\Client\RequestExceptionInterface;
+>>>>>>> Stashed changes
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
@@ -10,32 +15,28 @@ use Psr\Http\Message\UriInterface;
 /**
  * HTTP Request exception
  */
-class RequestException extends TransferException implements RequestExceptionInterface
+class RequestException extends TransferException
 {
-    /**
-     * @var RequestInterface
-     */
+    /** @var RequestInterface */
     private $request;
 
-    /**
-     * @var ResponseInterface|null
-     */
+    /** @var ResponseInterface|null */
     private $response;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $handlerContext;
 
     public function __construct(
-        string $message,
+        $message,
         RequestInterface $request,
         ResponseInterface $response = null,
-        \Throwable $previous = null,
+        \Exception $previous = null,
         array $handlerContext = []
     ) {
         // Set the code of the exception if the response is set and not future.
-        $code = $response ? $response->getStatusCode() : 0;
+        $code = $response && !($response instanceof PromiseInterface)
+            ? $response->getStatusCode()
+            : 0;
         parent::__construct($message, $code, $previous);
         $this->request = $request;
         $this->response = $response;
@@ -44,39 +45,59 @@ class RequestException extends TransferException implements RequestExceptionInte
 
     /**
      * Wrap non-RequestExceptions with a RequestException
+     *
+     * @param RequestInterface $request
+     * @param \Exception       $e
+     *
+     * @return RequestException
      */
-    public static function wrapException(RequestInterface $request, \Throwable $e): RequestException
+    public static function wrapException(RequestInterface $request, \Exception $e)
     {
-        return $e instanceof RequestException
-            ? $e
-            : new RequestException($e->getMessage(), $request, null, $e);
+        return $e instanceof RequestException ? $e : new RequestException($e->getMessage(), $request, null, $e);
     }
 
     /**
      * Factory method to create a new exception with a normalized error message
      *
+<<<<<<< Updated upstream
      * @param RequestInterface  $request  Request
      * @param ResponseInterface $response Response received
-     * @param \Throwable        $previous Previous exception
+     * @param \Exception        $previous Previous exception
      * @param array             $ctx      Optional handler context.
+     *
+     * @return self
+=======
+     * @param RequestInterface             $request        Request sent
+     * @param ResponseInterface            $response       Response received
+     * @param \Throwable|null              $previous       Previous exception
+     * @param array                        $handlerContext Optional handler context
+     * @param BodySummarizerInterface|null $bodySummarizer Optional body summarizer
+>>>>>>> Stashed changes
      */
     public static function create(
         RequestInterface $request,
         ResponseInterface $response = null,
-        \Throwable $previous = null,
+<<<<<<< Updated upstream
+        \Exception $previous = null,
         array $ctx = []
+    ) {
+=======
+        \Throwable $previous = null,
+        array $handlerContext = [],
+        BodySummarizerInterface $bodySummarizer = null
     ): self {
+>>>>>>> Stashed changes
         if (!$response) {
             return new self(
                 'Error completing request',
                 $request,
                 null,
                 $previous,
-                $ctx
+                $handlerContext
             );
         }
 
-        $level = (int) \floor($response->getStatusCode() / 100);
+        $level = (int) floor($response->getStatusCode() / 100);
         if ($level === 4) {
             $label = 'Client error';
             $className = ClientException::class;
@@ -93,7 +114,7 @@ class RequestException extends TransferException implements RequestExceptionInte
 
         // Client Error: `GET /` resulted in a `404 Not Found` response:
         // <html> ... (truncated)
-        $message = \sprintf(
+        $message = sprintf(
             '%s: `%s %s` resulted in a `%s %s` response',
             $label,
             $request->getMethod(),
@@ -102,24 +123,46 @@ class RequestException extends TransferException implements RequestExceptionInte
             $response->getReasonPhrase()
         );
 
-        $summary = \GuzzleHttp\Psr7\get_message_body_summary($response);
+<<<<<<< Updated upstream
+        $summary = static::getResponseBodySummary($response);
+=======
+        $summary = ($bodySummarizer ?? new BodySummarizer())->summarize($response);
+>>>>>>> Stashed changes
 
         if ($summary !== null) {
             $message .= ":\n{$summary}\n";
         }
 
-        return new $className($message, $request, $response, $previous, $ctx);
+        return new $className($message, $request, $response, $previous, $handlerContext);
+    }
+
+    /**
+     * Get a short summary of the response
+     *
+     * Will return `null` if the response is not printable.
+     *
+     * @param ResponseInterface $response
+     *
+     * @return string|null
+     */
+    public static function getResponseBodySummary(ResponseInterface $response)
+    {
+        return \GuzzleHttp\Psr7\get_message_body_summary($response);
     }
 
     /**
      * Obfuscates URI if there is a username and a password present
+     *
+     * @param UriInterface $uri
+     *
+     * @return UriInterface
      */
-    private static function obfuscateUri(UriInterface $uri): UriInterface
+    private static function obfuscateUri(UriInterface $uri)
     {
         $userInfo = $uri->getUserInfo();
 
-        if (false !== ($pos = \strpos($userInfo, ':'))) {
-            return $uri->withUserInfo(\substr($userInfo, 0, $pos), '***');
+        if (false !== ($pos = strpos($userInfo, ':'))) {
+            return $uri->withUserInfo(substr($userInfo, 0, $pos), '***');
         }
 
         return $uri;
@@ -127,24 +170,30 @@ class RequestException extends TransferException implements RequestExceptionInte
 
     /**
      * Get the request that caused the exception
+     *
+     * @return RequestInterface
      */
-    public function getRequest(): RequestInterface
+    public function getRequest()
     {
         return $this->request;
     }
 
     /**
      * Get the associated response
+     *
+     * @return ResponseInterface|null
      */
-    public function getResponse(): ?ResponseInterface
+    public function getResponse()
     {
         return $this->response;
     }
 
     /**
      * Check if a response was received
+     *
+     * @return bool
      */
-    public function hasResponse(): bool
+    public function hasResponse()
     {
         return $this->response !== null;
     }
@@ -156,8 +205,10 @@ class RequestException extends TransferException implements RequestExceptionInte
      * using. It may also be just an empty array. Relying on this data will
      * couple you to a specific handler, but can give more debug information
      * when needed.
+     *
+     * @return array
      */
-    public function getHandlerContext(): array
+    public function getHandlerContext()
     {
         return $this->handlerContext;
     }
