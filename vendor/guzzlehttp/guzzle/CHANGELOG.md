@@ -3,8 +3,30 @@
 ## 6.5.5 - 2020-06-16
 
 * Unpin version constraint for `symfony/polyfill-intl-idn` [#2678](https://github.com/guzzle/guzzle/pull/2678)
+## 7.2.0 - 2020-10-10
 
 ## 6.5.4 - 2020-05-25
+### Added
+
+- Support for PHP 8 [#2712](https://github.com/guzzle/guzzle/pull/2712), [#2715](https://github.com/guzzle/guzzle/pull/2715), [#2789](https://github.com/guzzle/guzzle/pull/2789)
+- Support passing a body summarizer to the http errors middleware [#2795](https://github.com/guzzle/guzzle/pull/2795)
+
+### Fixed
+
+- Handle exceptions during response creation [#2591](https://github.com/guzzle/guzzle/pull/2591)
+- Fix CURLOPT_ENCODING not to be overwritten [#2595](https://github.com/guzzle/guzzle/pull/2595)
+- Make sure the Request always has a body object [#2804](https://github.com/guzzle/guzzle/pull/2804)
+
+### Changed
+
+- The `TooManyRedirectsException` has a response [#2660](https://github.com/guzzle/guzzle/pull/2660)
+- Avoid "functions" from dependencies [#2712](https://github.com/guzzle/guzzle/pull/2712)
+
+### Deprecated
+
+- Using environment variable GUZZLE_CURL_SELECT_TIMEOUT [#2786](https://github.com/guzzle/guzzle/pull/2786)
+
+## 7.1.1 - 2020-09-30
 
 * Fix various intl icu issues [#2626](https://github.com/guzzle/guzzle/pull/2626)
 

@@ -119,8 +119,6 @@ final class TransferStats
      */
     public function getHandlerStat($stat)
     {
-        return isset($this->handlerStats[$stat])
-            ? $this->handlerStats[$stat]
-            : null;
+        return isset($this->handlerStats[$stat]) ? $this->handlerStats[$stat] : null;
     }
 }

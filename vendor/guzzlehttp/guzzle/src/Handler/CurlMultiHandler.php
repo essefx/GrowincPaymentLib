@@ -13,13 +13,26 @@ use Psr\Http\Message\RequestInterface;
  * associative array of curl option constants mapping to values in the
  * **curl** key of the provided request options.
  *
+<<<<<<< Updated upstream
  * @property resource $_mh Internal use only. Lazy loaded multi-handle.
+=======
+ * @property resource|\CurlMultiHandle $_mh Internal use only. Lazy loaded multi-handle.
+ *
+ * @final
+>>>>>>> Stashed changes
  */
 class CurlMultiHandler
 {
     /** @var CurlFactoryInterface */
     private $factory;
     private $selectTimeout;
+<<<<<<< Updated upstream
+=======
+
+    /**
+     * @var resource|\CurlMultiHandle|null the currently executing resource in `curl_multi_exec`.
+     */
+>>>>>>> Stashed changes
     private $active;
     private $handles = [];
     private $delays = [];
@@ -43,8 +56,14 @@ class CurlMultiHandler
 
         if (isset($options['select_timeout'])) {
             $this->selectTimeout = $options['select_timeout'];
+<<<<<<< Updated upstream
         } elseif ($selectTimeout = getenv('GUZZLE_CURL_SELECT_TIMEOUT')) {
             $this->selectTimeout = $selectTimeout;
+=======
+        } elseif ($selectTimeout = Utils::getenv('GUZZLE_CURL_SELECT_TIMEOUT')) {
+            @trigger_error('Since guzzlehttp/guzzle 7.2.0: Using environment variable GUZZLE_CURL_SELECT_TIMEOUT is deprecated. Use option "select_timeout" instead.', \E_USER_DEPRECATED);
+            $this->selectTimeout = (int) $selectTimeout;
+>>>>>>> Stashed changes
         } else {
             $this->selectTimeout = 1;
         }
@@ -52,6 +71,17 @@ class CurlMultiHandler
         $this->options = isset($options['options']) ? $options['options'] : [];
     }
 
+<<<<<<< Updated upstream
+=======
+    /**
+     * @param string $name
+     *
+     * @return resource|\CurlMultiHandle
+     *
+     * @throws \BadMethodCallException when another field as `_mh` will be gotten
+     * @throws \RuntimeException       when curl can not initialize a multi handle
+     */
+>>>>>>> Stashed changes
     public function __get($name)
     {
         if ($name === '_mh') {
@@ -115,11 +145,15 @@ class CurlMultiHandler
         }
 
         // Step through the task queue which may add additional requests.
-        P\queue()->run();
+        P\Utils::queue()->run();
 
+<<<<<<< Updated upstream
         if ($this->active &&
             curl_multi_select($this->_mh, $this->selectTimeout) === -1
         ) {
+=======
+        if ($this->active && \curl_multi_select($this->_mh, $this->selectTimeout) === -1) {
+>>>>>>> Stashed changes
             // Perform a usleep if a select returns -1.
             // See: https://bugs.php.net/bug.php?id=61141
             usleep(250);
@@ -135,7 +169,7 @@ class CurlMultiHandler
      */
     public function execute()
     {
-        $queue = P\queue();
+        $queue = P\Utils::queue();
 
         while ($this->handles || !$queue->isEmpty()) {
             // If there are no transfers, then sleep for the next delay
@@ -195,11 +229,7 @@ class CurlMultiHandler
             unset($this->handles[$id], $this->delays[$id]);
             $entry['easy']->errno = $done['result'];
             $entry['deferred']->resolve(
-                CurlFactory::finish(
-                    $this,
-                    $entry['easy'],
-                    $this->factory
-                )
+                CurlFactory::finish($this, $entry['easy'], $this->factory)
             );
         }
     }
