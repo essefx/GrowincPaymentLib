@@ -2,242 +2,352 @@
 
 namespace Growinc\Payment;
 
-class	Transaction
+class Transaction
 {
 
-	protected $time;
-	//
-	protected $order_id;
-	protected $invoice_no;
-	protected $amount;
-	protected $description;
-	protected $currency;
-	//
-	protected $customer_name;
-	protected $customer_email;
-	protected $customer_phone;
-	protected $customer_address;
-	protected $country_code;
-	//
-	protected $payment_method;
-	protected $expire_at;
-	//
-	protected $payment_type;
-	protected $item;
-	protected $customer_userid;
-	// cc
-	protected $cc_card_number;
-	protected $cc_card_exp_month;
-	protected $cc_card_exp_year;
-	protected $cc_card_cvv;
-	
-	public function __construct()
-	{
-		$this->time = time();
-		$this->order_id = '00' . substr($this->time, 2, strlen($this->time));
-		$this->invoice_no = 'INV' . substr($this->time, 2, strlen($this->time));
-		$this->description = 'Payment for ' . $this->invoice_no;
-		$this->currency = 'IDR';
-		$this->expire_at = 100;
-	}
+    protected $time;
+    //
+    protected $order_id;
+    protected $invoice_no;
+    protected $amount;
+    protected $description;
+    protected $currency;
+    //
+    protected $customer_name;
+    protected $customer_email;
+    protected $customer_phone;
+    protected $customer_address;
+    protected $country_code;
+    //
+    protected $payment_method;
+    protected $expire_at;
+    //
+    protected $payment_type;
+    protected $item;
+    protected $customer_userid;
+    // cc
+    protected $cc_card_number;
+    protected $cc_card_exp_month;
+    protected $cc_card_exp_year;
+    protected $cc_card_cvv;
+    //
+    protected $ruuid;
+    protected $member_id;
+    protected $password;
+    protected $signature;
+    protected $key;
+    protected $comm_code;
+    protected $bank_code;
+    protected $Y_N;
+    protected $exp_va;
+    protected $signature_key;
+    protected $mode;
+    protected $is_paymen_notif;
 
-	public function setTime(string $time): void
-	{
-		$this->time = $time;
-	}
+    public function __construct()
+    {
+        $this->time = time();
+        $this->order_id = '00' . substr($this->time, 2, strlen($this->time));
+        $this->invoice_no = 'INV' . substr($this->time, 2, strlen($this->time));
+        $this->description = 'Payment for ' . $this->invoice_no;
+        $this->currency = 'IDR';
+        $this->expire_at = 100;
+    }
 
-	public function getTime(): ?string
-	{
-		return $this->time;
-	}
+    public function setTime(string $time): void
+    {
+        $this->time = $time;
+    }
 
-	//
+    public function getTime(): ?string
+    {
+        return $this->time;
+    }
 
-	public function setOrderID(string $order_id): void
-	{
-		$this->order_id = $order_id;
-	}
+    //
 
-	public function getOrderID(): ?string
-	{
-		return $this->order_id;
-	}
+    public function setOrderID(string $order_id): void
+    {
+        $this->order_id = $order_id;
+    }
 
-	public function setInvoiceNo(string $invoice_no): void
-	{
-		$this->invoice_no = $invoice_no;
-	}
+    public function getOrderID(): ?string
+    {
+        return $this->order_id;
+    }
 
-	public function getInvoiceNo(): ?string
-	{
-		return $this->invoice_no;
-	}
+    public function setInvoiceNo(string $invoice_no): void
+    {
+        $this->invoice_no = $invoice_no;
+    }
 
-	public function setAmount(int $amount): void
-	{
-		$this->amount = $amount;
-	}
+    public function getInvoiceNo(): ?string
+    {
+        return $this->invoice_no;
+    }
 
-	public function getAmount(): ?int
-	{
-		return $this->amount;
-	}
+    public function setAmount(int $amount): void
+    {
+        $this->amount = $amount;
+    }
 
-	public function setDescription(string $description): void
-	{
-		$this->description = $description;
-	}
+    public function getAmount(): ?int
+    {
+        return $this->amount;
+    }
 
-	public function getDescription(): ?string
-	{
-		return $this->description;
-	}
+    public function setDescription(string $description): void
+    {
+        $this->description = $description;
+    }
 
-	public function setCurrency(string $currency): void
-	{
-		$this->currency = $currency;
-	}
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
 
-	public function getCurrency(): ?string
-	{
-		return $this->currency;
-	}
+    public function setCurrency(string $currency): void
+    {
+        $this->currency = $currency;
+    }
 
-	//
+    public function getCurrency(): ?string
+    {
+        return $this->currency;
+    }
 
-	public function setCustomerName(string $customer_name): void
-	{
-		$this->customer_name = $customer_name;
-	}
+    //
 
-	public function getCustomerName(): ?string
-	{
-		return $this->customer_name;
-	}
+    public function setCustomerName(string $customer_name): void
+    {
+        $this->customer_name = $customer_name;
+    }
 
-	public function setCustomerEmail(string $customer_email): void
-	{
-		$this->customer_email = $customer_email;
-	}
+    public function getCustomerName(): ?string
+    {
+        return $this->customer_name;
+    }
 
-	public function getCustomerEmail(): ?string
-	{
-		return $this->customer_email;
-	}
+    public function setCustomerEmail(string $customer_email): void
+    {
+        $this->customer_email = $customer_email;
+    }
 
-	public function setCustomerPhone($customer_phone): void
-	{
-		$this->customer_phone = $customer_phone;
-	}
+    public function getCustomerEmail(): ?string
+    {
+        return $this->customer_email;
+    }
 
-	public function getCustomerPhone(): ?string
-	{
-		return $this->customer_phone;
-	}
+    public function setCustomerPhone($customer_phone): void
+    {
+        $this->customer_phone = $customer_phone;
+    }
 
-	public function setCustomerAddress($customer_address): void
-	{
-		$this->customer_address = $customer_address;
-	}
+    public function getCustomerPhone(): ?string
+    {
+        return $this->customer_phone;
+    }
 
-	public function getCustomerAddress(): ?string
-	{
-		return $this->customer_address;
-	}
+    public function setCustomerAddress($customer_address): void
+    {
+        $this->customer_address = $customer_address;
+    }
 
-	public function setCountrycode($country_code): void
-	{
-		$this->country_code = $country_code;
-	}
+    public function getCustomerAddress(): ?string
+    {
+        return $this->customer_address;
+    }
 
-	public function getCountryCode(): ?string
-	{
-		return $this->country_code;
-	}
+    public function setCountrycode($country_code): void
+    {
+        $this->country_code = $country_code;
+    }
 
-	//
+    public function getCountryCode(): ?string
+    {
+        return $this->country_code;
+    }
 
-	public function setPaymentMethod($payment_method): void
-	{
-		$this->payment_method = $payment_method;
-	}
+    //
 
-	public function getPaymentMethod(): ?string
-	{
-		return $this->payment_method;
-	}
+    public function setPaymentMethod($payment_method): void
+    {
+        $this->payment_method = $payment_method;
+    }
 
-	public function setExpireAt($expire_at): void
-	{
-		$this->expire_at = $expire_at;
-	}
+    public function getPaymentMethod(): ?string
+    {
+        return $this->payment_method;
+    }
 
-	public function getExpireAt(): ?string
-	{
-		return $this->expire_at;
-	}
-	
-	public function setPaymentType($payment_type): void
-	{
-		$this->payment_type = $payment_type;
-	}
+    public function setExpireAt($expire_at): void
+    {
+        $this->expire_at = $expire_at;
+    }
 
-	public function getPaymentType(): ?string
-	{
-		return $this->payment_type;
-	}
-	
-	public function setItem(&$item_detail): void
-	{
-		$this->item = $item_detail;
-	}
-	
-	public function getItem(): ?array
-	{
-		return $this->item;
-	}
-	// bca_klikbca
-	public function setCustomerUserid(string $customer_userid): void
-	{
-		$this->customer_userid = $customer_userid;
-	}
+    public function getExpireAt(): ?string
+    {
+        return $this->expire_at;
+    }
 
-	public function getCustomerUserid(): ?string
-	{
-		return $this->customer_userid;
-	}
-	// credit card start
-	public function setCardNumber(string $cc_card_number): void
-	{
-		$this->cc_card_number = $cc_card_number;
-	}
-	public function getCardNumber(): ?string
-	{
-		return $this->cc_card_number;
-	}
-	public function setCardExpMonth(int $cc_card_exp_month): void
-	{
-		$this->cc_card_exp_month = $cc_card_exp_month;
-	}
-	public function getCardExpMonth(): ?int
-	{
-		return $this->cc_card_exp_month;
-	}
-	public function setCardExpYear(int $cc_card_exp_year): void
-	{
-		$this->cc_card_exp_year = $cc_card_exp_year;
-	}
-	public function gettCardExpYear(): ?int
-	{
-		return $this->cc_card_exp_year;
-	}
-	public function setCardExpCvv(int $cc_card_cvv): void
-	{
-		$this->cc_card_cvv = $cc_card_cvv;
-	}
-	public function getCardExpCvv(): ?int
-	{
-		return $this->cc_card_cvv;
-	}
-	// credit card end
+    public function setPaymentType($payment_type): void
+    {
+        $this->payment_type = $payment_type;
+    }
+
+    public function getPaymentType(): ?string
+    {
+        return $this->payment_type;
+    }
+
+    public function setItem(&$item_detail): void
+    {
+        $this->item = $item_detail;
+    }
+
+    public function getItem(): ?array
+    {
+        return $this->item;
+    }
+    // bca_klikbca
+    public function setCustomerUserid(string $customer_userid): void
+    {
+        $this->customer_userid = $customer_userid;
+    }
+
+    public function getCustomerUserid(): ?string
+    {
+        return $this->customer_userid;
+    }
+    // credit card start
+    public function setCardNumber(string $cc_card_number): void
+    {
+        $this->cc_card_number = $cc_card_number;
+    }
+    public function getCardNumber(): ?string
+    {
+        return $this->cc_card_number;
+    }
+    public function setCardExpMonth(int $cc_card_exp_month): void
+    {
+        $this->cc_card_exp_month = $cc_card_exp_month;
+    }
+    public function getCardExpMonth(): ?int
+    {
+        return $this->cc_card_exp_month;
+    }
+    public function setCardExpYear(int $cc_card_exp_year): void
+    {
+        $this->cc_card_exp_year = $cc_card_exp_year;
+    }
+    public function gettCardExpYear(): ?int
+    {
+        return $this->cc_card_exp_year;
+    }
+    public function setCardExpCvv(int $cc_card_cvv): void
+    {
+        $this->cc_card_cvv = $cc_card_cvv;
+    }
+    public function getCardExpCvv(): ?int
+    {
+        return $this->cc_card_cvv;
+    }
+    public function setRuuid(string $ruuid): void
+    {
+        $this->ruuid = $ruuid;
+    }
+    public function getRuuid(): ?string
+    {
+        return $this->ruuid;
+    }
+    public function setMemberid(string $member_id): void
+    {
+        $this->member_id = $member_id;
+    }
+    public function getMemberid(): ?string
+    {
+        return $this->member_id;
+    }
+    public function setCommcode(string $comm_code): void
+    {
+        $this->comm_code = $comm_code;
+    }
+    public function getCommcode(): ?string
+    {
+        return $this->comm_code;
+    }
+    public function setPassword(string $password): void
+    {
+        $this->password = $password;
+    }
+    public function getPassword(): ?string
+    {
+        return $this->password;
+    }
+    public function setSignature(string $signature): void
+    {
+        $this->signature = $signature;
+    }
+    public function getSignature(): ?string
+    {
+        return $this->signature;
+    }
+    public function setKey(string $key): void
+    {
+        $this->key = $key;
+    }
+    public function getKey(): ?string
+    {
+        return $this->key;
+    }
+    public function setBankCode(string $bank_code): void
+    {
+        $this->bank_code = $bank_code;
+    }
+    public function getBankCode(): ?string
+    {
+        return $this->bank_code;
+    }
+    public function setUpdateOrderId(string $Y_N): void
+    {
+        $this->Y_N = $Y_N;
+    }
+    public function getUpdateOrderId(): ?string
+    {
+        return $this->Y_N;
+    }
+    public function setVaExp(string $exp_va): void
+    {
+        $this->exp_va = $exp_va;
+    }
+    public function getVaExp(): ?string
+    {
+        return $this->exp_va;
+    }
+    public function setSignatureKey(string $signature_key): void
+    {
+        $this->signature_key = $signature_key;
+    }
+    public function getSignatureKey(): ?string
+    {
+        return $this->signature_key;
+    }
+    public function setMode(string $mode): void
+    {
+        $this->mode = $mode;
+    }
+    public function getMode(): ?string
+    {
+        return $this->mode;
+    }
+    public function setIsPaymentNotif(string $is_paymen_notif): void
+    {
+        $this->is_paymen_notif = $is_paymen_notif;
+    }
+    public function getIsPaymentNotif(): ?string
+    {
+        return $this->is_paymen_notif;
+    }
+
+    // credit card end
 }

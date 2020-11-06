@@ -60,7 +60,7 @@ class Midtrans extends Requestor implements VendorInterface
 	public function SecurePayment(\Growinc\Payment\Transaction $transaction)
 	{
 		try{
-			
+
 			$this->transaction = $transaction;
 			//
 			$this->form['order_id'] = $this->transaction->getOrderID();
@@ -103,17 +103,17 @@ class Midtrans extends Requestor implements VendorInterface
 					'billing_address' => $this->form['billing_address'],
 					'shipping_address' => $this->form['shipping_address'],
 				];
-				
+
 			$this->form['item_details'] = $this->transaction->getItem();
 			// for bca_klikbca
 			$this->form['customer_userid'] = $this->transaction->getCustomerUserid();
-			
-			/*	
+
+			/*
 				bank transfer
 					bank_transfer -> va -> permata, bni, bca, bri
 					echannel (mandiri)
 				internet banking (redirect url)
-					bca_klikpay 
+					bca_klikpay
 					bca_klikbca (not activated)
 					bri_epay (not activated)
 					cimb_clicks
@@ -134,10 +134,10 @@ class Midtrans extends Requestor implements VendorInterface
 			$this->form['payment_type'] = $this->transaction->getPaymentType();
 			$this->form['payment_url'] = $this->init->getPaymentURL() . '/v2/charge';
 			$this->form['expiry_period'] = $this->transaction->getExpireAt(); // minutes
-			
+
 			// go
-			
-			
+
+
 			// credit_card token
 			if($this->form['payment_type'] == 'credit_card'){
 				// credit card details
@@ -150,16 +150,17 @@ class Midtrans extends Requestor implements VendorInterface
 					'card_exp_year' => $this->transaction->gettCardExpYear(),
 					'card_cvv' => $this->transaction->getCardExpCvv()
 				];
-				
+
 				$getToken = $this->GetToken($this->form['customer_credit_card']);
 				$this->form['cc_token'] = $getToken;
 			}
-			
+
 			$this->request['form'] = $this->form;
 			$this->request['time'] = $this->transaction->getTime();
 			$this->request['url'] = $this->form['payment_url'];
-			
+
 			// amount
+			$amountTotal = 0;
 			foreach($this->form['item_details'] as $price){
 				$amountTotal += (int) $price['price'] * (int) $price['quantity'] ;
 			}
@@ -180,8 +181,8 @@ class Midtrans extends Requestor implements VendorInterface
 				],
 				'item_details' => $this->form['item_details']
 			];
-			
-			
+
+
 			// echannel mandiri
 			if($this->form['payment_type'] == 'echannel'){
 				// unset($this->request['data']['echannel']);
@@ -260,7 +261,7 @@ class Midtrans extends Requestor implements VendorInterface
 					];
 				}
 			}
-			
+
 			// credit_card
 			if($this->form['payment_type'] == 'credit_card'){
 				$this->request['data']['credit_card'] = [
@@ -269,19 +270,19 @@ class Midtrans extends Requestor implements VendorInterface
 				];
 				$this->request['data']['customer_details'] = $this->form['customer_details'];
 			}
-			
+
 			$this->request['headers'] = [
 				'Content-Type' => 'application/json',
 				'Accept' => 'application/json',
 				'Authorization' => 'Basic '.base64_encode($this->init->getMID().':'),
 				'Content-Length' => strlen(json_encode($this->request['data'])),
 			];
-			
+
 			$this->request['option'] = [
-				'request_opt' => 'json'
+				'as_json' => true,
 			];
 			$post = $this->DoRequest('POST', $this->request);
-			
+
 			$response = (array) $post['response'];
 			extract($response);
 			if (!empty($status_code) && $status_code === 200) {
@@ -306,12 +307,12 @@ class Midtrans extends Requestor implements VendorInterface
 						"merchant_id": "G345053042"
 					}
 					*/
-					
+
 					$content = [
 							'status' => '000',
 							'data' => (array) $content,
 						];
-					
+
 					$result = [
 							'request' => (array) $this->request,
 							'response' => [
@@ -325,7 +326,7 @@ class Midtrans extends Requestor implements VendorInterface
 			} else {
 				throw new \Exception($content);
 			}
-			
+
 		} catch (\Throwable $e) {
 			throw new \Exception($this->ThrowError($e));
 		}
@@ -354,9 +355,9 @@ class Midtrans extends Requestor implements VendorInterface
 			SELF::Validate($request, ['order_id', 'status_code', 'gross_amount']);
 			$input = $request->order_id.$request->status_code.$request->gross_amount.$this->init->getMID();
 			$signature = openssl_digest($input, 'sha512');
-			
+
 			// print_r($signature);exit();
-			
+
 			if (strcmp($signature, $request->signature_key) === 0) {
 				$content = [
 						'status' => '000',
@@ -390,15 +391,15 @@ class Midtrans extends Requestor implements VendorInterface
 			// Go
 			$this->request['time'] = time();
 			$this->request['url'] = $this->init->getRequestURL() . $request->order_id . '/status';
-			
+
 			$this->request['headers'] = [
 				'Content-Type' => 'application/json',
 				'Accept' => 'application/json',
 				'Authorization' => 'Basic '.base64_encode($this->init->getMID().':'),
 			];
-			
+
 			$get = $this->DoRequest('GET', $this->request);
-			
+
 			$response = (array) $get['response'];
 			extract($response);
 			if (!empty($status_code) && $status_code === 200) {

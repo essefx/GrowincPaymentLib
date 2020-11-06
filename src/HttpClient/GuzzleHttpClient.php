@@ -49,39 +49,52 @@ class GuzzleHttpClient
 	public function sendRequest(string $method, string $url, $data, array $headers = [], array $option = [])
 	{
 		try {
-			if(strtoupper($method) === 'GET') {
-				$type = 'query';
-			} else {
-				$type = 'form_params';
-				if(isset($option['request_opt']) && !empty($option['request_opt'])){
-					$type = $option['request_opt'];
-				}
+			switch (strtoupper(trim($method))) {
+				case 'GET':
+					$type = 'query';
+					break;
+				case 'POST':
+					$type = 'form_params';
+					break;
 			}
-			
-			$response = $this->_guzzle_http->request((string) $method, (string) $url, [
-					'headers' => (array) $headers, 
-					$type => (array) $data,
+			// Overide
+			if (isset($option['as_json']) && !empty($option['as_json'])) {
+				$type = 'json';
+			}
+			// Request options
+			$option = [
+					'headers' => $headers,
+					$type => $data,
+				];
+			$on_stat = [
 					'on_stats' => function(TransferStats $stats) {
 							$this->effective_uri = $stats->getEffectiveUri();
-						}
-				]);
+						},
+				];
+			$response = $this->_guzzle_http->request(
+					(string) $method,
+					(string) $url,
+					array_merge($option, $on_stat)
+				);
 			if (isset($option['to_json']) && !empty($option['to_json'])) {
-				$response = [
+				$return = [
 						'content' => $response->getBody()->getContents(),
 						'status_code' => (int) $response->getStatusCode(),
 						'headers' => $response->getHeaders(),
 					];
+				$response->getBody()->rewind();
 			} elseif (isset($option['to_uri']) && !empty($option['to_uri'])) {
-				$response = (string) strval($this->effective_uri);
+				$return = (string) strval($this->effective_uri);
 			} else {
 				// Default is return as PSR7 response
+				$return = $response;
 			}
 		} catch (RequestException $e) {
 			if ($e->hasResponse()) {
 				SELF::_HandleAPIError($e);
 			}
 		}
-		return $response;
+		return $return;
 	}
-	
+
 }

@@ -1,0 +1,41 @@
+{
+    "rq_uuid": "ad00bcad-5c7e-48f4-8101-6f38e3cef61a",
+    "rq_datetime": "2020-11-06 14:07:15",
+    "sender_id": "SGOPLUS",
+    "receiver_id": "SGWGROWINC",
+    "password": "Y0F,(5EM=#",
+    "comm_code": "SGWGROWINC",
+    "member_code": "",
+    "order_id": "21315",
+    "signature": "458ca3ab659d33f8b606263b1ff1ccb6c7e4e405a3d3b4744b956aa995d5a2fd"
+}{
+    "rq_uuid": "96c57188-23a4-4b0e-8408-c4ffd224198b",
+    "rq_datetime": "2020-11-06 14:21:05",
+    "sender_id": "SGOPLUS",
+    "receiver_id": "SGWGROWINC",
+    "password": "Y0F,(5EM=#",
+    "comm_code": "SGWGROWINC",
+    "member_code": "",
+    "order_id": "21315",
+    "signature": "66d5c107a2fef193e54722996775c4199760bf00af1745b72bee3d878281a7bb"
+}{
+    "rq_uuid": "0347c07e-af64-4365-a6a5-b354db33f90f",
+    "rq_datetime": "2020-11-06 15:09:18",
+    "sender_id": "SGOPLUS",
+    "receiver_id": "SGWGROWINC",
+    "password": "Y0F,(5EM=#",
+    "comm_code": "SGWGROWINC",
+    "member_code": "",
+    "order_id": "21315",
+    "signature": "8e0bb375705906b8c9d199123a86343fc42a619c0e285073918ee2086304fb8d"
+}{
+    "rq_uuid": "41f394f6-293e-456b-90e7-15394f5ce0e3",
+    "rq_datetime": "2020-11-06 15:12:22",
+    "sender_id": "SGOPLUS",
+    "receiver_id": "SGWGROWINC",
+    "password": "Y0F,(5EM=#",
+    "comm_code": "SGWGROWINC",
+    "member_code": "",
+    "order_id": "21315",
+    "signature": "7705c519d825dd058cc60864c0dacdbef190e9d2a625bc601429197476c81a99"
+}
