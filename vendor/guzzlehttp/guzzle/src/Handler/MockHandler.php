@@ -3,7 +3,6 @@ namespace GuzzleHttp\Handler;
 
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Promise as P;
 use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Promise\RejectedPromise;
 use GuzzleHttp\TransferStats;
@@ -31,16 +30,11 @@ class MockHandler implements \Countable
      *
      * @return HandlerStack
      */
-<<<<<<< Updated upstream
     public static function createWithMiddleware(
         array $queue = null,
         callable $onFulfilled = null,
         callable $onRejected = null
     ) {
-=======
-    public static function createWithMiddleware(array $queue = null, callable $onFulfilled = null, callable $onRejected = null): HandlerStack
-    {
->>>>>>> Stashed changes
         return HandlerStack::create(new self($queue, $onFulfilled, $onRejected));
     }
 
@@ -53,8 +47,11 @@ class MockHandler implements \Countable
      * @param callable $onFulfilled Callback to invoke when the return value is fulfilled.
      * @param callable $onRejected  Callback to invoke when the return value is rejected.
      */
-    public function __construct(array $queue = null, callable $onFulfilled = null, callable $onRejected = null)
-    {
+    public function __construct(
+        array $queue = null,
+        callable $onFulfilled = null,
+        callable $onRejected = null
+    ) {
         $this->onFulfilled = $onFulfilled;
         $this->onRejected = $onRejected;
 
@@ -93,15 +90,9 @@ class MockHandler implements \Countable
             $response = call_user_func($response, $request, $options);
         }
 
-<<<<<<< Updated upstream
         $response = $response instanceof \Exception
             ? \GuzzleHttp\Promise\rejection_for($response)
             : \GuzzleHttp\Promise\promise_for($response);
-=======
-        $response = $response instanceof \Throwable
-            ? P\Create::rejectionFor($response)
-            : P\Create::promiseFor($response);
->>>>>>> Stashed changes
 
         return $response->then(
             function ($value) use ($request, $options) {
@@ -129,7 +120,7 @@ class MockHandler implements \Countable
                 if ($this->onRejected) {
                     call_user_func($this->onRejected, $reason);
                 }
-                return P\Create::rejectionFor($reason);
+                return \GuzzleHttp\Promise\rejection_for($reason);
             }
         );
     }

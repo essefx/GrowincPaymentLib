@@ -3,7 +3,6 @@ namespace GuzzleHttp\Handler;
 
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Promise as P;
 use GuzzleHttp\Promise\FulfilledPromise;
 use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Psr7;
@@ -69,7 +68,7 @@ class StreamHandler
             $e = RequestException::wrapException($request, $e);
             $this->invokeStats($options, $request, $startTime, null, $e);
 
-            return P\Create::rejectionFor($e);
+            return \GuzzleHttp\Promise\rejection_for($e);
         }
     }
 
@@ -81,7 +80,6 @@ class StreamHandler
         $error = null
     ) {
         if (isset($options['on_stats'])) {
-<<<<<<< Updated upstream
             $stats = new TransferStats(
                 $request,
                 $response,
@@ -108,27 +106,6 @@ class StreamHandler
         $headers = \GuzzleHttp\headers_from_lines($hdrs);
         list($stream, $headers) = $this->checkDecode($options, $headers, $stream);
         $stream = Psr7\stream_for($stream);
-=======
-            $stats = new TransferStats($request, $response, Utils::currentTime() - $startTime, $error, []);
-            ($options['on_stats'])($stats);
-        }
-    }
-
-    /**
-     * @param resource $stream
-     */
-    private function createResponse(RequestInterface $request, array $options, $stream, ?float $startTime): PromiseInterface
-    {
-        $hdrs = $this->lastHeaders;
-        $this->lastHeaders = [];
-        $parts = \explode(' ', \array_shift($hdrs), 3);
-        $ver = \explode('/', $parts[0])[1];
-        $status = (int) $parts[1];
-        $reason = $parts[2] ?? null;
-        $headers = Utils::headersFromLines($hdrs);
-        [$stream, $headers] = $this->checkDecode($options, $headers, $stream);
-        $stream = Psr7\Utils::streamFor($stream);
->>>>>>> Stashed changes
         $sink = $stream;
 
         if (strcasecmp('HEAD', $request->getMethod())) {
@@ -143,14 +120,18 @@ class StreamHandler
             } catch (\Exception $e) {
                 $msg = 'An error was encountered during the on_headers event';
                 $ex = new RequestException($msg, $request, $response, $e);
-                return P\Create::rejectionFor($ex);
+                return \GuzzleHttp\Promise\rejection_for($ex);
             }
         }
 
         // Do not drain when the request is a HEAD request because they have
         // no body.
         if ($sink !== $stream) {
-            $this->drain($stream, $sink, $response->getHeaderLine('Content-Length'));
+            $this->drain(
+                $stream,
+                $sink,
+                $response->getHeaderLine('Content-Length')
+            );
         }
 
         $this->invokeStats($options, $request, $startTime, $response, null);
@@ -164,7 +145,6 @@ class StreamHandler
             return $stream;
         }
 
-<<<<<<< Updated upstream
         $sink = isset($options['sink'])
             ? $options['sink']
             : fopen('php://temp', 'r+');
@@ -172,11 +152,6 @@ class StreamHandler
         return is_string($sink)
             ? new Psr7\LazyOpenStream($sink, 'w+')
             : Psr7\stream_for($sink);
-=======
-        $sink = $options['sink'] ?? \fopen('php://temp', 'r+');
-
-        return \is_string($sink) ? new Psr7\LazyOpenStream($sink, 'w+') : Psr7\Utils::streamFor($sink);
->>>>>>> Stashed changes
     }
 
     private function checkDecode(array $options, array $headers, $stream)
@@ -187,15 +162,18 @@ class StreamHandler
             if (isset($normalizedKeys['content-encoding'])) {
                 $encoding = $headers[$normalizedKeys['content-encoding']];
                 if ($encoding[0] === 'gzip' || $encoding[0] === 'deflate') {
-                    $stream = new Psr7\InflateStream(Psr7\Utils::streamFor($stream));
-                    $headers['x-encoded-content-encoding'] = $headers[$normalizedKeys['content-encoding']];
-
+                    $stream = new Psr7\InflateStream(
+                        Psr7\stream_for($stream)
+                    );
+                    $headers['x-encoded-content-encoding']
+                        = $headers[$normalizedKeys['content-encoding']];
                     // Remove content-encoding header
                     unset($headers[$normalizedKeys['content-encoding']]);
-
                     // Fix content-length header
                     if (isset($normalizedKeys['content-length'])) {
-                        $headers['x-encoded-content-length'] = $headers[$normalizedKeys['content-length']];
+                        $headers['x-encoded-content-length']
+                            = $headers[$normalizedKeys['content-length']];
+
                         $length = (int) $stream->getSize();
                         if ($length === 0) {
                             unset($headers[$normalizedKeys['content-length']]);
@@ -221,21 +199,16 @@ class StreamHandler
      * @return StreamInterface
      * @throws \RuntimeException when the sink option is invalid.
      */
-<<<<<<< Updated upstream
     private function drain(
         StreamInterface $source,
         StreamInterface $sink,
         $contentLength
     ) {
-=======
-    private function drain(StreamInterface $source, StreamInterface $sink, string $contentLength): StreamInterface
-    {
->>>>>>> Stashed changes
         // If a content-length header is provided, then stop reading once
         // that number of bytes has been read. This can prevent infinitely
         // reading from a stream when dealing with servers that do not honor
         // Connection: Close headers.
-        Psr7\Utils::copyToStream(
+        Psr7\copy_to_stream(
             $source,
             $sink,
             (strlen($contentLength) > 0 && (int) $contentLength > 0) ? (int) $contentLength : -1
@@ -323,14 +296,10 @@ class StreamHandler
             if (!is_array($options['stream_context'])) {
                 throw new \InvalidArgumentException('stream_context must be an array');
             }
-<<<<<<< Updated upstream
             $context = array_replace_recursive(
                 $context,
                 $options['stream_context']
             );
-=======
-            $context = \array_replace_recursive($context, $options['stream_context']);
->>>>>>> Stashed changes
         }
 
         // Microsoft NTLM authentication only supported with curl handler
@@ -355,13 +324,6 @@ class StreamHandler
                 $resource = fopen((string) $uri, 'r', null, $context);
                 $this->lastHeaders = $http_response_header;
 
-<<<<<<< Updated upstream
-=======
-                if (false === $resource) {
-                    throw new ConnectException(sprintf('Connection refused for URI %s', $uri), $request, null, $context);
-                }
-
->>>>>>> Stashed changes
                 if (isset($options['read_timeout'])) {
                     $readTimeout = $options['read_timeout'];
                     $sec = (int) $readTimeout;
@@ -380,7 +342,6 @@ class StreamHandler
 
         if (isset($options['force_ip_resolve']) && !filter_var($uri->getHost(), FILTER_VALIDATE_IP)) {
             if ('v4' === $options['force_ip_resolve']) {
-<<<<<<< Updated upstream
                 $records = dns_get_record($uri->getHost(), DNS_A);
                 if (!isset($records[0]['ip'])) {
                     throw new ConnectException(
@@ -402,18 +363,6 @@ class StreamHandler
                         ),
                         $request
                     );
-=======
-                $records = \dns_get_record($uri->getHost(), \DNS_A);
-                if (false === $records || !isset($records[0]['ip'])) {
-                    throw new ConnectException(\sprintf("Could not resolve IPv4 address for host '%s'", $uri->getHost()), $request);
-                }
-                return $uri->withHost($records[0]['ip']);
-            }
-            if ('v6' === $options['force_ip_resolve']) {
-                $records = \dns_get_record($uri->getHost(), \DNS_AAAA);
-                if (false === $records || !isset($records[0]['ipv6'])) {
-                    throw new ConnectException(\sprintf("Could not resolve IPv6 address for host '%s'", $uri->getHost()), $request);
->>>>>>> Stashed changes
                 }
                 $uri = $uri->withHost('[' . $records[0]['ipv6'] . ']');
             }
@@ -463,16 +412,12 @@ class StreamHandler
         } else {
             $scheme = $request->getUri()->getScheme();
             if (isset($value[$scheme])) {
-<<<<<<< Updated upstream
                 if (!isset($value['no'])
                     || !\GuzzleHttp\is_host_in_noproxy(
                         $request->getUri()->getHost(),
                         $value['no']
                     )
                 ) {
-=======
-                if (!isset($value['no']) || !Utils::isHostInNoProxy($request->getUri()->getHost(), $value['no'])) {
->>>>>>> Stashed changes
                     $options['http']['proxy'] = $value[$scheme];
                 }
             }
@@ -556,7 +501,8 @@ class StreamHandler
             STREAM_NOTIFY_COMPLETED     => 'COMPLETED',
             STREAM_NOTIFY_RESOLVE       => 'RESOLVE',
         ];
-        static $args = ['severity', 'message', 'message_code', 'bytes_transferred', 'bytes_max'];
+        static $args = ['severity', 'message', 'message_code',
+            'bytes_transferred', 'bytes_max'];
 
         $value = \GuzzleHttp\debug_resource($value);
         $ident = $request->getMethod() . ' ' . $request->getUri()->withFragment('');

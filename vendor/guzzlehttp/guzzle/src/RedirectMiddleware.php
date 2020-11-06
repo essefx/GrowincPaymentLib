@@ -80,24 +80,18 @@ class RedirectMiddleware
      *
      * @return ResponseInterface|PromiseInterface
      */
-<<<<<<< Updated upstream
     public function checkRedirect(
         RequestInterface $request,
         array $options,
         ResponseInterface $response
     ) {
         if (substr($response->getStatusCode(), 0, 1) != '3'
-=======
-    public function checkRedirect(RequestInterface $request, array $options, ResponseInterface $response)
-    {
-        if (\strpos((string) $response->getStatusCode(), '3') !== 0
->>>>>>> Stashed changes
             || !$response->hasHeader('Location')
         ) {
             return $response;
         }
 
-        $this->guardMax($request, $response, $options);
+        $this->guardMax($request, $options);
         $nextRequest = $this->modifyRequest($request, $options, $response);
 
         if (isset($options['allow_redirects']['on_redirect'])) {
@@ -153,11 +147,7 @@ class RedirectMiddleware
      *
      * @throws TooManyRedirectsException Too many redirects.
      */
-<<<<<<< Updated upstream
     private function guardMax(RequestInterface $request, array &$options)
-=======
-    private function guardMax(RequestInterface $request, ResponseInterface $response, array &$options): void
->>>>>>> Stashed changes
     {
         $current = isset($options['__redirect_count'])
             ? $options['__redirect_count']
@@ -166,11 +156,13 @@ class RedirectMiddleware
         $max = $options['allow_redirects']['max'];
 
         if ($options['__redirect_count'] > $max) {
-            throw new TooManyRedirectsException("Will not follow more than {$max} redirects", $request, $response);
+            throw new TooManyRedirectsException(
+                "Will not follow more than {$max} redirects",
+                $request
+            );
         }
     }
 
-<<<<<<< Updated upstream
     /**
      * @param RequestInterface  $request
      * @param array             $options
@@ -183,10 +175,6 @@ class RedirectMiddleware
         array $options,
         ResponseInterface $response
     ) {
-=======
-    public function modifyRequest(RequestInterface $request, array $options, ResponseInterface $response): RequestInterface
-    {
->>>>>>> Stashed changes
         // Request modifications to apply.
         $modify = [];
         $protocols = $options['allow_redirects']['protocols'];
@@ -209,7 +197,7 @@ class RedirectMiddleware
         }
 
         $modify['uri'] = $uri;
-        Psr7\Message::rewindBody($request);
+        Psr7\rewind_body($request);
 
         // Add the Referer header if it is told to do so and only
         // add the header if we are not redirecting from https to http.
@@ -227,7 +215,7 @@ class RedirectMiddleware
             $modify['remove_headers'][] = 'Authorization';
         }
 
-        return Psr7\Utils::modifyRequest($request, $modify);
+        return Psr7\modify_request($request, $modify);
     }
 
     /**
@@ -239,23 +227,17 @@ class RedirectMiddleware
      *
      * @return UriInterface
      */
-<<<<<<< Updated upstream
     private function redirectUri(
         RequestInterface $request,
         ResponseInterface $response,
         array $protocols
     ) {
-=======
-    private function redirectUri(RequestInterface $request, ResponseInterface $response, array $protocols): UriInterface
-    {
->>>>>>> Stashed changes
         $location = Psr7\UriResolver::resolve(
             $request->getUri(),
             new Psr7\Uri($response->getHeaderLine('Location'))
         );
 
         // Ensure that the redirect URI is allowed based on the protocols.
-<<<<<<< Updated upstream
         if (!in_array($location->getScheme(), $protocols)) {
             throw new BadResponseException(
                 sprintf(
@@ -266,10 +248,6 @@ class RedirectMiddleware
                 $request,
                 $response
             );
-=======
-        if (!\in_array($location->getScheme(), $protocols)) {
-            throw new BadResponseException(\sprintf('Redirect URI, %s, does not use one of the allowed redirect protocols: %s', $location, \implode(', ', $protocols)), $request, $response);
->>>>>>> Stashed changes
         }
 
         return $location;

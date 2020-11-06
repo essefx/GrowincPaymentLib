@@ -63,16 +63,11 @@ class MessageFormatter
      *
      * @return string
      */
-<<<<<<< Updated upstream
     public function format(
         RequestInterface $request,
         ResponseInterface $response = null,
         \Exception $error = null
     ) {
-=======
-    public function format(RequestInterface $request, ?ResponseInterface $response = null, ?\Throwable $error = null): string
-    {
->>>>>>> Stashed changes
         $cache = [];
 
         return preg_replace_callback(
@@ -85,10 +80,10 @@ class MessageFormatter
                 $result = '';
                 switch ($matches[1]) {
                     case 'request':
-                        $result = Psr7\Message::toString($request);
+                        $result = Psr7\str($request);
                         break;
                     case 'response':
-                        $result = $response ? Psr7\Message::toString($response) : '';
+                        $result = $response ? Psr7\str($response) : '';
                         break;
                     case 'req_headers':
                         $result = trim($request->getMethod()
