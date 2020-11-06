@@ -1,13 +1,7 @@
 <?php
 namespace GuzzleHttp\Exception;
 
-<<<<<<< Updated upstream
 use GuzzleHttp\Promise\PromiseInterface;
-=======
-use GuzzleHttp\BodySummarizer;
-use GuzzleHttp\BodySummarizerInterface;
-use Psr\Http\Client\RequestExceptionInterface;
->>>>>>> Stashed changes
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
@@ -53,47 +47,34 @@ class RequestException extends TransferException
      */
     public static function wrapException(RequestInterface $request, \Exception $e)
     {
-        return $e instanceof RequestException ? $e : new RequestException($e->getMessage(), $request, null, $e);
+        return $e instanceof RequestException
+            ? $e
+            : new RequestException($e->getMessage(), $request, null, $e);
     }
 
     /**
      * Factory method to create a new exception with a normalized error message
      *
-<<<<<<< Updated upstream
      * @param RequestInterface  $request  Request
      * @param ResponseInterface $response Response received
      * @param \Exception        $previous Previous exception
      * @param array             $ctx      Optional handler context.
      *
      * @return self
-=======
-     * @param RequestInterface             $request        Request sent
-     * @param ResponseInterface            $response       Response received
-     * @param \Throwable|null              $previous       Previous exception
-     * @param array                        $handlerContext Optional handler context
-     * @param BodySummarizerInterface|null $bodySummarizer Optional body summarizer
->>>>>>> Stashed changes
      */
     public static function create(
         RequestInterface $request,
         ResponseInterface $response = null,
-<<<<<<< Updated upstream
         \Exception $previous = null,
         array $ctx = []
     ) {
-=======
-        \Throwable $previous = null,
-        array $handlerContext = [],
-        BodySummarizerInterface $bodySummarizer = null
-    ): self {
->>>>>>> Stashed changes
         if (!$response) {
             return new self(
                 'Error completing request',
                 $request,
                 null,
                 $previous,
-                $handlerContext
+                $ctx
             );
         }
 
@@ -123,17 +104,13 @@ class RequestException extends TransferException
             $response->getReasonPhrase()
         );
 
-<<<<<<< Updated upstream
         $summary = static::getResponseBodySummary($response);
-=======
-        $summary = ($bodySummarizer ?? new BodySummarizer())->summarize($response);
->>>>>>> Stashed changes
 
         if ($summary !== null) {
             $message .= ":\n{$summary}\n";
         }
 
-        return new $className($message, $request, $response, $previous, $handlerContext);
+        return new $className($message, $request, $response, $previous, $ctx);
     }
 
     /**

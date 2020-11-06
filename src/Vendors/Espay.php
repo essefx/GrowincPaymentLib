@@ -17,21 +17,7 @@ class Espay extends Requestor implements VendorInterface
 
     public function GetToken($args)
     {
-        $this->request['headers'] = [
-            'Content-Type' => 'application/json',
-            'Accept' => 'application/json',
-            'Authorization' => "BASIC " . $args['token_url'],
-        ];
-        $this->request['url'] = $args['token_url'];
-        $this->request['data'] = [
-            'client_key' => $args['client_key'],
-            'card_number' => $args['card_number'],
-            'card_exp_month' => $args['card_exp_month'],
-            'card_exp_year' => $args['card_exp_year'],
-            'card_cvv' => $args['card_cvv'],
-        ];
-        $get = $this->DoRequest('GET', $this->request);
-
+        // Inapplicable
     }
 
     public function CreateDummyForm($args)
@@ -47,15 +33,22 @@ class Espay extends Requestor implements VendorInterface
     public function SecurePayment(\Growinc\Payment\Transaction $transaction)
     {
         try {
-
             $this->transaction = $transaction;
             //
-            $this->form['reques_Identifier'] = $this->transaction->getRuuid();
-            $this->form['time'] = $this->transaction->getTime();
+            $this->form['rq_uuid'] = $this->transaction->getRuuid();
+            $this->form['rq_datetime'] = $this->transaction->getTime();
+            $this->form['order_id'] = $this->transaction->getOrderID();
+            $this->form['amount'] = $this->transaction->getAmount();
+            $this->form['ccy'] = $this->transaction->getCurrency();
+            $this->form['comm_code'] = $this->transaction->getCommcode();
+            $this->form['remark1'] = $this->transaction->getCustomerPhone(); // optional
+            $this->form['remark2'] = $this->transaction->getCustomerName(); // optional
+            $this->form['remark3'] = $this->transaction->getCustomerEmail(); // optional
+            $this->form['update'] = $this->transaction->getUpdateOrderId(); // optional
+            $this->form['bank_code'] = $this->transaction->getBankCode();
+            $this->form['va_expired'] = $this->transaction->getVaExp();
+            $this->form['password'] = $this->transaction->getPassword();
             $this->form['signature'] = $this->transaction->getSignature();
-            $this->form['comunityCode'] = $this->transaction->getCommcode();
-            $this->form['description'] = $this->transaction->getDescription();
-            $this->form['currency'] = $this->transaction->getCurrency();
             //
             $this->form['customer_name'] = $this->transaction->getCustomerName();
             $this->form['customer_email'] = $this->transaction->getCustomerEmail();
@@ -92,7 +85,6 @@ class Espay extends Requestor implements VendorInterface
                 'shipping_address' => $this->form['shipping_address'],
             ];
 
-            $this->form['item_details'] = $this->transaction->getItem();
             // VC    Credit Card (Visa / Master)
             // BK    BCA KlikPay
             // M1    Mandiri Virtual Account
@@ -109,11 +101,7 @@ class Espay extends Requestor implements VendorInterface
             // AG    Bank Artha Graha
             // S1    Bank Sahabat Sampoerna
             $this->form['payment_method'] = $this->transaction->getPaymentMethod();
-            $this->form['payment_type'] = $this->transaction->getPaymentType();
-            $this->form['payment_url'] = $this->init->getPaymentURL() . '/v2/charge';
-            $this->form['expiry_period'] = $this->transaction->getExpireAt(); // minutes
-
-            $this->form['return_url'] = $this->init->getReturnURL();
+            $this->form['payment_url'] = $this->init->getPaymentURL();
             // go
             $this->request['form'] = $this->form;
             $this->request['time'] = $this->transaction->getTime();
@@ -123,49 +111,60 @@ class Espay extends Requestor implements VendorInterface
             //     $amountTotal += (int) $price['price'] * (int) $price['quantity'];
             // }
             $this->request['data'] = [
-                'rq_uuid' => $this->form['reques_Identifier'],
-                'rq_datetime' => $this->form['time'],
+                'rq_uuid' => $this->form['rq_uuid'],
+                'rq_datetime' => $this->form['rq_datetime'],
+                'order_id' => $this->form['order_id'],
+                'amount' => $this->form['amount'],
+                'ccy' => $this->form['ccy'],
+                'comm_code' => $this->form['comm_code'],
+                'remark1' => $this->form['remark1'] ?? '',
+                'remark2' => $this->form['remark2'] ?? '',
+                'remark3' => $this->form['remark3'] ?? '',
+                'update' => $this->form['update'] ?? '',
+                'bank_code' => $this->form['bank_code'],
+                'va_expired' => $this->form['va_expired'],
+                'password' => $this->form['password'],
                 'signature' => $this->form['signature'],
-                'comm_code' => $this->form['comunityCode'],
-                'ccy' => $this->form['currency'],
-                'invoices' => [
-                    $this->form['description'] => [
-                        'member_code' => $this->form['item_details'][0]['member_code'],
-                        'member_name' => $this->form['item_details'][0]['member_name'],
-                        'amount' => $this->form['item_details'][0]['amount'],
-                        'total_amount' => $this->form['item_details'][0]['total_amount'],
-                        'number_of_installment' => $this->form['item_details'][0]['jumlah_cicilan'],
-                        'installment_amount' => $this->form['item_details'][0]['amount_cicilan'],
-                        'balance_payment_amount' => $this->form['item_details'][0]['pelunasan_amount'],
-                        'description' => $this->form['item_details'][0]['description'],
-                        'billing_date' => $this->form['item_details'][0]['tanggal_penagihan'],
-                    ],
-                ],
             ];
 
             $this->request['headers'] = [
-                'Content-Type' => 'application/json',
+                'Content-Type' => 'application/x-www-form-urlencoded',
                 'Accept' => 'application/json',
-                'Authorization' => 'Basic ' . base64_encode($this->init->getMID() . ':'),
+                'Authorization' => 'Basic ' . base64_encode($this->init->getMID()),
                 'Content-Length' => strlen(json_encode($this->request['data'])),
             ];
 
             $this->request['option'] = [
                 'request_opt' => 'json',
             ];
+
             $post = $this->DoRequest('POST', $this->request);
 
             $response = (array) $post['response'];
 
             extract($response);
+
             if (!empty($status_code) && $status_code === 200) {
                 $content = (object) json_decode($content);
-                return print_r($content);
-                if (!empty($content->status_code)
-                    && $content->status_code == 201
+
+                if (!empty($content->error_code)
+                    && $content->error_code !== 0000
                 ) {
+                    // {
+                    //     "rq_uuid": "123ABC-DEF4565",
+                    //     "rs_datetime": "2020-11-06 10:01:20",
+                    //     "error_code": "0000",
+                    //     "error_message": "",
+                    //     "va_number": "1609583508570383",
+                    //     "expired": "2020-11-06 19:48:58",
+                    //     "description": "Order ID = 21315 Remark = IDR",
+                    //     "total_amount": "25815.00",
+                    //     "amount": "21315",
+                    //     "fee": "4500.00",
+                    //     "bank_code": "002"
+                    // }
                     $content = [
-                        'status' => '000',
+                        'status' => '0000',
                         'data' => (array) $content,
                     ];
 
@@ -176,8 +175,9 @@ class Espay extends Requestor implements VendorInterface
                             'status_code' => 200,
                         ],
                     ];
+
                 } else {
-                    throw new \Exception($content->status_message);
+                    throw new \Exception($content->error_message);
                 }
             } else {
                 throw new \Exception($content);
@@ -191,7 +191,7 @@ class Espay extends Requestor implements VendorInterface
 
     public function Callback(object $request)
     {
-        return ['fd' => 'wkwk'];
+        // Inapplicable
     }
 
     public function CallbackAlt(object $request)
@@ -202,63 +202,12 @@ class Espay extends Requestor implements VendorInterface
     public function Inquiry(object $request)
     {
         try {
-            SELF::Validate($request, ['order_id', 'rq_uuid', 'rq_datetime', 'member_id', 'comm_code', 'password', 'signature']);
+            SELF::Validate($request, ['rq_uuid', 'order_id', 'signature']);
             // Go
-            $this->request['time'] = time();
-            $this->request['url'] = $this->init->getRequestURL();
-            $this->request['data'] = [
-                'rq_uuid' => $request->rq_uuid,
-                'rq_datetime' => $request->rq_datetime,
-                'member_id' => $request->member_id,
-                'comm_code' => $request->comm_code,
-                'order_id' => $request->order_id,
-                'password' => $request->password,
-                'signature' => $request->signature,
-            ];
-            $this->request['headers'] = [
-                'Content-Type' => 'application/json',
-                'Content-Length' => strlen(json_encode($this->request['data'])),
-            ];
-            $this->request['option'] = [
-                'to_json' => false,
-            ];
-            $post = $this->DoRequest('POST', $this->request);
-            $response = (array) $post['response'];
-            extract($response);
-            if (!empty($status_code) && $status_code === 200) {
-                $content = (object) json_decode($content);
-                if (!empty($content->status_code)
-                    && $content->status_code == "201"
-                    && $content->order_id == $request->order_id
-                ) {
-                    // Success
-                    /*
-                    {
-                    "merchantOrderId": "0001297441",
-                    "reference": "D6677KW403DFH8VOFMRJ",
-                    "amount": "100000",
-                    "fee": "0.00",
-                    "statusCode": "00",
-                    "statusMessage": "SUCCESS"
-                    }
-                     */
-                    $content = [
-                        'status' => '000',
-                        'data' => (array) $content,
-                    ];
-                    $result = [
-                        'request' => (array) $request,
-                        'response' => [
-                            'content' => json_encode($content),
-                            'status_code' => 200,
-                        ],
-                    ];
-                } else {
-                    throw new \Exception($content->error_message);
-                }
-            } else {
-                throw new \Exception($content);
-            }
+            // validate in DB
+            $data = "0;Success;$request->rq_uuid;$request->order_id;20000.00;IDR;Paymen For Me;$request->rq_datetime";
+            $result = $data;
+
         } catch (\Throwable $e) {
             throw new \Exception($this->ThrowError($e));
         }
@@ -285,31 +234,146 @@ class Espay extends Requestor implements VendorInterface
         // Inapplicable
     }
 
-    public function VirtualAccount(object $argc)
+    public function StatusPayment(\Growinc\Payment\Transaction $transaction)
     {
-        $this->request['headers'] = [
-            'Content-Type' => 'application/json',
-            'Accept' => 'application/json',
-            'Authorization' => "BASIC " . $args['token_url'],
-        ];
-        $this->request['url'] = $args['token_url'];
-        $this->request['data'] = [
-            'rq_uuid' => $args['rq_uuid'],
-            'card_number' => $args['card_number'],
-            'rq_datetime' => $args['rq_datetime'],
-            'order_id' => $args['order_id'],
-            'ccy' => $args['ccy'],
-            'comm_code' => $args['comm_code'],
-            'remark1' => $args['remark1'],
-            'remark2' => $args['remark2'],
-            'remark3' => $args['remark3'],
-            'update' => $args['update'],
-            'bank_code' => $args['bank_code'],
-            'va_expired' => $args['va_expired'],
-            'amount' => $args['amount'],
-            'signature' => $args['signature'],
-        ];
-        $get = $this->DoRequest('GET', $this->request);
+        try {
+            $this->transaction = $transaction;
+            //
+            $this->form['uuid'] = $this->transaction->getRuuid();
+            $this->form['rq_datetime'] = $this->transaction->getTime();
+            $this->form['comm_code'] = $this->transaction->getCommcode();
+            $this->form['order_id'] = $this->transaction->getOrderID();
+            $this->form['is_paymentnotif'] = $this->transaction->getIsPaymentNotif(); // optional
+            $this->form['signature'] = $this->transaction->getSignature();
+            //
+            $this->form['request_url'] = $this->init->getRequestURL();
+            // go
+            $this->request['form'] = $this->form;
+            $this->request['time'] = $this->transaction->getTime();
+            $this->request['url'] = $this->form['request_url'];
+
+            $this->request['data'] = [
+                'uuid' => $this->form['uuid'],
+                'rq_datetime' => $this->form['rq_datetime'],
+                'comm_code' => $this->form['comm_code'],
+                'order_id' => $this->form['order_id'],
+                'is_paymentnotif' => $this->form['is_paymentnotif'],
+                'signature' => $this->form['signature'],
+            ];
+
+            $this->request['headers'] = [
+                'Content-Type' => 'application/x-www-form-urlencoded',
+                // 'Content-Type' => 'application/json',
+                // 'Accept' => 'application/json',
+                'Authorization' => 'Basic ' . base64_encode($this->init->getMID()),
+                'Content-Length' => strlen(json_encode($this->request['data'])),
+            ];
+
+            $this->request['option'] = [
+                'request_opt' => 'json',
+            ];
+            // return \print_r($this->request);
+            $post = $this->DoRequest('POST', $this->request);
+
+            $response = (array) $post['response'];
+            extract($response);
+
+            if (!empty($status_code) && $status_code === 200) {
+                $content = (object) json_decode($content);
+
+                if (!empty($content->error_code) && ($content->error_code == 0000)) {
+
+                    //  {
+                    //     "rq_uuid": "123ABC-DEF4565",
+                    //     "rs_datetime": "2020-11-06 12:12:01",
+                    //     "error_code": "0000",
+                    //     "error_message": "",
+                    //     "comm_code": "SGWGROWINC",
+                    //     "member_code": null,
+                    //     "tx_id": "ESP1604580538534C",
+                    //     "order_id": "21315",
+                    //     "ccy_id": "IDR",
+                    //     "amount": "21315",
+                    //     "tx_status": "IP",
+                    //     "tx_reason": "",
+                    //     "tx_date": "2020-11-05",
+                    //     "created": "2020-11-05 19:48:56",
+                    //     "expired": "2020-11-06 19:48:58",
+                    //     "bank_name": "BANK BRI",
+                    //     "product_name": "BRI VA",
+                    //     "product_value": "",
+                    //     "payment_ref": "",
+                    //     "merchant_code": "",
+                    //     "token": "",
+                    //     "member_cust_id": "SYSTEM",
+                    //     "member_cust_name": "SYSTEM",
+                    //     "debit_from_name": "",
+                    //     "debit_from_bank": "002",
+                    //     "credit_to": "1111111111111",
+                    //     "credit_to_name": "1111111111111",
+                    //     "credit_to_bank": "002",
+                    //     "payment_datetime": "2020-11-06 11:32:21"
+                    // }
+
+                    $content = [
+                        'status' => '0000',
+                        'data' => (array) $content,
+                    ];
+
+                    $result = [
+                        'request' => (array) $this->request,
+                        'response' => [
+                            'content' => json_encode($content),
+                            'status_code' => 200,
+                        ],
+                    ];
+
+                } else {
+                    throw new \Exception($content->error_message);
+                }
+            } else {
+                throw new \Exception($content);
+            }
+
+        } catch (\Throwable $e) {
+            throw new \Exception($this->ThrowError($e));
+        }
+        return $result ?? [];
+    }
+
+    public function Notification(object $request)
+    {
+        try {
+            SELF::Validate($request, [
+                'rq_uuid',
+                'rq_datetime',
+                'order_id',
+                'signature',
+            ]);
+            // Go
+            // validate in DB
+            // success_flag,error message,reconcile_id , order_id,reconcile_datetime
+
+            // $data = "0;Success;236347301;$request->order_id;$request->rq_datetime";
+            // $result = $data;
+
+            $data = [
+                'rq_uuid' => $request->order_id,
+                'rs_datetime' => $request->rq_datetime,
+                'error_code' => '201',
+                'error_message' => 'FAILED',
+                'signature' => $request->signature,
+                'order_id' => $request->order_id,
+                'reconcile_id' => 'INF' . rand(6, 9),
+                'reconcile_datetime' => date("Y-M-D h:i:s"),
+            ];
+
+            $result = \json_encode($data);
+
+        } catch (\Throwable $e) {
+            throw new \Exception($this->ThrowError($e));
+        }
+        return $result ?? [];
     }
 
 }

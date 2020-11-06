@@ -3,14 +3,8 @@ namespace GuzzleHttp;
 
 use GuzzleHttp\Cookie\CookieJarInterface;
 use GuzzleHttp\Exception\RequestException;
-<<<<<<< Updated upstream
 use GuzzleHttp\Promise\RejectedPromise;
 use GuzzleHttp\Psr7;
-=======
-use GuzzleHttp\Promise as P;
-use GuzzleHttp\Promise\PromiseInterface;
-use Psr\Http\Message\RequestInterface;
->>>>>>> Stashed changes
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 
@@ -53,37 +47,22 @@ final class Middleware
      * Middleware that throws exceptions for 4xx or 5xx responses when the
      * "http_error" request option is set to true.
      *
-<<<<<<< Updated upstream
      * @return callable Returns a function that accepts the next handler.
      */
     public static function httpErrors()
     {
         return function (callable $handler) {
             return function ($request, array $options) use ($handler) {
-=======
-     * @param BodySummarizerInterface|null $bodySummarizer The body summarizer to use in exception messages.
-     *
-     * @return callable(callable): callable Returns a function that accepts the next handler.
-     */
-    public static function httpErrors(BodySummarizerInterface $bodySummarizer = null): callable
-    {
-        return static function (callable $handler) use ($bodySummarizer): callable {
-            return static function ($request, array $options) use ($handler, $bodySummarizer) {
->>>>>>> Stashed changes
                 if (empty($options['http_errors'])) {
                     return $handler($request, $options);
                 }
                 return $handler($request, $options)->then(
-<<<<<<< Updated upstream
                     function (ResponseInterface $response) use ($request) {
-=======
-                    static function (ResponseInterface $response) use ($request, $bodySummarizer) {
->>>>>>> Stashed changes
                         $code = $response->getStatusCode();
                         if ($code < 400) {
                             return $response;
                         }
-                        throw RequestException::create($request, $response, null, [], $bodySummarizer);
+                        throw RequestException::create($request, $response);
                     }
                 );
             };
@@ -123,7 +102,7 @@ final class Middleware
                             'error'    => $reason,
                             'options'  => $options
                         ];
-                        return P\Create::rejectionFor($reason);
+                        return \GuzzleHttp\Promise\rejection_for($reason);
                     }
                 );
             };
@@ -213,7 +192,6 @@ final class Middleware
                         $logger->log($logLevel, $message);
                         return $response;
                     },
-<<<<<<< Updated upstream
                     function ($reason) use ($logger, $request, $formatter) {
                         $response = $reason instanceof RequestException
                             ? $reason->getResponse()
@@ -221,13 +199,6 @@ final class Middleware
                         $message = $formatter->format($request, $response, $reason);
                         $logger->notice($message);
                         return \GuzzleHttp\Promise\rejection_for($reason);
-=======
-                    static function ($reason) use ($logger, $request, $formatter): PromiseInterface {
-                        $response = $reason instanceof RequestException ? $reason->getResponse() : null;
-                        $message = $formatter->format($request, $response, P\Create::exceptionFor($reason));
-                        $logger->error($message);
-                        return P\Create::rejectionFor($reason);
->>>>>>> Stashed changes
                     }
                 );
             };

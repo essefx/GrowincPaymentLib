@@ -1,7 +1,6 @@
 <?php
 namespace GuzzleHttp;
 
-use GuzzleHttp\Promise as P;
 use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Promise\RejectedPromise;
 use GuzzleHttp\Psr7;
@@ -33,8 +32,11 @@ class RetryMiddleware
      *                              and [response] and returns the number of
      *                              milliseconds to delay.
      */
-    public function __construct(callable $decider, callable $nextHandler, callable $delay = null)
-    {
+    public function __construct(
+        callable $decider,
+        callable $nextHandler,
+        callable $delay = null
+    ) {
         $this->decider = $decider;
         $this->nextHandler = $nextHandler;
         $this->delay = $delay ?: __CLASS__ . '::exponentialDelay';
@@ -108,7 +110,7 @@ class RetryMiddleware
                 null,
                 $reason
             )) {
-                return P\Create::rejectionFor($reason);
+                return \GuzzleHttp\Promise\rejection_for($reason);
             }
             return $this->doRetry($req, $options);
         };
