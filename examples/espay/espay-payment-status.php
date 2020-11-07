@@ -8,11 +8,11 @@ $init->setBaseURI('https://sandbox-api.espay.id');
 $init->setRequestURL('https://sandbox-api.espay.id/rest/merchant/status');
 
 $transaction = new \Growinc\Payment\Transaction();
-$transaction->setRuuid('123ABC-DEF4565');
-$transaction->setTime('2020-08-08 09:17:45');
+$transaction->setRuuid('123A-DEF4-1214');
+$transaction->setTime('2020-11-07 11:17:45');
 $transaction->setCommcode('SGWGROWINC');
 $transaction->setOrderID('21315');
-$transaction->setIsPaymentNotif(''); // Y update data for order id, N new order
+$transaction->setIsPaymentNotif(''); // Y = will hit Merchant's payment notif URL N = will update trx_status to S in Espay Dashboard Not sent/not filled/filled with "" = standard check payment status
 $transaction->setSignatureKey('ces0bu1jh9qrsakq');
 //
 $transaction->setMode('CHECKSTATUS');
