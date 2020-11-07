@@ -365,7 +365,7 @@ class Espay extends Requestor implements VendorInterface
                 'signature' => $request->signature,
                 'order_id' => $request->order_id,
                 'reconcile_id' => 'INF' . rand(6, 9),
-                'reconcile_datetime' => date("Y-M-D h:i:s"),
+                'reconcile_datetime' => date("Y-m-d h:i:s"), // date("Y-M-D h:i:s"),
             ];
 
             $result = \json_encode($data);

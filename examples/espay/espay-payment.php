@@ -8,8 +8,8 @@ $init->setBaseURI('https://sandbox-api.espay.id');
 $init->setPaymentURL('https://sandbox-api.espay.id/rest/merchantpg/sendinvoice');
 
 $transaction = new \Growinc\Payment\Transaction();
-$transaction->setRuuid('123ABC-DEF4565');
-$transaction->setTime('2020-08-08 09:17:45');
+$transaction->setRuuid('123A-DEF4-1214');
+$transaction->setTime('2020-11-07 11:17:45'); // 2020-08-08 09:17:45 / date("Y-m-d h:i:s")
 $transaction->setOrderID('21315');
 $transaction->setAmount('20000.00');
 $transaction->setCurrency('IDR');
@@ -18,7 +18,7 @@ $transaction->setCustomerPhone('081298983535');
 $transaction->setCustomerName('Growinc');
 $transaction->setCustomerEmail('lorem@ipsum.com');
 $transaction->setUpdateOrderId('Y'); // Y update data for order id, N new order
-$transaction->setBankCode('014');
+$transaction->setBankCode('011');
 $transaction->setVaExp('1440'); // minute
 $transaction->setPassword('Y0F,(5EM=#');
 $transaction->setSignatureKey('ces0bu1jh9qrsakq');
@@ -31,7 +31,7 @@ $transaction->setSignature($signature);
 // $transaction->setKey('S3cr317kEY');
 // $transaction->setServicename('SendInvoice');
 // $transaction->setMemberid('012');
-
+// return print_r($transaction);
 // $transaction->setCustomerAddress('Jakarta Barat no 52');
 $transaction->setCountrycode('IDN');
 
