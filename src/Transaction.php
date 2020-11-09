@@ -43,6 +43,7 @@ class Transaction
     protected $signature_key;
     protected $mode;
     protected $is_paymen_notif;
+	protected $payment_id;
 
     public function __construct()
     {
@@ -350,4 +351,13 @@ class Transaction
     }
 
     // credit card end
+	public function setPaymentId($payment_id): void
+	{
+		$this->PaymentId = $PaymentId;
+	}
+
+	public function getPaymentId(): ?int
+	{
+		return $this->PaymentId;
+	}
 }
