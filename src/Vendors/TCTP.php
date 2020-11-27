@@ -420,120 +420,267 @@ class TCTP extends Requestor implements VendorInterface
 			$this->request['headers'] = [
 					'Accept' => 'text/plain',
 					'Content-Type' => 'application/*+json',
-					// '-debug-merchantID' => $this->init->getMID(),
-					// '-debug-secret' => $this->init->getSecret(),
+					'-debug-merchantID' => $this->init->getMID(),
+					'-debug-secret' => $this->init->getSecret(),
 				];
 			$this->request['option'] = [
-					// 'to_uri' => true,
-					'request_opt' => 'json'
+						'as_json' => true,
 				];
+
+			// Payment Token
 			$this->request['data_raw'] = [
 					'merchantID' => $this->form['merchantID'],
-					// 'orderID' => $this->form['orderID'], // Not applicable
+					'orderID' => $this->form['orderID'], // Not applicable
 					'invoiceNo' => $this->form['invoiceNo'],
 					'description' => $this->form['description'],
 					'amount' => $this->form['amount'],
 					'currencyCode' => $this->form['currencyCode'],
-					'paymentChannel' => $this->form['paymentChannel'],
+					'paymentChannel' => [
+							'ALL',
+						],
 					'request3DS' => $this->form['request3DS'],
-					'tokenize' => $this->form['tokenize'],
-					'cardTokens' => $this->form['cardTokens'],
-					'cardTokenOnly' => $this->form['cardTokenOnly'],
-					'tokenizeOnly' => $this->form['tokenizeOnly'],
-					'interestType' => $this->form['interestType'],
-					'installmentPeriodFilter' => $this->form['installmentPeriodFilter'],
-					'productCode' => $this->form['productCode'],
-					'recurring' => $this->form['recurring'],
-					'invoicePrefix' => $this->form['invoicePrefix'],
-					'recurringAmount' => $this->form['recurringAmount'],
-					'allowAccumulate' => $this->form['allowAccumulate'],
-					'maxAccumulateAmount' => $this->form['maxAccumulateAmount'],
-					'recurringInterval' => $this->form['recurringInterval'],
-					'recurringCount' => $this->form['recurringCount'],
-					'chargeNextDate' => $this->form['chargeNextDate'],
-					'chargeOnDate' => $this->form['chargeOnDate'],
+					// 'tokenize' => $this->form['tokenize'],
+					// 'cardTokens' => $this->form['cardTokens'],
+					// 'cardTokenOnly' => $this->form['cardTokenOnly'],
+					// 'tokenizeOnly' => $this->form['tokenizeOnly'],
+					// 'interestType' => $this->form['interestType'],
+					// 'installmentPeriodFilter' => $this->form['installmentPeriodFilter'],
+					// 'productCode' => $this->form['productCode'],
+					// 'recurring' => $this->form['recurring'],
+					// 'invoicePrefix' => $this->form['invoicePrefix'],
+					// 'recurringAmount' => $this->form['recurringAmount'],
+					// 'allowAccumulate' => $this->form['allowAccumulate'],
+					// 'maxAccumulateAmount' => $this->form['maxAccumulateAmount'],
+					// 'recurringInterval' => $this->form['recurringInterval'],
+					// 'recurringCount' => $this->form['recurringCount'],
+					// 'chargeNextDate' => $this->form['chargeNextDate'],
+					// 'chargeOnDate' => $this->form['chargeOnDate'],
 					'paymentExpiry' => $this->form['paymentExpiry'],
-					'promotionCode' => $this->form['promotionCode'],
-					'paymentRouteID' => $this->form['paymentRouteID'],
-					'fxProviderCode' => $this->form['fxProviderCode'],
-					'immediatePayment' => $this->form['immediatePayment'],
-					'userDefined1' => $this->form['userDefined1'],
-					'userDefined2' => $this->form['userDefined2'],
-					'userDefined3' => $this->form['userDefined3'],
-					'userDefined4' => $this->form['userDefined4'],
-					'userDefined5' => $this->form['userDefined5'],
-					'statementDescriptor' => $this->form['statementDescriptor'],
-					'subMerchants' => $this->form['subMerchants'],
-					'locale' => $this->form['locale'],
+					// 'promotionCode' => $this->form['promotionCode'],
+					// 'paymentRouteID' => $this->form['paymentRouteID'],
+					// 'fxProviderCode' => $this->form['fxProviderCode'],
+					// 'immediatePayment' => true, // $this->form['immediatePayment'],
+					// 'userDefined1' => $this->form['userDefined1'],
+					// 'userDefined2' => $this->form['userDefined2'],
+					// 'userDefined3' => $this->form['userDefined3'],
+					// 'userDefined4' => $this->form['userDefined4'],
+					// 'userDefined5' => $this->form['userDefined5'],
+					// 'statementDescriptor' => $this->form['statementDescriptor'],
+					// 'subMerchants' => $this->form['subMerchants'],
+					// 'locale' => $this->form['locale'],
 					'frontendReturnUrl' => $this->form['frontendReturnUrl'],
 					'backendReturnUrl' => $this->form['backendReturnUrl'],
-					'nonceStr' => $this->form['nonceStr'],
-					'uiParams' => $this->form['uiParams'],
+					// 'nonceStr' => $this->form['nonceStr'],
+					// 'uiParams' => $this->form['uiParams'],
 				];
 			$data = [
 					'payload' => JWT::encode($this->request['data_raw'], $this->init->getSecret(), 'HS256'),
 				];
 			$this->request['data'] = $data;
-			// print_r($this->request);
-			// print_r($data);
-			// print_r(json_encode($data));
-			// $decode_data = JWT::decode($data, $this->init->getSecret(), array('HS256'));
-			// print_r($decode_data);
+			// Go
 			$post = $this->DoRequest('POST', $this->request);
-			print_r($post);
-
-
-
-// $url = 'https://sandbox-pgw.2c2p.com/payment/4.1/paymentToken';
-// $ch = curl_init();
-// curl_setopt($ch, CURLOPT_URL, $url);
-// curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-// curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($this->request['data']));
-// curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-// curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-// 	'Accept: text/plain',
-// 	'Content-Type: application/*+json',
-// ));
-// curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-
-// $request_result = curl_exec($ch);
-// $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-// $result ="";
-// if ($httpCode == 200) {
-// }
-// print_r($request_result);
-// exit();
-
-
-
-// $jwt = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtZXJjaGFudElEIjoiSlQwMSIsImludm9pY2VObyI6IjE1MjM5NTM2NjEiLCJkZXNjcmlwdGlvbiI6Iml0ZW0gMSIsImFtb3VudCI6MTAwMCwiY3VycmVuY3lDb2RlIjoiU0dEIn0.mfQOdnH7tJUzPHEm1iF1ZYX2oZV29VbT7d9KdbxK5zM';
-// print_r(JWT::decode($jwt, 'merchant_secret_key', array('HS256')));
-
-			exit();
-
-
-			$post = $this->DoRequest('POST', $this->request);
-
-
-			print_r($post);
-			exit();
+echo '1A:<hr>';
+print_r($post);
 			$response = (array) $post['response'];
 			extract($response);
-			// echo($content);
-			// exit();
+			$content = (object) json_decode($content);
+			$data = JWT::decode($content->payload, $this->init->getSecret(), array('HS256'));
+echo '1:<hr>';
+print_r($data);
+			$payment_token = $data->paymentToken;
+
+
+
+
+
+			// Payment Option
+			// $this->request['form'] = $this->form;
+			$this->request['time'] = $this->transaction->getTime();
+			$this->request['url'] = 'https://sandbox-pgw.2c2p.com/payment/4.1/paymentOption';
+			$this->request['headers'] = [
+					'Accept' => 'text/plain',
+					'Content-Type' => 'application/*+json',
+					'-debug-merchantID' => $this->init->getMID(),
+					'-debug-secret' => $this->init->getSecret(),
+				];
+			$this->request['option'] = [
+						'as_json' => true,
+				];
+			$this->request['data_raw'] = [
+					'paymentToken' => $payment_token,
+					// 'clientID' => $this->init->getMID(),
+					'locale' => 'en',
+				];
+			$this->request['data'] = $this->request['data_raw'];
+			// Go
+			$post = $this->DoRequest('POST', $this->request);
+			$response = (array) $post['response'];
+			extract($response);
+			$content = (object) json_decode($content);
+echo '2:<hr>';
+print_r($content);
+
+
+
+
+			// Payment Option Details
+			// channelCategories
+			// 	GCARD | Global Card Payment
+			// 		groups:
+			// 			CC | Credit Card
+			// 			IPP | Installment Plan Payment
+			// 			GTPTY | Global 3 Party Payment
+			// 	LCARD | Local Card Payment
+			// 		groups:
+			// 			PCC | Proprietary / Loan Card
+			// 			LTPTY | Local 3 Party Payment
+			// 	WEBPAY | Web pay / Direct Debit
+			// 		groups:
+			// 			WEBPAY | Web pay / Direct Debit
+			// 	IMBANK | Internet / Mobile Banking
+			// 		groups:
+			// 			IMBANK | Internet / Mobile Banking
+			// 	COUNTER | Pay at Counter
+			// 		groups:
+			// 			BCTR | Bank Counter
+			// 			OTCTR | Over The Counter
+			// 	SSM | Self Service Machines
+			// 		groups:
+			// 			ATM | Automatic Teller Machine
+			// 			KIOSK | Kiosk Machine
+			// 	DPAY | Digital Payment
+			// 		groups:
+			// 			EWALLET | E-Wallet Payment
+			// 			MPASS | Master Pass
+			// 			SSPAY | Samsung Pay
+			// 	QR | Scan QR Payment
+			// 		groups:
+			// 			QRC | QR Code Payment
+			// 			CSQR | Card Scheme QR Payment
+			// 			THQR | Thai QR Payment
+			// 			SGQR | Singapore QR Payment
+			// 	LCARDIPP | Local Card IPP
+			// 		groups:
+			// 			LIPP | Installment Plan Payment Loan Card
+			// $this->request['form'] = $this->form;
+			$this->request['time'] = $this->transaction->getTime();
+			$this->request['url'] = 'https://sandbox-pgw.2c2p.com/payment/4.1/paymentOptionDetails';
+			$this->request['headers'] = [
+					'Accept' => 'text/plain',
+					'Content-Type' => 'application/*+json',
+					'-debug-merchantID' => $this->init->getMID(),
+					'-debug-secret' => $this->init->getSecret(),
+				];
+			$this->request['option'] = [
+						'as_json' => true,
+				];
+			$this->request['data_raw'] = [
+					'paymentToken' => $payment_token,
+					// 'clientID' => $this->init->getMID(),
+					'locale' => 'en',
+					'categoryCode' => 'SSM',
+					'groupCode' => 'ATM',
+				];
+			$this->request['data'] = $this->request['data_raw'];
+			// Go
+			$post = $this->DoRequest('POST', $this->request);
+			$response = (array) $post['response'];
+			extract($response);
+			$content = (object) json_decode($content);
+echo '3:<hr>';
+print_r($content);
+
+// https://demo2.2c2p.com/2C2PFrontEnd/storedCardPaymentV2/MPaymentProcess.aspx?token=iv1yYCfm4ijMWETD+hIODf1o5W0sNw+j9GBCauJ7ofS0PCjTEt/PPBNGE1Tis3Tz
+
+			// Do Payment
+			// $this->request['form'] = $this->form;
+			$this->request['time'] = $this->transaction->getTime();
+			$this->request['url'] = 'https://sandbox-pgw.2c2p.com/payment/4.1/payment';
+			$this->request['headers'] = [
+					'Accept' => 'text/plain',
+					'Content-Type' => 'application/*+json',
+					'-debug-merchantID' => $this->init->getMID(),
+					'-debug-secret' => $this->init->getSecret(),
+				];
+			$this->request['option'] = [
+						'as_json' => true,
+				];
+			$this->request['data_raw'] = [
+					'paymentToken' => $payment_token,
+					// 'clientID' => $this->init->getMID(),
+					'locale' => 'en',
+					'responseReturnUrl' => $this->form['frontendReturnUrl'],
+					'payment' => [
+							'code' => [
+									'channelCode' => '123',
+									'agentCode' => 'CIMBVA',
+									'agentChannelCode' => 'IBANKING',
+								],
+							'data' => [
+									'name' => $this->transaction->getCustomerName(),
+									'email' => $this->transaction->getCustomerEmail(),
+									'mobileNo' => $this->transaction->getCustomerPhone(),
+								],
+						],
+				];
+			$this->request['data'] = $this->request['data_raw'];
+			// Go
+			$post = $this->DoRequest('POST', $this->request);
+echo '4A:<hr>';
+print_r($post);
+			$response = (array) $post['response'];
+			extract($response);
+			$content = (object) json_decode($content);
+echo '4:<hr>';
+print_r($content);
+
+
+
+			// Transaction Status Inquiry
+			// $this->request['form'] = $this->form;
+			$this->request['time'] = $this->transaction->getTime();
+			$this->request['url'] = 'https://sandbox-pgw.2c2p.com/payment/4.1/transactionStatus';
+			$this->request['headers'] = [
+					'Accept' => 'text/plain',
+					'Content-Type' => 'application/*+json',
+					'-debug-merchantID' => $this->init->getMID(),
+					'-debug-secret' => $this->init->getSecret(),
+				];
+			$this->request['option'] = [
+						'as_json' => true,
+				];
+			$this->request['data_raw'] = [
+					'paymentToken' => $payment_token,
+					// 'clientID' => $this->init->getMID(),
+					'locale' => 'en',
+					'additionalInfo' => true,
+				];
+			$this->request['data'] = $this->request['data_raw'];
+			// Go
+			$post = $this->DoRequest('POST', $this->request);
+			$response = (array) $post['response'];
+			extract($response);
+			$content = (object) json_decode($content);
+echo '5:<hr>';
+print_r($content);
+
+
+			exit();
+
+
+
 			if (!empty($status_code) && $status_code === 200) {
 				$content = (object) json_decode($content);
-				if (	!empty($content->statusMessage)
-						&& $content->statusMessage == "SUCCESS"
-				) {
+				if (!empty($content->payload)) {
+					$data = JWT::decode($content->payload, $this->init->getSecret(), array('HS256'));
 					$content = [
 							'status' => '000',
-							'data' => (array) $content,
+							'data' => (array) $data,
 						];
 					$result = [
 							'request' => (array) $this->request,
 							'response' => [
-									'content' => json_encode($content),
+									'content' => json_encode($data),
 									'status_code' => 200,
 								],
 						];
