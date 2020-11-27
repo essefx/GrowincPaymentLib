@@ -265,38 +265,54 @@ class Duitku extends Requestor implements VendorInterface
             $response = (array) $post['response'];
             extract($response);
             if (!empty($status_code) && $status_code === 200) {
-                $content = (object) json_decode($content);
-                if (!empty($content->statusMessage)
-                    && $content->statusMessage == "SUCCESS"
-                    && $content->merchantOrderId == $request->order_id
-                ) {
-                    // Success
-                    /*
-                    {
-                    "merchantOrderId": "0001297441",
-                    "reference": "D6677KW403DFH8VOFMRJ",
-                    "amount": "100000",
-                    "fee": "0.00",
-                    "statusCode": "00",
-                    "statusMessage": "SUCCESS"
-                    }
-                     */
-                    $content = [
-                        'status' => '000',
-                        'data' => (array) $content,
-                    ];
-                    $result = [
-                        'request' => (array) $request,
-                        'response' => [
-                            'content' => json_encode($content),
-                            'status_code' => 200,
-                        ],
-                    ];
-                } else {
-                    throw new \Exception($content->statusMessage);
-                }
-            } else {
-                throw new \Exception($content);
+					$content = (object) json_decode($content);
+					if (!empty($content->statusMessage)
+						&& $content->merchantOrderId == $request->order_id
+					) {
+						if (
+							$content->statusMessage == "SUCCESS"
+						) {
+							// Success
+							/*
+							{
+							"merchantOrderId": "0001297441",
+							"reference": "D6677KW403DFH8VOFMRJ",
+							"amount": "100000",
+							"fee": "0.00",
+							"statusCode": "00",
+							"statusMessage": "SUCCESS"
+							}
+							*/
+							$content = [
+								'status' => '000',
+								'data' => (array) $content,
+							];
+							$result = [
+								'request' => (array) $request,
+								'response' => [
+										'content' => json_encode($content),
+										'status_code' => 200,
+								],
+							];
+						} else {
+							// Other statuses
+							$content = [
+								'status' => str_pad($content->statusCode, 3, '0', STR_PAD_LEFT),
+								'data' => (array) $content,
+							];
+							$result = [
+								'request' => (array) $request,
+								'response' => [
+										'content' => json_encode($content),
+										'status_code' => 200,
+								],
+							];
+						}
+					} else {
+						throw new \Exception($content->statusMessage);
+					}
+				} else {
+					throw new \Exception($content);
             }
         } catch (\Throwable $e) {
             throw new \Exception($this->ThrowError($e));
