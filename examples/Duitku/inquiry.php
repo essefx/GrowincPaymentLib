@@ -8,12 +8,14 @@ $init->setRequestURL('https://sandbox.duitku.com/webapi/api/merchant');
 
 $vendor = new \Growinc\Payment\Vendors\Duitku($init);
 
-try {
+// try {
 	$result = $vendor->Inquiry((object) [
-			'order_id' => '0001285662',
+			'order_id' => $_REQUEST['order_id'] ?? '0001285662',
+			// 'order_id' => '202011270347671606452319',
+			// 'order_id' => '202011302718391606720920',
 		]);
 	extract($result);
 	print_r($response);
-} catch (\Throwable $e) {
-	echo 'Inquiry failed: ' . $e->getMessage() . ':' . $e->getCode();
-}
+// } catch (\Throwable $e) {
+// 	echo 'Inquiry failed: ' . $e->getMessage() . ':' . $e->getCode();
+// }
