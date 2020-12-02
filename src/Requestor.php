@@ -57,10 +57,21 @@ class Requestor
                 $request['headers'] ?? [],
                 $request['option'] ?? [],
             );
-            if (is_object($response)) {
+            if (is_array($response)) {
                 $return = [
                     'request' => [
-                        'time' => $request['time'],
+                        'time' => $request['time'] ?? time(),
+                        'url' => $request['url'],
+                        'data' => $request['data'],
+                        'data_raw' => $request['data_raw'] ?? [],
+                        'headers' => $request['headers'] ?? [],
+                    ],
+                    'response' => $response,
+                ];
+            } elseif (is_object($response)) {
+                $return = [
+                    'request' => [
+                        'time' => $request['time'] ?? time(),
                         'url' => $request['url'],
                         'data' => $request['data'],
                         'data_raw' => $request['data_raw'] ?? [],
@@ -72,13 +83,13 @@ class Requestor
                         'headers' => $response->getHeaders(),
                     ],
                 ];
+		        $response->getBody()->rewind();
             } elseif (is_string($response)) {
                 $return = $response;
             }
         } catch (\Throwable $e) {
             throw new \Exception($this->ThrowError($e));
         }
-        $response->getBody()->rewind();
         $this->request = $request;
         $this->response = $response;
         return $return;
