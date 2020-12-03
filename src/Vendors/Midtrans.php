@@ -17,7 +17,7 @@ class Midtrans extends Requestor implements VendorInterface
 
 	public function GetToken($args)
 	{
-		try{
+		try {
 			$this->request['headers'] = [
 				'Content-Type' => 'application/json',
 				'Accept' => 'application/json',
@@ -33,10 +33,11 @@ class Midtrans extends Requestor implements VendorInterface
 			$get = $this->DoRequest('GET', $this->request);
 			$response = (array) $get['response'];
 			extract($response);
-			if(!empty($status_code) && $status_code === 200){
+			if (!empty($status_code) && $status_code === 200) {
 				$content = (object) json_decode($content);
-				if (	!empty($content->status_code)
-						&& $content->status_code == 200
+				if (
+					!empty($content->status_code)
+					&& $content->status_code == 200
 				) {
 					$result = $content->token_id;
 				}
@@ -59,8 +60,7 @@ class Midtrans extends Requestor implements VendorInterface
 
 	public function SecurePayment(\Growinc\Payment\Transaction $transaction)
 	{
-		try{
-
+		try {
 			$this->transaction = $transaction;
 			//
 			$this->form['order_id'] = $this->transaction->getOrderID();
@@ -76,34 +76,33 @@ class Midtrans extends Requestor implements VendorInterface
 			$this->form['country_code'] = $this->transaction->getCountryCode();
 			//
 			$this->form['billing_address'] = [
-					'first_name' => $this->form['customer_name'],
-					'last_name' => 'IPSUM',
-					'email' => $this->form['customer_email'],
-					'phone' => $this->form['customer_phone'],
-					'address' => 'sudirman',
-					'city' => 'Jakarta',
-					'postal_code' => '12190',
-					'country_code' => $this->form['country_code'],
-				];
+				'first_name' => $this->form['customer_name'],
+				'last_name' => 'IPSUM',
+				'email' => $this->form['customer_email'],
+				'phone' => $this->form['customer_phone'],
+				'address' => 'sudirman',
+				'city' => 'Jakarta',
+				'postal_code' => '12190',
+				'country_code' => $this->form['country_code'],
+			];
 			$this->form['shipping_address'] = [
-					'first_name' => $this->form['customer_name'],
-					'last_name' => 'IPSUM',
-					'email' => $this->form['customer_email'],
-					'phone' => $this->form['customer_phone'],
-					'address' => 'sudirman',
-					'city' => 'Jakarta',
-					'postal_code' => '12190',
-					'country_code' => $this->form['country_code'],
-				];
+				'first_name' => $this->form['customer_name'],
+				'last_name' => 'IPSUM',
+				'email' => $this->form['customer_email'],
+				'phone' => $this->form['customer_phone'],
+				'address' => 'sudirman',
+				'city' => 'Jakarta',
+				'postal_code' => '12190',
+				'country_code' => $this->form['country_code'],
+			];
 			$this->form['customer_details'] = [
-					'first_name' => $this->form['customer_name'],
-					'last_name' => 'IPSUM',
-					'email' => $this->form['customer_email'],
-					'phone' => $this->form['customer_phone'],
-					'billing_address' => $this->form['billing_address'],
-					'shipping_address' => $this->form['shipping_address'],
-				];
-
+				'first_name' => $this->form['customer_name'],
+				'last_name' => 'IPSUM',
+				'email' => $this->form['customer_email'],
+				'phone' => $this->form['customer_phone'],
+				'billing_address' => $this->form['billing_address'],
+				'shipping_address' => $this->form['shipping_address'],
+			];
 			$this->form['item_details'] = $this->transaction->getItem();
 			// for bca_klikbca
 			$this->form['customer_userid'] = $this->transaction->getCustomerUserid();
@@ -137,9 +136,8 @@ class Midtrans extends Requestor implements VendorInterface
 
 			// go
 
-
 			// credit_card token
-			if($this->form['payment_type'] == 'credit_card'){
+			if ($this->form['payment_type'] == 'credit_card') {
 				// credit card details
 				$this->form['customer_credit_card'] = [
 					'time' => $this->transaction->getTime(),
@@ -150,94 +148,90 @@ class Midtrans extends Requestor implements VendorInterface
 					'card_exp_year' => $this->transaction->gettCardExpYear(),
 					'card_cvv' => $this->transaction->getCardExpCvv()
 				];
-
 				$getToken = $this->GetToken($this->form['customer_credit_card']);
 				$this->form['cc_token'] = $getToken;
 			}
 
-			$this->request['form'] = $this->form;
-			$this->request['time'] = $this->transaction->getTime();
-			$this->request['url'] = $this->form['payment_url'];
-
 			// amount
 			$amountTotal = 0;
-			foreach($this->form['item_details'] as $price){
-				$amountTotal += (int) $price['price'] * (int) $price['quantity'] ;
+			foreach ($this->form['item_details'] as $price) {
+				$amountTotal += (int) $price['price'] * (int) $price['quantity'];
 			}
-			$this->request['data'] = [
-				'payment_type' => $this->form['payment_type'],
-				$this->form['payment_type'] => [
-					'bank' => $this->form['payment_method'],
-				],
-				'transaction_details' => [
-					'order_id' => $this->form['order_id'],
-					'gross_amount' => $amountTotal,
-				],
-				'customer_details' => [
-					'email' => $this->form['customer_email'],
-					'first_name' => $this->form['customer_name'],
-					'last_name' => '',
-					'phone' => $this->form['customer_phone'],
-				],
-				'item_details' => $this->form['item_details']
-			];
 
+			$this->request['data'] = [
+					'payment_type' => $this->form['payment_type'],
+						$this->form['payment_type'] => [
+							'bank' => $this->form['payment_method'],
+						],
+					'transaction_details' => [
+							'order_id' => $this->form['order_id'],
+							'gross_amount' => $amountTotal,
+						],
+					'customer_details' => [
+							'email' => $this->form['customer_email'],
+							'first_name' => $this->form['customer_name'],
+							'last_name' => '',
+							'phone' => $this->form['customer_phone'],
+						],
+					'item_details' => $this->form['item_details']
+				];
 
 			// echannel mandiri
-			if($this->form['payment_type'] == 'echannel'){
+			if ($this->form['payment_type'] == 'echannel') {
 				// unset($this->request['data']['echannel']);
 				$this->request['data']['echannel'] = [
 					'bill_info1' => 'payment for:',
 					'bill_info2' => $this->form['description'],
 				];
 			}
+
 			// bca_klikpay
-			if($this->form['payment_type'] == 'bca_klikpay'){
+			if ($this->form['payment_type'] == 'bca_klikpay') {
 				$this->request['data']['bca_klikpay'] = [
 					'type' => 1,
 					'description' => $this->form['description'],
 				];
 			}
 			// bca_klikbca
-			if($this->form['payment_type'] == 'bca_klikbca'){
+			if ($this->form['payment_type'] == 'bca_klikbca') {
 				$this->request['data']['bca_klikbca'] = [
 					'user_id' => $this->form['customer_userid'],
 					'description' => $this->form['description'],
 				];
 			}
 			// bri_epay , danamon_online , akulaku
-			$arrDataBank = ['bri_epay','danamon_online','akulaku'];
-			if(in_array($this->form['payment_type'], $arrDataBank)){
+			$arrDataBank = ['bri_epay', 'danamon_online', 'akulaku'];
+			if (in_array($this->form['payment_type'], $arrDataBank)) {
 				unset($this->request['data'][$this->form['payment_type']]);
 			}
 			// cimb_clicks , mandiri_ecash
-			$arrDataBank2 = ['cimb_clicks','mandiri_ecash'];
-			if(in_array($this->form['payment_type'], $arrDataBank2)){
+			$arrDataBank2 = ['cimb_clicks', 'mandiri_ecash'];
+			if (in_array($this->form['payment_type'], $arrDataBank2)) {
 				$this->request['data'][$this->form['payment_type']] = [
 					'description' => $this->form['description'],
 				];
 			}
 			// gopay
-			if($this->form['payment_type'] == 'gopay'){
+			if ($this->form['payment_type'] == 'gopay') {
 				$this->request['data']['gopay'] = [
 					"enable_callback" => true,
 					"callback_url" => "someapps://callback"
 				];
 			}
 			// qris
-			if($this->form['payment_type'] == 'qris'){
+			if ($this->form['payment_type'] == 'qris') {
 				$this->request['data']['qris'] = [
 					"acquirer" => "gopay"
 				];
 			}
 			// shopeepay
-			if($this->form['payment_type'] == 'shopeepay'){
+			if ($this->form['payment_type'] == 'shopeepay') {
 				$this->request['data']['shopeepay'] = [
 					"callback_url" => "https://google.com/" // back url after success payment
 				];
 			}
 			// telkomsel_cash
-			if($this->form['payment_type'] == 'telkomsel_cash'){
+			if ($this->form['payment_type'] == 'telkomsel_cash') {
 				$this->request['data']['telkomsel_cash'] = [
 					"promo" => false,
 					"is_reversal" => 0,
@@ -245,14 +239,14 @@ class Midtrans extends Requestor implements VendorInterface
 				];
 			}
 			// cstore
-			if($this->form['payment_type'] == 'cstore'){
-				if($this->form['payment_method'] == 'indomaret'){
+			if ($this->form['payment_type'] == 'cstore') {
+				if ($this->form['payment_method'] == 'indomaret') {
 					$this->request['data'][$this->form['payment_type']] = [
 						"store" => $this->form['payment_method'],
 						"message" => $this->form['description']
 					];
 				}
-				if($this->form['payment_method'] == 'alfamart'){
+				if ($this->form['payment_method'] == 'alfamart') {
 					$this->request['data'][$this->form['payment_type']] = [
 						"store" => $this->form['payment_method'],
 						"alfamart_free_text_1" => 'pembayaran',
@@ -263,7 +257,7 @@ class Midtrans extends Requestor implements VendorInterface
 			}
 
 			// credit_card
-			if($this->form['payment_type'] == 'credit_card'){
+			if ($this->form['payment_type'] == 'credit_card') {
 				$this->request['data']['credit_card'] = [
 					'token_id' => $this->form['cc_token'],
 					'authentication' => true
@@ -271,25 +265,28 @@ class Midtrans extends Requestor implements VendorInterface
 				$this->request['data']['customer_details'] = $this->form['customer_details'];
 			}
 
+			// Go
+			$this->request['form'] = $this->form;
+			$this->request['time'] = $this->transaction->getTime();
+			$this->request['url'] = $this->form['payment_url'];
 			$this->request['headers'] = [
-				'Content-Type' => 'application/json',
-				'Accept' => 'application/json',
-				'Authorization' => 'Basic '.base64_encode($this->init->getMID().':'),
-				'Content-Length' => strlen(json_encode($this->request['data'])),
-			];
-
+					'Content-Type' => 'application/json',
+					'Accept' => 'application/json',
+					'Authorization' => 'Basic ' . base64_encode($this->init->getMID() . ':'),
+					'Content-Length' => strlen(json_encode($this->request['data'])),
+				];
 			$this->request['option'] = [
-				'as_json' => true,
-			];
+					'as_json' => true,
+				];
 			$post = $this->DoRequest('POST', $this->request);
-
 			$response = (array) $post['response'];
 			extract($response);
 			if (!empty($status_code) && $status_code === 200) {
 				$content = (object) json_decode($content);
 				return print_r($content);
-				if (	!empty($content->status_code)
-						&& $content->status_code == 201
+				if (
+					!empty($content->status_code)
+					&& $content->status_code == 201
 				) {
 					/* Success
 					{
@@ -307,12 +304,10 @@ class Midtrans extends Requestor implements VendorInterface
 						"merchant_id": "G345053042"
 					}
 					*/
-
 					$content = [
 							'status' => '000',
 							'data' => (array) $content,
 						];
-
 					$result = [
 							'request' => (array) $this->request,
 							'response' => [
@@ -326,7 +321,6 @@ class Midtrans extends Requestor implements VendorInterface
 			} else {
 				throw new \Exception($content);
 			}
-
 		} catch (\Throwable $e) {
 			throw new \Exception($this->ThrowError($e));
 		}
@@ -353,23 +347,23 @@ class Midtrans extends Requestor implements VendorInterface
 		*/
 		try {
 			SELF::Validate($request, ['order_id', 'status_code', 'gross_amount']);
-			$input = $request->order_id.$request->status_code.$request->gross_amount.$this->init->getMID();
+			$input = $request->order_id . $request->status_code . $request->gross_amount . $this->init->getMID();
 			$signature = openssl_digest($input, 'sha512');
 
 			// print_r($signature);exit();
 
 			if (strcmp($signature, $request->signature_key) === 0) {
 				$content = [
-						'status' => '000',
-						'data' => (array) $request,
-					];
+					'status' => '000',
+					'data' => (array) $request,
+				];
 				$result = [
-						'request' => (array) $request,
-						'response' => [
-								'content' => json_encode($content),
-								'status_code' => 200,
-							],
-					];
+					'request' => (array) $request,
+					'response' => [
+						'content' => json_encode($content),
+						'status_code' => 200,
+					],
+				];
 			} else {
 				throw new \Exception('Signature check failed');
 			}
@@ -395,7 +389,7 @@ class Midtrans extends Requestor implements VendorInterface
 			$this->request['headers'] = [
 				'Content-Type' => 'application/json',
 				'Accept' => 'application/json',
-				'Authorization' => 'Basic '.base64_encode($this->init->getMID().':'),
+				'Authorization' => 'Basic ' . base64_encode($this->init->getMID() . ':'),
 			];
 
 			$get = $this->DoRequest('GET', $this->request);
@@ -404,9 +398,10 @@ class Midtrans extends Requestor implements VendorInterface
 			extract($response);
 			if (!empty($status_code) && $status_code === 200) {
 				$content = (object) json_decode($content);
-				if (	!empty($content->status_code)
-						&& $content->status_code == "201"
-						&& $content->order_id == $request->order_id
+				if (
+					!empty($content->status_code)
+					&& $content->status_code == "201"
+					&& $content->order_id == $request->order_id
 				) {
 					// Success
 					/*
@@ -433,16 +428,16 @@ class Midtrans extends Requestor implements VendorInterface
 					}
 					*/
 					$content = [
-							'status' => '000',
-							'data' => (array) $content,
-						];
+						'status' => '000',
+						'data' => (array) $content,
+					];
 					$result = [
-							'request' => (array) $request,
-							'response' => [
-									'content' => json_encode($content),
-									'status_code' => 200,
-								],
-						];
+						'request' => (array) $request,
+						'response' => [
+							'content' => json_encode($content),
+							'status_code' => 200,
+						],
+					];
 				} else {
 					throw new \Exception($content->status_message);
 				}
@@ -474,5 +469,4 @@ class Midtrans extends Requestor implements VendorInterface
 	{
 		// Inapplicable
 	}
-
 }

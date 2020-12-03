@@ -53,31 +53,31 @@ class Duitku extends Requestor implements VendorInterface
 			$this->form['country_code'] = $this->transaction->getCountryCode();
 			//
 			$this->form['billing_address'] = [
-				'firstName' => $this->form['customer_name'],
-				'lastName' => '',
-				'address' => $this->form['customer_address'],
-				'city' => '',
-				'postalCode' => '',
-				'phone' => $this->form['customer_phone'],
-				'countryCode' => $this->form['country_code'],
-			];
+					'firstName' => $this->form['customer_name'],
+					'lastName' => '',
+					'address' => $this->form['customer_address'],
+					'city' => '',
+					'postalCode' => '',
+					'phone' => $this->form['customer_phone'],
+					'countryCode' => $this->form['country_code'],
+				];
 			$this->form['shipping_address'] = [
-				'firstName' => $this->form['customer_name'],
-				'lastName' => '',
-				'address' => $this->form['customer_address'],
-				'city' => '',
-				'postalCode' => '',
-				'phone' => $this->form['customer_phone'],
-				'countryCode' => $this->form['country_code'],
-			];
+					'firstName' => $this->form['customer_name'],
+					'lastName' => '',
+					'address' => $this->form['customer_address'],
+					'city' => '',
+					'postalCode' => '',
+					'phone' => $this->form['customer_phone'],
+					'countryCode' => $this->form['country_code'],
+				];
 			$this->form['customer_details'] = [
-				'firstName' => $this->form['customer_name'],
-				'lastName' => '',
-				'email' => $this->form['customer_email'],
-				'phoneNumber' => $this->form['customer_phone'],
-				'billingAddress' => $this->form['billing_address'],
-				'shippingAddress' => $this->form['shipping_address'],
-			];
+					'firstName' => $this->form['customer_name'],
+					'lastName' => '',
+					'email' => $this->form['customer_email'],
+					'phoneNumber' => $this->form['customer_phone'],
+					'billingAddress' => $this->form['billing_address'],
+					'shippingAddress' => $this->form['shipping_address'],
+				];
 			// VC    Credit Card (Visa / Master)
 			// BK    BCA KlikPay
 			// M1    Mandiri Virtual Account
@@ -107,40 +107,40 @@ class Duitku extends Requestor implements VendorInterface
 			// Request argseter
 			$this->form['expiry_period'] = $this->transaction->getExpireAt(); // minutes
 			$this->form['signature'] = md5(
-				$this->init->getMID() .
-					$this->form['order_id'] .
-					(float) $this->form['amount'] .
-					$this->init->getSecret()
-			);
+					$this->init->getMID() .
+						$this->form['order_id'] .
+						(float) $this->form['amount'] .
+						$this->init->getSecret()
+				);
 			// Go
 			$this->request['form'] = $this->form;
 			$this->request['time'] = $this->transaction->getTime();
 			$this->request['url'] = $this->form['payment_url'];
 			$this->request['data'] = [
-				'merchantCode' => $this->init->getMID(),
-				'paymentAmount' => $this->form['amount'],
-				'paymentMethod' => $this->form['payment_method'],
-				'merchantOrderId' => $this->form['order_id'],
-				'productDetails' => $this->form['description'],
-				'additionalargs' => '', // optional
-				'merchantUserInfo' => '', // optional
-				'customerVaName' => $this->form['customer_name'],
-				'email' => $this->form['customer_email'],
-				'phoneNumber' => $this->form['customer_phone'],
-				'itemDetails' => [],
-				'customerDetail' => $this->form['customer_details'],
-				'callbackUrl' => $this->form['callback_url'],
-				'returnUrl' => $this->form['return_url'],
-				'signature' => $this->form['signature'],
-				'expiryPeriod' => $this->form['expiry_period'],
-			];
+					'merchantCode' => $this->init->getMID(),
+					'paymentAmount' => $this->form['amount'],
+					'paymentMethod' => $this->form['payment_method'],
+					'merchantOrderId' => $this->form['order_id'],
+					'productDetails' => $this->form['description'],
+					'additionalargs' => '', // optional
+					'merchantUserInfo' => '', // optional
+					'customerVaName' => $this->form['customer_name'],
+					'email' => $this->form['customer_email'],
+					'phoneNumber' => $this->form['customer_phone'],
+					'itemDetails' => [],
+					'customerDetail' => $this->form['customer_details'],
+					'callbackUrl' => $this->form['callback_url'],
+					'returnUrl' => $this->form['return_url'],
+					'signature' => $this->form['signature'],
+					'expiryPeriod' => $this->form['expiry_period'],
+				];
 			$this->request['headers'] = [[
-				'Content-Type' => 'application/json',
-				'Content-Length' => strlen(json_encode($this->request['data'])),
-			]];
+					'Content-Type' => 'application/json',
+					'Content-Length' => strlen(json_encode($this->request['data'])),
+				]];
 			$this->request['option'] = [
-				'to_json' => true,
-			];
+					'to_json' => true,
+				];
 			$post = $this->DoRequest('POST', $this->request);
 			$response = (array) $post['response'];
 			extract($response);
@@ -163,26 +163,27 @@ class Duitku extends Requestor implements VendorInterface
                     }
                      */
 					$res = [
-						'status' => '000',
-						'data' => (array) $content,
-					];
+							'status' => '000',
+							'data' => (array) $content,
+						];
 				} else {
 					// throw new \Exception($content->statusMessage);
 					// Other status
 					/*
                      */
 					$res = [
-						'status' => str_pad($content->statusCode, 3, '0', STR_PAD_LEFT),
-						'data' => (array) $content,
-					];
+							// 'status' => str_pad($content->statusCode, 3, '0', STR_PAD_LEFT),
+							'status' => $content->statusCode ?? '999', // Go for original status code
+							'data' => (array) $content,
+						];
 				}
 				$return = [
-					'request' => (array) $this->request,
-					'response' => [
-						'content' => json_encode($res),
-						'status_code' => 200,
-					],
-				];
+						'request' => (array) $this->request,
+						'response' => [
+							'content' => json_encode($res),
+							'status_code' => 200,
+						],
+					];
 			} else {
 				throw new \Exception($content);
 			}
@@ -212,23 +213,23 @@ class Duitku extends Requestor implements VendorInterface
 		try {
 			SELF::Validate($request, ['amount', 'merchantOrderId', 'signature']);
 			$signature = md5(
-				$this->init->getMID() .
-					(float) $request->amount .
-					$request->merchantOrderId .
-					$this->init->getSecret()
-			);
+					$this->init->getMID() .
+						(float) $request->amount .
+						$request->merchantOrderId .
+						$this->init->getSecret()
+				);
 			if (strcmp($signature, $request->signature) === 0) {
 				$res = [
-					'status' => '000',
-					'data' => (array) $request,
-				];
+						'status' => '000',
+						'data' => (array) $request,
+					];
 				$return = [
-					'request' => (array) $request,
-					'response' => [
-						'content' => json_encode($res),
-						'status_code' => 200,
-					],
-				];
+						'request' => (array) $request,
+						'response' => [
+							'content' => json_encode($res),
+							'status_code' => 200,
+						],
+					];
 			} else {
 				throw new \Exception('Signature check failed');
 			}
@@ -248,25 +249,25 @@ class Duitku extends Requestor implements VendorInterface
 		try {
 			SELF::Validate($request, ['order_id']);
 			$signature = md5(
-				$this->init->getMID() .
-					$request->order_id .
-					$this->init->getSecret()
-			);
+					$this->init->getMID() .
+						$request->order_id .
+						$this->init->getSecret()
+				);
 			// Go
 			$this->request['time'] = time();
 			$this->request['url'] = $this->init->getRequestURL() . '/transactionStatus';
 			$this->request['data'] = [
-				'merchantCode' => $this->init->getMID(),
-				'merchantOrderId' => $request->order_id,
-				'signature' => $signature,
-			];
+					'merchantCode' => $this->init->getMID(),
+					'merchantOrderId' => $request->order_id,
+					'signature' => $signature,
+				];
 			$this->request['headers'] = [[
-				'Content-Type' => 'application/json',
-				'Content-Length' => strlen(json_encode($this->request['data'])),
-			]];
+					'Content-Type' => 'application/json',
+					'Content-Length' => strlen(json_encode($this->request['data'])),
+				]];
 			$this->request['option'] = [
-				'to_json' => false,
-			];
+					'to_json' => false,
+				];
 			$post = $this->DoRequest('POST', $this->request);
 			$response = (array) $post['response'];
 			extract($response);
@@ -291,23 +292,24 @@ class Duitku extends Requestor implements VendorInterface
 							}
 							*/
 						$res = [
-							'status' => '000',
-							'data' => (array) $content,
-						];
+								'status' => '000',
+								'data' => (array) $content,
+							];
 					} else {
 						// Other statuses
 						$res = [
-							'status' => str_pad($content->statusCode, 3, '0', STR_PAD_LEFT),
-							'data' => (array) $content,
-						];
+								// 'status' => str_pad($content->statusCode, 3, '0', STR_PAD_LEFT),
+								'status' => $content->statusCode ?? '999', // Go for original status code
+								'data' => (array) $content,
+							];
 					}
 					$result = [
-						'request' => (array) $request,
-						'response' => [
-							'content' => json_encode($res),
-							'status_code' => 200,
-						],
-					];
+							'request' => (array) $request,
+							'response' => [
+								'content' => json_encode($res),
+								'status_code' => 200,
+							],
+						];
 				} else {
 					throw new \Exception($content->statusMessage);
 				}
