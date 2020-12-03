@@ -264,7 +264,7 @@ class TCTP extends Requestor implements VendorInterface
 								];
 						} else {
 							$res = [
-									'status' => $content->respCode,
+									'status' => $content->respCode ?? '999',
 									'data' => (array) $content,
 								];
 						}
@@ -328,7 +328,7 @@ class TCTP extends Requestor implements VendorInterface
 								];
 						} else {
 							$res = [
-									'status' => $content->respCode,
+									'status' => $content->respCode ?? '999',
 									'data' => (array) $content,
 								];
 						}
@@ -435,7 +435,7 @@ class TCTP extends Requestor implements VendorInterface
 								];
 						} else {
 							$res = [
-									'status' => $content->respCode,
+									'status' => $content->respCode ?? '999',
 									'data' => (array) $content,
 								];
 						}
@@ -720,7 +720,7 @@ class TCTP extends Requestor implements VendorInterface
 							}
 							*/
 							$res = [
-									'status' => $content->respCode,
+									'status' => $content->respCode ?? '999',
 									'data' => (array) $content,
 								];
 						}
