@@ -17,28 +17,29 @@ $transaction->setAmount(rand(50000, 1000000));
 $transaction->setCurrency('IDR');
 $transaction->setCurrencyCode(360);
 // Customer data
-$transaction->setCustomerName('SEAN');
-$transaction->setCustomerEmail('essefx@gmail.com');
-$transaction->setCustomerPhone('081298983535');
+$transaction->setCustomerName('LOREM');
+$transaction->setCustomerEmail('lorem@ipsum.com');
+$transaction->setCustomerPhone('081212121313');
 // Payment channel selection
-$transaction->setPaymentMethod('123,CIMBVA,ATM');
-// $transaction->setPaymentMethod('123,INDOMARET,OVERTHECOUNTER');
-// $transaction->setPaymentMethod('OVO');
-// $transaction->setPaymentMethod('LINKAJA');
 // $transaction->setPaymentMethod('CC');
+// $transaction->setPaymentMethod('OVO,OVO');
+// $transaction->setPaymentMethod('LINKAJA');
+$transaction->setPaymentMethod('SSM,123,CIMBVA,ATM');
+// $transaction->setPaymentMethod('COUNTER,123,INDOMARET,OVERTHECOUNTER');
 // For CC
 $transaction->setCardToken('00acGOy9DNhXqSk3bzIt0gLUpjCacQIn7Cz5wkoOpdKGBQW/B0w6kWBVp2RcpoCWb0yire4XlsUP8LG7TiE1SM+5SJOPGWNh5mByjiZm8jBRU2jFbEHZmvOJHcntgq/w2EdkUstqHaM4e/+Zwbl2uvCbl7+Qct+pLdZ54omKJeCVOpI=U2FsdGVkX1+J1KYmioWTmrzlzz6A4rVmZNerY2Y34DyAAttq71vA5xWlRDeXP7y+');
 
-try {
+// try {
 
 	// First create payment token
 	$payment_token = $vendor->CreatePaymentToken($transaction);
 	$content = (object) json_decode($payment_token['response']['content']);
 	$payment_token = $content->data->paymentToken;
 echo '1. payment_token:';
+// print_r($payment_token);
 print_r($content);
 
-/*------------------------------ V V V Optional ----------
+/*------------------------------ V V V Optional ----------*
 
 	// Call payment option (optional step)
 	$payment_option = $vendor->GetPaymentOption(
@@ -47,6 +48,7 @@ print_r($content);
 		);
 	$content = (object) json_decode($payment_option['response']['content']);
 echo '2. payment_option:';
+// print_r($payment_option);
 print_r($content);
 	// Call payment option details (optional step)
 	$payment_option_detail = $vendor->GetPaymentOptionDetail(
@@ -84,9 +86,10 @@ print_r($content);
 		);
 	$content = (object) json_decode($payment_option_detail['response']['content']);
 echo '3. payment_option_detail:';
+// print_r($payment_option_detail);
 print_r($content);
 
------------------------------- A A A Optional ---------- */
+/*------------------------------ A A A Optional ---------- */
 
 	// Do payment
 	$do_payment = $vendor->DoPayment(
@@ -114,6 +117,6 @@ print_r($content);
 echo '6. payment_inquiry:';
 print_r($content);
 
-} catch (\Throwable $e) {
-	echo 'Secure payment failed: ' . $e->getMessage() . ':' . $e->getCode();
-}
+// } catch (\Throwable $e) {
+// 	echo 'Secure payment failed: ' . $e->getMessage() . ':' . $e->getCode();
+// }

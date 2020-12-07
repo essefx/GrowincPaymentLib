@@ -25,7 +25,8 @@ class Transaction
 	//
 	protected $payment_type;
 	protected $item;
-	protected $customer_userid;
+	//
+	protected $customer_userid; // klikbca login
 	// cc
 	protected $cc_card_number;
 	protected $cc_card_exp_month;
@@ -228,12 +229,12 @@ class Transaction
 
 	// bca_klikbca
 
-	public function setCustomerUserid(string $customer_userid): void
+	public function setCustomerUserID(string $customer_userid): void
 	{
 		$this->customer_userid = $customer_userid;
 	}
 
-	public function getCustomerUserid(): ?string
+	public function getCustomerUserID(): ?string
 	{
 		return $this->customer_userid;
 	}

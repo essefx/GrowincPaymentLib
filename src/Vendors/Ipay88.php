@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Growinc\Payment\Vendors;
 
@@ -37,7 +37,7 @@ class Ipay88 extends Requestor implements VendorInterface {
   //    {
   //       $bin .= chr(hexdec(substr($hexSource,$i,2)));
   //    }
-     
+
   //    return $bin;
   // }
 
@@ -50,19 +50,19 @@ class Ipay88 extends Requestor implements VendorInterface {
 			// $this->form['merchant_code'] = "ID01625";
 
 			/*	paymentId:
-			ATM Transfer | payment method 
+			ATM Transfer | payment method
 			  - Maybank VA -> 9
 			  - Mandiri ATM -> 17
 			  - BCA VA -> 25
 			  - BNI VA -> 26
-			  - Permata VA -> 31  
+			  - Permata VA -> 31
 			*/
 
 			$this->request['time'] = time();
 
 			$transaction_date =  date("Y-m-d h:i:s");
 			$this->form['order_id'] = $this->transaction->getOrderID();
-			$this->form['payment_method'] = $this->transaction->getPaymentId();
+			$this->form['payment_method'] = $this->transaction->setPaymentMethod();
 				$this->form['amount'] = $this->transaction->getAmount();
 				$this->form['description'] = $this->transaction->getDescription();
 			$this->form['currency'] = $this->transaction->getCurrency();
@@ -74,9 +74,9 @@ class Ipay88 extends Requestor implements VendorInterface {
 			$this->form['response_url'] = $this->init->getResponseUrl();
 			$this->form['backend_url'] = $this->init->getBackendURL();
 
-			/** 
+			/**
 			* Billing Address
-			* get data  : customer_name, customer_email, customer_phone, country_code 
+			* get data  : customer_name, customer_email, customer_phone, country_code
 			*/
 
 			$this->form['billing_address'] = [
@@ -90,7 +90,7 @@ class Ipay88 extends Requestor implements VendorInterface {
 				'email' => $this->form['customer_email'],
 			];
 
-			/** 
+			/**
 			* Shipping Address
 			* get data  : shipping_address, customer_name, customer_email,  customer_phone, country_code
 			*/
@@ -106,7 +106,7 @@ class Ipay88 extends Requestor implements VendorInterface {
 				'email' => $this->form['customer_email']
 			];
 
-			/** 
+			/**
 			* Detail Seller
 			* get data  : customer_name, customer_phone, customer_email,  customer_phone, country_code
 			*/
@@ -126,22 +126,19 @@ class Ipay88 extends Requestor implements VendorInterface {
 
 			// $this->form['seller'] = $this->transaction->getSeller();
 
-			// item transaksi  
+			// item transaksi
 			$this->form['item_details'] = $this->transaction->getItem();
 			$amountTotal  = 0 ;
 			foreach($this->form['item_details'] as $price){
 					$amountTotal += (int) $price['price'] * (int) $price['quantity'] ;
 				}
 
-			// Create Signature 
+			// Create Signature
 			$signature = $this->init->getSecret().$this->init->getMID().$this->transaction->getOrderID().$amountTotal.$this->form['currency'];
 			$encode_signature = base64_encode(hex2bin(sha1($signature)));
 
 			$this->init->setSign($encode_signature);
 			// $signature__aa = openssl_digest($encode_signature, 'sha512');
-
-
-			$this->init->setPaymentId($this->form['payment_method']);
 
 			$this->request['url'] = $this->form['payment_url'];
 
@@ -151,8 +148,8 @@ class Ipay88 extends Requestor implements VendorInterface {
 				'Currency' => $this->form['currency'],
 				'RefNo' =>  $this->form['order_id'],
 				// 'RefNo' =>  '0004805330',
-				'Amount' => (int) $amountTotal, 
-				'ProdDesc' => $this->form['description'], 
+				'Amount' => (int) $amountTotal,
+				'ProdDesc' => $this->form['description'],
 				'UserName' => $this->form['customer_name'],
 				'UserEmail' => $this->form['customer_email'],
 				'UserContact' => $this->form['customer_phone'],
@@ -175,14 +172,14 @@ class Ipay88 extends Requestor implements VendorInterface {
 			$this->request['option'] = [
 				'to_json' => true,
 			];
-			// Send request 
+			// Send request
 			$post = $this->DoRequest('POST', $this->request);
 			$response = (array) $post['response'];
 			extract($response);
-			if (!empty($status_code) && $status_code === 200) 
+			if (!empty($status_code) && $status_code === 200)
 			{
 				$content = (object) json_decode($content);
-				if (empty($content->ErrDesc) && $content->ErrDesc === "") 
+				if (empty($content->ErrDesc) && $content->ErrDesc === "")
 				{
 					// Success
 					// [
@@ -232,7 +229,7 @@ class Ipay88 extends Requestor implements VendorInterface {
 		}
 		return $result ?? [];
 	}
-  
+
 
 	public function Callback(object $request)
 	{
@@ -246,7 +243,7 @@ class Ipay88 extends Requestor implements VendorInterface {
 
 	public function Inquiry(object $request)
 	{
-   
+
 	}
 
 	public function Cancel(object $request)
@@ -304,5 +301,5 @@ class Ipay88 extends Requestor implements VendorInterface {
 	}
 
 
-  
+
 }
