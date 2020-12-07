@@ -15,8 +15,7 @@ class	Init
 	protected $callback_url;
 	protected $return_url;
 	protected $token_url;
-
-	protected $payment_id;
+	//
 	protected $backend_url;
 	protected $response_url;
 
@@ -105,31 +104,23 @@ class	Init
 
 	// token cc
 
-	public function setTokenUrl(string $token_url): void
+	public function setTokenURL(string $token_url): void
 	{
 		$this->token_url = $token_url;
 	}
 
-	public function getTokenUrl(): ?string
+	public function getTokenURL(): ?string
 	{
 		return $this->token_url;
 	}
 
 	//
 
-	public function setPaymentId(string $payment_id): void {
-		$this->payment_id = $payment_id;
-	}
-
-	public function getPaymentId(): ?string
-	{
-		return $this->payment_id;
-	}
-
 	public function setBackendURL(string $backend_url): void
 	{
 		$this->backend_url = $backend_url;
 	}
+
 	public function getBackendURL(): ?string
 	{
 		return $this->backend_url;

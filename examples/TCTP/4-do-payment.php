@@ -9,9 +9,9 @@ $init->setReturnURL('https://ibank.growinc.dev/oanwef4851ashrb/pg/dk/redapi_form
 $vendor = new \Growinc\Payment\Vendors\TCTP($init);
 
 $transaction = new \Growinc\Payment\Transaction();
-$transaction->setCustomerName('SEAN');
-$transaction->setCustomerEmail('essefx@gmail.com');
-$transaction->setCustomerPhone('081298983535');
+$transaction->setCustomerName('LOREM');
+$transaction->setCustomerEmail('lorem@ipsum.com');
+$transaction->setCustomerPhone('081212121313');
 // Choose payment channel
 $transaction->setPaymentMethod('123,CIMBVA,ATM');
 // $transaction->setPaymentMethod('123,INDOMARET,OVERTHECOUNTER');

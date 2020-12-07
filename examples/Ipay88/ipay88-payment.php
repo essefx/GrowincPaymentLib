@@ -23,8 +23,7 @@
   // BCA VA	25
   // BNI VA	26
   // Permata VA	31
-
-  $transaction->setPaymentId(9);
+  $transaction->setPaymentMethod(9);
 
   /**
    * Dummy items
