@@ -553,13 +553,13 @@ class TCTP extends Requestor implements VendorInterface
 
 
 
-		public function ParsePaymentPage($payment_url, $channel_code)
+		public function ParsePaymentPage($channel_code, $payment_url)
 		{
 			try {
 				$this->request['url'] = 'http://103.5.45.182:13579/parse/' .
-					'2C2P' . '/';
-					$channel_code . '/';
-					base64_encode($payment_url) . '/';
+					'2c2p' . '/' .
+					$channel_code . '/' .
+					base64_encode($payment_url);
 				// $this->request['data'] = [
 				// 		'vendor' => '2C2P',
 				// 		'type' => $channel_code,
@@ -581,12 +581,12 @@ class TCTP extends Requestor implements VendorInterface
 						) {
 							$res = [
 									'status' => '000',
-									'data' => (array) $content,
+									'data' => (array) $content->data,
 								];
 						} else {
 							$res = [
 									'status' => $content->status,
-									'data' => (array) $content,
+									'data' => (array) $content->data,
 								];
 						}
 						$result = [

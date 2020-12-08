@@ -16,7 +16,7 @@ $transaction = new \Growinc\Payment\Transaction();
 $transaction->setCustomerName('LOREM');
 $transaction->setCustomerEmail('lorem@ipsum.com');
 $transaction->setCustomerPhone('081212121313');
-$transaction->setAmount(100000);
+// $transaction->setAmount(100000); // Inapplicable
 $transaction->setCountrycode('IDN');
 
 // midtrans should use item detail

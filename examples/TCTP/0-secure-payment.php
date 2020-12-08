@@ -99,6 +99,8 @@ print_r($content);
 	$content = (object) json_decode($do_payment['response']['content']);
 echo '4. do_payment:';
 print_r($content);
+$payment_url = (string) $content->data->data;
+echo '4b. payment_url:' . $payment_url;
 
 	// Transaction status
 	$transaction_status = $vendor->TransactionStatus(
@@ -115,6 +117,15 @@ print_r($content);
 		);
 	$content = (object) json_decode($payment_inquiry['response']['content']);
 echo '6. payment_inquiry:';
+print_r($content);
+
+	// Parse payment code / va number / etc
+	$va_number = $vendor->ParsePaymentPage(
+			'va',
+			$payment_url
+		);
+	$content = (object) json_decode($va_number['response']['content']);
+echo '7. va_number:';
 print_r($content);
 
 // } catch (\Throwable $e) {
