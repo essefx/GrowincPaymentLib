@@ -459,10 +459,18 @@ class Midtrans extends Requestor implements VendorInterface
 		}
 		*/
 		try {
-			SELF::Validate($request, ['order_id', 'status_code', 'gross_amount']);
-			$input = $request->order_id . $request->status_code . $request->gross_amount . $this->init->getMID();
+			SELF::Validate($request, [
+					'order_id',
+					'status_code',
+					'gross_amount'
+				]);
+			$input = $request->order_id .
+				$request->status_code .
+				$request->gross_amount .
+				$this->init->getMID();
 			$signature = openssl_digest($input, 'sha512');
-			// print_r($signature);exit();
+			// print_r($signature);
+			// exit();
 			if (strcmp($signature, $request->signature_key) === 0) {
 				$content = [
 						'status' => '000',

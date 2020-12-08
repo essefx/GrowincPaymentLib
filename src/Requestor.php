@@ -52,8 +52,8 @@ class Requestor
                 'base_uri' => $this->init->getBaseURI(),
             ])->sendRequest(
                 $method,
-                $request['url'],
-                $request['data'],
+                $request['url'] ?? '',
+                $request['data'] ?? [],
                 $request['headers'] ?? [],
                 $request['option'] ?? [],
             );
@@ -61,8 +61,8 @@ class Requestor
                 $return = [
                     'request' => [
                         'time' => $request['time'] ?? time(),
-                        'url' => $request['url'],
-                        'data' => $request['data'],
+                        'url' => $request['url'] ?? '',
+                        'data' => $request['data'] ?? [],
                         'data_raw' => $request['data_raw'] ?? [],
                         'headers' => $request['headers'] ?? [],
                     ],
@@ -72,8 +72,8 @@ class Requestor
                 $return = [
                     'request' => [
                         'time' => $request['time'] ?? time(),
-                        'url' => $request['url'],
-                        'data' => $request['data'],
+                        'url' => $request['url'] ?? '',
+                        'data' => $request['data'] ?? [],
                         'data_raw' => $request['data_raw'] ?? [],
                         'headers' => $request['headers'] ?? [],
                     ],
