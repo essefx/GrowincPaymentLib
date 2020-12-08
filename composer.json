@@ -1,5 +1,5 @@
 {
-	"name": "dewa150/growinc-payment-lib",
+	"name": "essefx/growinc-payment-lib",
 	"description": "Payment gateway API connector libraries",
 	"keywords": [
 		"payment gateway",
@@ -10,8 +10,8 @@
 	"type": "library",
 	"authors": [
 		{
-			"name": "dewa150",
-			"email": "dewa150@gmail.com"
+			"name": "essefx",
+			"email": "essefx@gmail.com"
 		}
 	],
 	"require": {
