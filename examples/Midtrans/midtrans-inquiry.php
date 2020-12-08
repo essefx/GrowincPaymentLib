@@ -10,7 +10,7 @@ $vendor = new \Growinc\Payment\Vendors\Midtrans($init);
 
 try {
 	$result = $vendor->Inquiry((object) [
-			'order_id' => '0007398788',
+			'order_id' => '202012082113741607420759',
 		]);
 	extract($result);
 	print_r($response);

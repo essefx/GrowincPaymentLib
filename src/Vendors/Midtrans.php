@@ -516,7 +516,10 @@ class Midtrans extends Requestor implements VendorInterface
 				$content = (object) json_decode($content);
 				if (
 					!empty($content->status_code)
-					&& $content->status_code == "201"
+					&&
+						( $content->status_code == "201" // pending
+			 				|| $content->status_code == "200" // settlement
+						)
 					&& $content->order_id == $request->order_id
 				) {
 					// Success
