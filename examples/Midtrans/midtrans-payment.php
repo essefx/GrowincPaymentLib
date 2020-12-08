@@ -68,7 +68,7 @@ $transaction->setCardExpCvv('123');
 /*------------------------------ V V V Start of Bank transfer ---------- */
 // $transaction->setPaymentMethod('bank_transfer,permata');
 // $transaction->setPaymentMethod('bank_transfer,bni');
-// $transaction->setPaymentMethod('bank_transfer,bca');
+$transaction->setPaymentMethod('bank_transfer,bca');
 // $transaction->setPaymentMethod('bank_transfer,bri');
 // $transaction->setPaymentMethod('echannel'); // Mandiri
 /*------------------------------ A A A End of Bank transfer ---------- */
