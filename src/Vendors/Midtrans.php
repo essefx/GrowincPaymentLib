@@ -65,7 +65,7 @@ class Midtrans extends Requestor implements VendorInterface
 			//
 			$this->form['order_id'] = $this->transaction->getOrderID();
 			$this->form['invoice_no'] = $this->transaction->getInvoiceNo();
-			$this->form['amount'] = $this->transaction->getAmount();
+			// $this->form['amount'] = $this->transaction->getAmount(); // Inapplicable
 			$this->form['description'] = $this->transaction->getDescription();
 			$this->form['currency'] = $this->transaction->getCurrency();
 			//
@@ -106,9 +106,9 @@ class Midtrans extends Requestor implements VendorInterface
 			// item details
 			$this->form['item_details'] = $this->transaction->getItem();
 			// amount
-			$amountTotal = 0;
+			$amount_total = 0;
 			foreach ($this->form['item_details'] as $price) {
-				$amountTotal += (int) $price['price'] * (int) $price['quantity'];
+				$amount_total += (int) $price['price'] * (int) $price['quantity'];
 			}
 			/*
 				bank transfer
@@ -151,7 +151,7 @@ class Midtrans extends Requestor implements VendorInterface
 					],
 				'transaction_details' => [
 						'order_id' => $this->form['order_id'],
-						'gross_amount' => $amountTotal,
+						'gross_amount' => (float) $amount_total,
 					],
 				'customer_details' => $this->form['customer_details'],
 				'item_details' => $this->form['item_details']
