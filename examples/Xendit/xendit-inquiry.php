@@ -9,15 +9,17 @@ $init->setRequestURL('https://api.xendit.co');
 
 $vendor = new \Growinc\Payment\Vendors\Xendit($init);
 // $result = $vendor->Inquiry((object) [
-			// 'order_id' => '5f9fb9758d65ab3c1141f2301',
+			// 'order_id' => '5f9fb9758d65ab3c1141f230',
 		// ]);
 // print_r($result);exit();
 try {
 	$result = $vendor->Inquiry((object) [
-			'order_id' => '5f9fb9758d65ab3c1141f230', // payment_id (get from Xendit notification)
+			'order_id' => '0007409466', // payment_id (get from Xendit notification)
+			'transaction_id' => '5f9fb9758d65ab3c1141f230', // payment_id (get from Xendit notification)
 		]);
-	extract($result);
-	print_r($response);
+	// extract($result);
+	// print_r($response);
+	print_r($result);
 } catch (\Throwable $e) {
 	echo 'Inquiry failed: ' . $e->getMessage();
 }

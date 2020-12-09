@@ -20,6 +20,8 @@ $transaction->setCountrycode('IDN');
 */
 // xendit param required
 $transaction->setPaymentMethod('bca'); // for VA 
+$transaction->setPaymentType('bank_transfer');
+$transaction->setDescription('Pembelian Elektronik');
 
 $vendor = new \Growinc\Payment\Vendors\Xendit($init);
 // $result = $vendor->SecurePayment($transaction);
@@ -27,8 +29,9 @@ $vendor = new \Growinc\Payment\Vendors\Xendit($init);
  
 try {
 	$result = $vendor->SecurePayment($transaction); // return payment URL
-	extract($result);
-	print_r($response);
+	// extract($result);
+	// print_r($response);
+	print_r($result);
 	//
 	// print_r($vendor->getRequest());
 	// print_r($vendor->getResponse()); // Get  PSR7 object
