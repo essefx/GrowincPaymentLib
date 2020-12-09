@@ -190,7 +190,8 @@ class TCTP extends Requestor implements VendorInterface
 						// 'currencyCode' => $this->form['currencyCode'],
 						'currencyCode' => $this->form['currency'],
 						'paymentChannel' => [
-								'ALL'
+								// 'ALL'
+								explode(',', $this->form['paymentChannel'])[0]
 							],
 						'request3DS' => $this->form['request3DS'],
 						'tokenize' => $this->form['tokenize'],
@@ -294,6 +295,8 @@ class TCTP extends Requestor implements VendorInterface
 			try {
 				$this->transaction = $transaction;
 				// Get Payment Options from vendor
+				$this->request['form'] = [];
+				$this->request['time'] = $this->transaction->getTime();
 				$this->request['url'] = 'https://sandbox-pgw.2c2p.com/payment/4.1/paymentOption';
 				$this->request['headers'] = [
 						'Accept' => 'text/plain',
@@ -304,6 +307,7 @@ class TCTP extends Requestor implements VendorInterface
 				$this->request['option'] = [
 						'as_json' => true,
 					];
+				$this->request['data_raw'] = [];
 				$this->request['data'] = [
 						'paymentToken' => $payment_token,
 						'locale' => 'en',
@@ -399,6 +403,8 @@ class TCTP extends Requestor implements VendorInterface
 				// 	LCARDIPP | Local Card IPP
 				// 		groups:
 				// 			LIPP | Installment Plan Payment Loan Card
+				$this->request['form'] = [];
+				$this->request['time'] = $this->transaction->getTime();
 				$this->request['url'] = 'https://sandbox-pgw.2c2p.com/payment/4.1/paymentOptionDetails';
 				$this->request['headers'] = [
 						'Accept' => 'text/plain',
@@ -409,6 +415,7 @@ class TCTP extends Requestor implements VendorInterface
 				$this->request['option'] = [
 						'as_json' => true,
 					];
+				$this->request['data_raw'] = [];
 				$this->request['data'] = [
 						'paymentToken' => $payment_token,
 						'locale' => 'en',
@@ -467,9 +474,9 @@ class TCTP extends Requestor implements VendorInterface
 				// Do Payment
 				$payment_channel = $this->transaction->getPaymentMethod();
 				$payment_method = explode(',', $payment_channel);
-				$channel_code = $payment_method[0] ?? null;
-				$agent_code = $payment_method[1] ?? null;
-				$agent_channel_code = $payment_method[2] ?? null;
+				$channel_code = $payment_method[1] ?? null;
+				$agent_code = $payment_method[2] ?? null;
+				$agent_channel_code = $payment_method[3] ?? null;
 				$this->request['form'] = [];
 				$this->request['time'] = $this->transaction->getTime();
 				$this->request['url'] = 'https://sandbox-pgw.2c2p.com/payment/4.1/payment';
@@ -482,6 +489,7 @@ class TCTP extends Requestor implements VendorInterface
 				$this->request['option'] = [
 						'as_json' => true,
 					];
+				$this->request['data_raw'] = [];
 				$this->request['data'] = [
 						'paymentToken' => $payment_token,
 						'locale' => 'en',
@@ -545,13 +553,13 @@ class TCTP extends Requestor implements VendorInterface
 
 
 
-		public function ParsePaymentPage($payment_url, $channel_code)
+		public function ParsePaymentPage($channel_code, $payment_url)
 		{
 			try {
 				$this->request['url'] = 'http://103.5.45.182:13579/parse/' .
-					'2C2P' . '/';
-					$channel_code . '/';
-					base64_encode($payment_url) . '/';
+					'2c2p' . '/' .
+					$channel_code . '/' .
+					base64_encode($payment_url);
 				// $this->request['data'] = [
 				// 		'vendor' => '2C2P',
 				// 		'type' => $channel_code,
@@ -573,12 +581,12 @@ class TCTP extends Requestor implements VendorInterface
 						) {
 							$res = [
 									'status' => '000',
-									'data' => (array) $content,
+									'data' => (array) $content->data,
 								];
 						} else {
 							$res = [
 									'status' => $content->status,
-									'data' => (array) $content,
+									'data' => (array) $content->data,
 								];
 						}
 						$result = [
@@ -605,6 +613,8 @@ class TCTP extends Requestor implements VendorInterface
 		) {
 			try {
 				// Hit Transaction Status Inquiry
+				$this->request['form'] = [];
+				$this->request['time'] = $this->transaction->getTime();
 				$this->request['url'] = 'https://sandbox-pgw.2c2p.com/payment/4.1/transactionStatus';
 				$this->request['headers'] = [
 						'Accept' => 'text/plain',
@@ -615,6 +625,7 @@ class TCTP extends Requestor implements VendorInterface
 				$this->request['option'] = [
 						'as_json' => true,
 					];
+				$this->request['data_raw'] = [];
 				$this->request['data'] = [
 						'paymentToken' => $payment_token,
 						'locale' => 'en',
@@ -749,6 +760,8 @@ class TCTP extends Requestor implements VendorInterface
 		) {
 			try {
 				// Hit Payment Inquiry
+				$this->request['form'] = [];
+				$this->request['time'] = $this->transaction->getTime();
 				$this->request['url'] = 'https://sandbox-pgw.2c2p.com/payment/4.1/paymentInquiry';
 				$this->request['headers'] = [
 						'Accept' => 'text/plain',
