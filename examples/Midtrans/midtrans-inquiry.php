@@ -7,6 +7,7 @@ $init->setBaseURI('https://api.sandbox.midtrans.com');
 $init->setRequestURL('https://api.sandbox.midtrans.com/v2/');
 
 $vendor = new \Growinc\Payment\Vendors\Midtrans($init);
+
 // $result = $vendor->Inquiry((object) [
 // 			'order_id' => '0007395674', //0007405945
 // 			'transaction_id' => '4892155a-7181-40ac-9b1e-21a02b337274',
@@ -20,6 +21,7 @@ try {
 	// extract($result);
 	// print_r($response);
 	print_r($result);
+
 } catch (\Throwable $e) {
 	echo 'Inquiry failed: ' . $e->getMessage();
 }
