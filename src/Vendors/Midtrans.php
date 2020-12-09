@@ -581,12 +581,12 @@ class Midtrans extends Requestor implements VendorInterface
 						"merchant_id": "G345053042"
 					}
 					*/
-					if(isset($content->permata_va_number)){
-						$bank_code = 'Permata';
+					if(strtolower($payment_channel) == 'permata'){
 						$va_number = $content->permata_va_number;
+						$bank_code = strtolower($payment_channel);
 					}else{
-						$bank_code = $content->va_numbers[0]->bank;
 						$va_number = $content->va_numbers[0]->va_number;
+						$bank_code = $content->va_numbers[0]->bank;
 					}
 
 					$content = [
