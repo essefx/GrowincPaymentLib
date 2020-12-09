@@ -283,7 +283,7 @@ class Midtrans extends Requestor implements VendorInterface
 			extract($response);
 			if (!empty($status_code) && $status_code === 200) {
 				$content = (object) json_decode($content);
-				return print_r($content);
+				// return print_r($content);
 				if (
 					!empty($content->status_code)
 					&& $content->status_code == 201
@@ -304,6 +304,14 @@ class Midtrans extends Requestor implements VendorInterface
 						"merchant_id": "G345053042"
 					}
 					*/
+					if(strtolower($this->form['payment_method']) == 'permata'){
+						$va_number = $content->permata_va_number;
+						$bank_code = strtolower($this->form['payment_method']);
+					}else{
+						$va_number = $content->va_numbers[0]->va_number;
+						$bank_code = $content->va_numbers[0]->bank;
+					}
+
 					$content = [
 							'status' => '000',
 							'data' => (array) $content,
@@ -313,6 +321,13 @@ class Midtrans extends Requestor implements VendorInterface
 							'response' => [
 									'content' => json_encode($content),
 									'status_code' => 200,
+									'va_number' => $va_number,
+									'bank_code' => $bank_code,
+									'amount' => $content['data']['gross_amount'],
+									'transaction_id' => $content['data']['transaction_id'], // vendor transaction_id
+									'order_id' => $content['data']['order_id'], // PGA order_id
+									'payment_type' => $content['data']['payment_type'],
+									'transaction_status' => $content['data']['transaction_status'],
 								],
 						];
 				} else {
@@ -357,11 +372,27 @@ class Midtrans extends Requestor implements VendorInterface
 					'status' => '000',
 					'data' => (array) $request,
 				];
+
+				if(isset($content->permata_va_number)){
+					$bank_code = 'Permata';
+					$va_number = $content->permata_va_number;
+				}else{
+					$bank_code = $content->va_numbers[0]->bank;
+					$va_number = $content->va_numbers[0]->va_number;
+				}
+
 				$result = [
 					'request' => (array) $request,
 					'response' => [
 						'content' => json_encode($content),
 						'status_code' => 200,
+						'order_id' => $content['data']['order_id'],
+						'transaction_id' => $content['data']['transaction_id'],
+						'status' => $content['data']['transaction_status'],
+						'transaction_time' => $content['data']['transaction_time'],
+						'amount' => $content['data']['gross_amount'],
+						'bank_code' => $bank_code,
+						'va_number' => $va_number,
 					],
 				];
 			} else {
@@ -381,7 +412,7 @@ class Midtrans extends Requestor implements VendorInterface
 	public function Inquiry(object $request)
 	{
 		try {
-			SELF::Validate($request, ['order_id']);
+			SELF::Validate($request, ['order_id','transaction_id']);
 			// Go
 			$this->request['time'] = time();
 			$this->request['url'] = $this->init->getRequestURL() . $request->order_id . '/status';
@@ -391,6 +422,8 @@ class Midtrans extends Requestor implements VendorInterface
 				'Accept' => 'application/json',
 				'Authorization' => 'Basic ' . base64_encode($this->init->getMID() . ':'),
 			];
+
+			$this->request['data'] = [];
 
 			$get = $this->DoRequest('GET', $this->request);
 
@@ -427,6 +460,14 @@ class Midtrans extends Requestor implements VendorInterface
 						"merchant_id": "G345053042"
 					}
 					*/
+					if(isset($content->permata_va_number)){
+						$bank_code = 'Permata';
+						$va_number = $content->permata_va_number;
+					}else{
+						$bank_code = $content->va_numbers[0]->bank;
+						$va_number = $content->va_numbers[0]->va_number;
+					}
+
 					$content = [
 						'status' => '000',
 						'data' => (array) $content,
@@ -436,6 +477,12 @@ class Midtrans extends Requestor implements VendorInterface
 						'response' => [
 							'content' => json_encode($content),
 							'status_code' => 200,
+							'va_number' => $va_number,
+							'bank_code' => $bank_code,
+							'amount' => $content['data']['gross_amount'],
+							'transaction_id' => $content['data']['transaction_id'], // vendor transaction_id
+							'order_id' => $content['data']['order_id'], // PGA order_id
+							'transaction_status' => $content['data']['transaction_status'],
 						],
 					];
 				} else {
