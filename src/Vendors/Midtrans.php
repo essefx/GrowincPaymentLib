@@ -397,10 +397,6 @@ class Midtrans extends Requestor implements VendorInterface
 			extract($response);
 			if (!empty($status_code) && $status_code === 200) {
 				$content = (object) json_decode($content);
-<<<<<<< HEAD
-				// return print_r($content);
-=======
->>>>>>> master
 				if (
 					!empty($content->status_code)
 					&& $content->status_code == 201
@@ -443,10 +439,6 @@ class Midtrans extends Requestor implements VendorInterface
 									'amount' => $content['data']['gross_amount'],
 									'transaction_id' => $content['data']['transaction_id'], // vendor transaction_id
 									'order_id' => $content['data']['order_id'], // PGA order_id
-<<<<<<< HEAD
-									'payment_type' => $content['data']['payment_type'],
-=======
->>>>>>> master
 									'transaction_status' => $content['data']['transaction_status'],
 								],
 						];
@@ -521,10 +513,7 @@ class Midtrans extends Requestor implements VendorInterface
 						'va_number' => $va_number,
 					],
 				];
-<<<<<<< HEAD
-=======
 
->>>>>>> master
 			} else {
 				throw new \Exception('Signature check failed');
 			}
@@ -554,10 +543,7 @@ class Midtrans extends Requestor implements VendorInterface
 
 			$this->request['data'] = [];
 
-<<<<<<< HEAD
-=======
 
->>>>>>> master
 			$get = $this->DoRequest('GET', $this->request);
 			$response = (array) $get['response'];
 			extract($response);
@@ -620,10 +606,7 @@ class Midtrans extends Requestor implements VendorInterface
 							'transaction_status' => $content['data']['transaction_status'],
 						],
 					];
-<<<<<<< HEAD
-=======
 
->>>>>>> master
 				} else {
 					throw new \Exception($content->status_message);
 				}
