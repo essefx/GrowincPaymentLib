@@ -439,6 +439,7 @@ class Midtrans extends Requestor implements VendorInterface
 									'amount' => $content['data']['gross_amount'],
 									'transaction_id' => $content['data']['transaction_id'], // vendor transaction_id
 									'order_id' => $content['data']['order_id'], // PGA order_id
+									'payment_type' => $payment_method, 
 									'transaction_status' => $content['data']['transaction_status'],
 								],
 						];

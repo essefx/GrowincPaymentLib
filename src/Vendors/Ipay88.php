@@ -5,7 +5,7 @@ namespace Growinc\Payment\Vendors;
 
 use Growinc\Payment\Requestor;
 use Growinc\Payment\Vendors\VendorInterface;
-
+use Growinc\Payment\Transaction;
 
 
 class Ipay88 extends Requestor implements VendorInterface {
@@ -41,167 +41,134 @@ class Ipay88 extends Requestor implements VendorInterface {
   //    return $bin;
   // }
 
-	public function SecurePayment(\Growinc\Payment\Transaction $transaction)
+	public function SecurePayment(Transaction $transaction)
 	{
-		try {
-
+		try{
+	
 			$this->transaction = $transaction;
-
-			// $this->form['merchant_code'] = "ID01625";
-
-			/*	paymentId:
-			ATM Transfer | payment method
-			  - Maybank VA -> 9
-			  - Mandiri ATM -> 17
-			  - BCA VA -> 25
-			  - BNI VA -> 26
-			  - Permata VA -> 31
-			*/
-
-			$this->request['time'] = time();
-
-			$transaction_date =  date("Y-m-d h:i:s");
+			//
 			$this->form['order_id'] = $this->transaction->getOrderID();
-			$this->form['payment_method'] = $this->transaction->setPaymentMethod();
-				$this->form['amount'] = $this->transaction->getAmount();
-				$this->form['description'] = $this->transaction->getDescription();
+			$this->form['invoice_no'] = $this->transaction->getInvoiceNo();
+			$this->form['amount'] = $this->transaction->getAmount();
+			$this->form['description'] = $this->transaction->getDescription();
 			$this->form['currency'] = $this->transaction->getCurrency();
-			$this->form['no_ref'] = $this->transaction->getOrderID();
-				//
-				$this->form['customer_name'] = $this->transaction->getCustomerName();
-				$this->form['customer_email'] = $this->transaction->getCustomerEmail();
+			
+			/* Optional */ 
+			$this->form['no_ref'] = $this->form['order_id'];
+			
+			//
+			$this->form['customer_name'] = $this->transaction->getCustomerName();
+			$this->form['customer_email'] = $this->transaction->getCustomerEmail();
 			$this->form['customer_phone'] = $this->transaction->getCustomerPhone();
-			$this->form['response_url'] = $this->init->getResponseUrl();
-			$this->form['backend_url'] = $this->init->getBackendURL();
-
-			/**
-			* Billing Address
-			* get data  : customer_name, customer_email, customer_phone, country_code
-			*/
-
+			$this->form['customer_address'] = $this->transaction->getCustomerAddress();
+			$this->form['country_code'] = $this->transaction->getCountryCode();
+		
+			//
 			$this->form['billing_address'] = [
-				'first_name' => $this->form['customer_name'],
-				'last_name' => 'IPSUM',
-				'address' => 'sudirman',
-				'city' => 'Jakarta',
-				'postal_code' => '12190',
-				'phone' => $this->form['customer_phone'],
-				'country_code' => 'IDN',
-				'email' => $this->form['customer_email'],
-			];
-
-			/**
-			* Shipping Address
-			* get data  : shipping_address, customer_name, customer_email,  customer_phone, country_code
-			*/
-
+					'first_name' => $this->form['customer_name'],
+					'last_name' => 'IPSUM',
+					'email' => $this->form['customer_email'],
+					'phone' => $this->form['customer_phone'],
+					'address' => 'sudirman',
+					'city' => 'Jakarta',
+					'postal_code' => '12190',
+					'country_code' => $this->form['country_code'],
+				];
 			$this->form['shipping_address'] = [
-				'first_name' => $this->form['customer_name'],
-				'last_name' => 'IPSUM',
-				'address' => 'sudirman',
-				'city' => 'Jakarta',
-				'postal_code' => '12190',
-				'phone' => $this->form['customer_phone'],
-				'country_code' => 'IDN',
-				'email' => $this->form['customer_email']
-			];
-
-			/**
-			* Detail Seller
-			* get data  : customer_name, customer_phone, customer_email,  customer_phone, country_code
-			*/
-
-			$this->form['detail_seller'] = [
-				'first_name' => $this->form['customer_name'],
-				'last_name' => 'IPSUM',
-				'address' => 'sudirman',
-				'city' => 'Jakarta',
-				'postal_code' => '12190',
-				'phone' => $this->form['customer_phone'],
-				'country_code' => 'IDN',
-				'email' => $this->form['customer_email']
-			];
-
-			$this->form['payment_url'] = $this->init->getPaymentURL() . '/ePayment/WebService/PaymentAPI/Checkout';
-
-			// $this->form['seller'] = $this->transaction->getSeller();
-
-			// item transaksi
+					'first_name' => $this->form['customer_name'],
+					'last_name' => 'IPSUM',
+					'email' => $this->form['customer_email'],
+					'phone' => $this->form['customer_phone'],
+					'address' => 'sudirman',
+					'city' => 'Jakarta',
+					'postal_code' => '12190',
+					'country_code' => $this->form['country_code'],
+				];
+			$this->form['customer_details'] = [
+					'first_name' => $this->form['customer_name'],
+					'last_name' => 'IPSUM',
+					'email' => $this->form['customer_email'],
+					'phone' => $this->form['customer_phone'],
+					'billing_address' => $this->form['billing_address'],
+					'shipping_address' => $this->form['shipping_address'],
+				];
+				
 			$this->form['item_details'] = $this->transaction->getItem();
-			$amountTotal  = 0 ;
-			foreach($this->form['item_details'] as $price){
-					$amountTotal += (int) $price['price'] * (int) $price['quantity'] ;
-				}
 
-			// Create Signature
-			$signature = $this->init->getSecret().$this->init->getMID().$this->transaction->getOrderID().$amountTotal.$this->form['currency'];
-			$encode_signature = base64_encode(hex2bin(sha1($signature)));
-
-			$this->init->setSign($encode_signature);
-			// $signature__aa = openssl_digest($encode_signature, 'sha512');
-
+			$this->form['customer_userid'] = $this->transaction->getCustomerUserid();
+				
+			$paymentMethode =  explode(',', $this->transaction->getPaymentMethod());
+			$this->form['payment_type'] =  $this->getPayId($paymentMethode);
+		
+			$this->form['payment_url'] = $this->init->getPaymentURL();
+			$this->form['expiry_period'] = $this->transaction->getExpireAt(); // minutes
+			
+			
+			$this->request['form'] = $this->form;
+			$this->request['time'] = $this->transaction->getTime();
 			$this->request['url'] = $this->form['payment_url'];
 
-			$this->request['data'] = [
-				'MerchantCode' => $this->init->getMID(),
-				'PaymentId' => (string) $this->form['payment_method'],
-				'Currency' => $this->form['currency'],
-				'RefNo' =>  $this->form['order_id'],
-				// 'RefNo' =>  '0004805330',
-				'Amount' => (int) $amountTotal,
-				'ProdDesc' => $this->form['description'],
-				'UserName' => $this->form['customer_name'],
-				'UserEmail' => $this->form['customer_email'],
-				'UserContact' => $this->form['customer_phone'],
-				'Signature' => $encode_signature,
-				'ResponseURL'=> $this->form['response_url'],
-				'BackendURL'=>  $this->form['response_url'],
-				'Remark'	=> 'Transaction '.$transaction_date,
-				'Lang' => 'UTF-8',
-				'itemTransactions' =>   $this->form['item_details'],
-				'ShippingAddress' => $this->form['shipping_address'],
-				'BillingAddress' => $this->form['billing_address'],
-				'Sellers' => $this->form['detail_seller']
-			];
+			// amount
+			$amountTotal = 0;
+			foreach($this->form['item_details'] as $price){
+				$amountTotal += (int) $price['price'] * (int) $price['quantity'] ;
+			}
 
-			$this->request['headers'] = [[
+			$signature = $this->init->getSecret().$this->init->getMID().$this->transaction->getOrderID().$amountTotal.$this->form['currency'];
+      $encode_signature = base64_encode(hex2bin(sha1($signature)));
+
+			$this->request['data'] = [
+		        'MerchantCode' => $this->init->getMID(),
+		        'PaymentId' => $this->form['payment_type']->id,
+		        'Currency' => $this->form['currency'],
+		        'RefNo' =>  $this->transaction->getOrderID(),
+		        'Amount' => (int) $amountTotal, 
+		        'ProdDesc' => $this->form['description'], 
+		        'UserName' => $this->form['customer_name'],
+		        'UserEmail' => $this->form['customer_email'],
+		        'UserContact' => $this->form['customer_phone'],
+		        'Signature' => $encode_signature,
+		        'ResponseURL'=> $this->form['payment_url'],
+		        'BackendURL'=>  $this->form['payment_url'],
+		        'Remark'	=> 'Transaction ',
+				'Lang' => 'UTF-8',
+				'item_details' => $this->form['item_details'],
+				'transaction_details' => [
+					'order_id' => $this->form['order_id'],
+					'gross_amount' => $amountTotal,
+				],
+				'customer_details' => [
+					'email' => $this->form['customer_email'],
+					'first_name' => $this->form['customer_name'],
+					'last_name' => '',
+					'phone' => $this->form['customer_phone'],
+				],
+			];
+			
+		
+			/* HEADER*/ 
+			$this->request['headers'] = [
 				'Content-Type' => 'application/json',
+				'Accept' => 'application/json',
+				'Authorization' => '',
 				'Content-Length' => strlen(json_encode($this->request['data'])),
-			]];
+			];
 
 			$this->request['option'] = [
-				'to_json' => true,
+				'as_json' => true,
 			];
-			// Send request
+		
 			$post = $this->DoRequest('POST', $this->request);
+			
+	
+
 			$response = (array) $post['response'];
+		
 			extract($response);
-			if (!empty($status_code) && $status_code === 200)
-			{
-				$content = (object) json_decode($content);
-				if (empty($content->ErrDesc) && $content->ErrDesc === "")
-				{
-					// Success
-					// [
-					//   {
-					//   Status: "6",
-					//   ErrDesc: "",
-					//   MerchantCode: "ID01625",
-					//   PaymentId: "9",
-					//   Currency: "IDR",
-					//   RefNo: "12345670",
-					//   Amount: "250000",
-					//   Remark: "Transaction 2020-11-08 12:39:54",
-					//   Signature: "66SXTAZqOD1Nqy2kCtoCXugO6Ho=",
-					//   xfield1: "",
-					//   TransId: "T0050683000",
-					//   AuthCode: "",
-					//   VirtualAccountAssigned: "7828705000001580",
-					//   TransactionExpiryDate: "09-11-2020 00:40",
-					//   CheckoutURL: "https://sandbox.ipay88.co.id/epayment/entryv3.asp?CheckoutID=68ca4745a0156b368bbb7195400efea3fdc3c1fa3565c5cfd4755d57a31350a5&amp;Signature=fbiyE7gXDiVum8ip1YtbK0ctosE%3d"
-					//   },
-					//   "1"
-					// ]
+			$content = (object) json_decode($content);
+		
+			if ($content->Status != "") {
+				if (empty($content->ErrDesc) && $content->ErrDesc === "") {
 
 					$content = [
 						'status' => '000',
@@ -209,23 +176,108 @@ class Ipay88 extends Requestor implements VendorInterface {
 					];
 
 					$result = [
-						'request' => (array) $this->request,
-						'response' => [
-						  'content' => json_encode($content),
-						  'status_code' => 200,
-						],
+							'request' => (array) $this->request,
+							'response' => [
+								'content' => json_encode($content),
+								'status_code' =>  $content['data']['Status'] == 6 ? 200 : 302 ,
+								'va_number' => $content['data']['VirtualAccountAssigned'],
+								'bank_code' => $this->form['payment_type']->name,
+								'amount' => $content['data']['Amount'],
+								'transaction_id' => $content['data']['TransId'], // vendor transaction_id
+								'order_id' => $content['data']['RefNo'], // PGA order_id
+								'payment_type' => $paymentMethode[0], // Payment Method
+								'checkout' => $content['data']['CheckoutURL'], // Payment URL
+								'transaction_status' => $content['data']['ErrDesc'] == "" ? 'pending' : $content['data']['ErrDesc'],
+							],
 					];
+						
 				} else {
 					throw new \Exception($content->ErrDesc);
-					//  return print_r($resp);
 				}
-
-			} else {
-				throw new \Exception($content);
 			}
 
-		} catch (\Throwable $e) {
-			throw new \Exception($this->ThrowError($e));
+		}	catch (\Throwable $e) {
+      throw new \Exception($this->ThrowError($e));
+    }
+		return $result ?? [];
+	}
+
+	/**
+	 * @param string
+	 * @return $result ? []
+	 * */ 
+	public function getPayId($paymentId){
+		switch (strtolower($paymentId[0])) {
+			/* Bank Transfer */ 
+			case 'bank_transfer':
+			
+				switch ($paymentId[1]) {
+					case 'bca':
+						$id = 25;
+						$name = 'BCA';
+					break;
+					case 'maybank':
+						$id = 9;
+						$name = 'Maybank';
+					break;
+					case 'mandiri':
+						$id = 17;
+						$name = 'Mandiri';
+					break;
+					case 'bni':
+						$id = 26;
+						$name = 'BNI';
+					break;
+					case 'permata':
+						$id = 31;
+						$name = 'Permata';
+					break;
+					default:
+						$id = 25;
+						$name = 'BCA';
+					break;
+				}
+			break;
+
+			/* Bank Transfer */ 
+			case 'internet_banking':
+				switch ($paymentId[1]) {
+					case 'bcakp':
+						$id = 8;
+						$name = 'BCA';
+					break;
+					case 'cimbkp':
+						$id = 11;
+						$name = 'CIMB';
+					break;
+					case 'muamalatkp':
+						$id = 14;
+						$name = 'Muamalat';
+					break;
+					case 'danamonkp':
+						$id = 23;
+						$name = 'Danamon';
+					break;
+					default:
+						$id = 8;
+						$name = 'BCA';
+					break;
+				}
+			break;
+		}
+		return (object) ['id' => $id, 'name' => $name];
+	}
+
+	/**
+	 * @param object
+	 * @return $result ? []
+	 * */ 
+	public function Signature(object $object){
+		try {
+			$main = $this->init->getSecret().$this->init->getMID().$this->transaction->getOrderID().$amountTotal.$this->form['currency'];
+			base64_encode(hex2bin(sha1($main)));
+		} catch (\Throwable $th) {
+			//throw $th;
 		}
 		return $result ?? [];
 	}
