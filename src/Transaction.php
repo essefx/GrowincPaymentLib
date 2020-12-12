@@ -4,8 +4,6 @@ namespace Growinc\Payment;
 
 class Transaction
 {
-
-    protected $time;
     //
     protected $order_id;
     protected $invoice_no;
@@ -20,8 +18,6 @@ class Transaction
     protected $postal_code;
     protected $country_code;
     protected $customer_city;
-    //
-
     //
     protected $payment_method;
     protected $expire_at;
@@ -52,16 +48,25 @@ class Transaction
     protected $payment_id;
     protected $today;
 
-    public function __construct()
-    {
-        $this->time = time();
-        $this->order_id = '00' . substr($this->time, 2, strlen($this->time));
-        $this->invoice_no = 'INV' . substr($this->time, 2, strlen($this->time));
-        $this->description = 'Payment for ' . $this->invoice_no;
-        $this->currency = 'IDR';
-        $this->today = date("Y-m-d h:i:s");
-        $this->expire_at = 100;
-    }
+
+	public function __construct()
+	{
+		$this->time = time();
+		$this->order_id = '00' . substr($this->time, 2, strlen($this->time));
+		$this->invoice_no = 'INV' . substr($this->time, 2, strlen($this->time));
+		$this->description = 'Payment for ' . $this->invoice_no;
+		$this->currency = 'IDR';
+		$this->expire_at = 100;
+		// espay attr
+		$this->signature_key = 'ces0bu1jh9qrsakq';
+		$this->password = 'Y0F,(5EM=#';
+		$this->comm_code = 'SGWGROWINC';
+		$this->mode = [
+			'sendinvoice' => 'SENDINVOICE',
+			'checkstatus' => 'CHECKSTATUS',
+			'closeinvoice' => 'CLOSEDINVOICE'
+		];
+	}
 
     public function setTime(string $time): void
     {
@@ -231,7 +236,7 @@ class Transaction
         return $this->payment_type;
     }
 
-    public function setItem(&$item_detail): void
+    public function setItem($item_detail): void
     {
         $this->item = $item_detail;
     }
@@ -287,6 +292,10 @@ class Transaction
     {
         return $this->cc_card_exp_year;
     }
+    public function getCardExpYear(): ?int
+	{
+		return $this->cc_card_exp_year;
+	}
     public function setCardExpCvv(int $cc_card_cvv): void
     {
         $this->cc_card_cvv = $cc_card_cvv;
@@ -391,15 +400,23 @@ class Transaction
     {
         return $this->is_paymen_notif;
     }
-
     /* payment_id */ 
 	public function setPaymentId($payment_id): void
 	{
 		$this->payment_id = $payment_id;
 	}
-
 	public function getPaymentId(): ?int
 	{
 		return $this->payment_id;
     }
+	public function setCardToken(string $cc_token): void
+	{
+		$this->cc_token = $cc_token;
+	}
+	public function getCardToken(): ?string
+	{
+		return $this->cc_token;
+	}
+	// credit card end
+
 }

@@ -8,31 +8,36 @@ $init->setBaseURI('https://sandbox-api.espay.id');
 $init->setPaymentURL('https://sandbox-api.espay.id/rest/merchantpg/sendinvoice');
 
 $transaction = new \Growinc\Payment\Transaction();
-$transaction->setRuuid('123A-DEF4-1214');
-$transaction->setTime('2020-11-07 11:17:45'); // 2020-08-08 09:17:45 / date("Y-m-d h:i:s")
-$transaction->setOrderID('21315');
-$transaction->setAmount('20000.00');
-$transaction->setCurrency('IDR');
-$transaction->setCommcode('SGWGROWINC');
+// $transaction->setTime('2020-11-07 11:17:45'); // 
+// $transaction->setOrderID('21315');
+// $transaction->setCurrency('IDR');
+// $transaction->setVaExp('1440'); // minute
+// $transaction->setRuuid('123A-DEF4-1214');
+// $transaction->setAmount('20000.00');
+// $transaction->setCommcode('SGWGROWINC');
+// $transaction->setPassword('Y0F,(5EM=#');
+// $transaction->setSignatureKey('ces0bu1jh9qrsakq');
+// $transaction->setMode('SENDINVOICE');
+
 $transaction->setCustomerPhone('081298983535');
 $transaction->setCustomerName('Growinc');
 $transaction->setCustomerEmail('lorem@ipsum.com');
 $transaction->setUpdateOrderId('Y'); // Y update data for order id, N new order
-$transaction->setBankCode('011');
-$transaction->setVaExp('1440'); // minute
-$transaction->setPassword('Y0F,(5EM=#');
-$transaction->setSignatureKey('ces0bu1jh9qrsakq');
-//
-$transaction->setMode('SENDINVOICE');
-$uppercase = strtoupper('##' . $transaction->getSignatureKey() . '##' . $transaction->getRuuid() . '##' . $transaction->getTime() . '##' . $transaction->getOrderID() . '##' . $transaction->getAmount() . '##' . $transaction->getCurrency() . '##' . $transaction->getCommcode() . '##' . $transaction->getMode() . '##');
-$signature = hash('sha256', $uppercase);
+$transaction->setPaymentMethod('bank_transfer,bca'); // bank code
 
-$transaction->setSignature($signature);
-// $transaction->setKey('S3cr317kEY');
-// $transaction->setServicename('SendInvoice');
-// $transaction->setMemberid('012');
-// return print_r($transaction);
-// $transaction->setCustomerAddress('Jakarta Barat no 52');
+$item_detail = [
+	[
+        "id" => "mi-a1",
+        "price" => 60000,
+        "quantity" => 3,
+        "name" => "Redmi 9A",
+        "brand" => "Xiaomi",
+        "category" => "Handphone",
+        "merchant_name" => "eas_blues-store"
+	] // only cc
+];
+$transaction->setItem($item_detail);
+$transaction->setDescription('Pembelian Elektronik');
 $transaction->setCountrycode('IDN');
 
 $vendor = new \Growinc\Payment\Vendors\Espay($init);
@@ -40,7 +45,7 @@ $vendor = new \Growinc\Payment\Vendors\Espay($init);
 try {
     $result = $vendor->SecurePayment($transaction); // return payment URL
     // $result = $vendor->RedirectPayment($transaction); // redirect to vendor URL
-    // extract($result);
+    extract($result);
     print_r($result);
     // print_r($vendor->getResponse()); // Get  PSR7 object
 } catch (\Throwable $e) {
