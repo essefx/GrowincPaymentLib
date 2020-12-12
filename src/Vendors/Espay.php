@@ -482,210 +482,212 @@ class Espay extends Requestor implements VendorInterface
     // 
     public function getPayId($paymentId){
 		switch (strtolower($paymentId[0])) {
-			/* Bank Transfer */ 
-			case 'bank_transfer':
-			
-				switch ($paymentId[1]) {
-					case 'bca':
-						$id = '014';
-						$name = 'BCAATM';
-                    break;
-                    case 'bni':
-						$id = '009';
-                        $name = 'BNIATM';
-                    break;
-					case 'bptn':
-						$id = '075';
-						$name = 'BPTN';
-                    break;
-                    case 'bri':
-                        $id = '002';
-                        $name = 'BRIATM';
-                    break;
-                    case 'btpn':
-						$id = '213';
-						$name = 'BTPNWOW';
-                    break;
-                    case 'cimb':
-						$id = '022';
-						$name = 'CIMBATM';
-                    break;
-					case 'danamon':
-						$id = '011';
-						$name = 'DANAMONATM';
-                    break;
-                    case 'dbs':
-						$id = '046';
-						$name = 'DBSATM';
-                    break;
-                    case 'mandiri':
-						$id = '008';
-						$name = 'MANDIRIATM';
-                    break;
-                    case 'mandiri_syariah':
-						$id = '451';
-						$name = 'MANDIRISYARIAHATM';
-                    break;
-                    case 'maspion':
-						$id = '157';
-						$name = 'MASPIONATM';
-                    break;
-                    case 'maybank':
-						$id = '016';
-						$name = 'MAYBANK';
-                    break;
-                    case 'permata':
-						$id = '013';
-						$name = 'PERMATAATM';
-					break;
-					default:
-						$id = '014';
-						$name = 'BCAATM';
-					break;
-				}
-			break;
+                /* Bank Transfer */ 
+                case 'bank_transfer':
+                
+                    switch ($paymentId[1]) {
+                        case 'bca':
+                            $id = '014';
+                            $name = 'BCAATM';
+                        break;
+                        case 'bni':
+                            $id = '009';
+                            $name = 'BNIATM';
+                        break;
+                        case 'bptn':
+                            $id = '075';
+                            $name = 'BPTN';
+                        break;
+                        case 'bri':
+                            $id = '002';
+                            $name = 'BRIATM';
+                        break;
+                        case 'btpn':
+                            $id = '213';
+                            $name = 'BTPNWOW';
+                        break;
+                        case 'cimb':
+                            $id = '022';
+                            $name = 'CIMBATM';
+                        break;
+                        case 'danamon':
+                            $id = '011';
+                            $name = 'DANAMONATM';
+                        break;
+                        case 'dbs':
+                            $id = '046';
+                            $name = 'DBSATM';
+                        break;
+                        case 'mandiri':
+                            $id = '008';
+                            $name = 'MANDIRIATM';
+                        break;
+                        case 'mandiri_syariah':
+                            $id = '451';
+                            $name = 'MANDIRISYARIAHATM';
+                        break;
+                        case 'maspion':
+                            $id = '157';
+                            $name = 'MASPIONATM';
+                        break;
+                        case 'maybank':
+                            $id = '016';
+                            $name = 'MAYBANK';
+                        break;
+                        case 'permata':
+                            $id = '013';
+                            $name = 'PERMATAATM';
+                        break;
+                        default:
+                            $id = '014';
+                            $name = 'BCAATM';
+                        break;
+                    }
+                break;
 
-			/* Bank Transfer */ 
-			case 'internet_banking':
-				switch ($paymentId[1]) {
-					case 'bca':
-						$id = '014';
-						$name = 'BCA VA Online';
-                    break;
-                    case 'bni':
-						$id = '009';
-                        $name = 'BNI VA';
-                    break;
-					case 'bptn':
-						$id = '075';
-						$name = 'Jenius IB';
-                    break;
-                    case 'bri':
-                        $id = '002';
-                        $name = 'BRI VA';
-                    break;
-                    case 'cimb':
-						$id = '022';
-						$name = 'VA CIMB Niaga';
-                    break;
-					case 'danamon':
-						$id = '011';
-						$name = 'Danamon Online Banking';
-                    break;
-                    case 'dbs':
-						$id = '046';
-						$name = 'DBS VA';
-                    break;
-                    case 'mandiri':
-						$id = '008';
-						$name = 'MANDIRI VA';
-                    break;
-                    case 'mandiri_syariah':
-						$id = '451';
-						$name = 'Mandiri Syariah VA';
-                    break;
-                    case 'maspion':
-						$id = '157';
-						$name = 'VA MASPION';
-                    break;
-                    case 'maybank':
-						$id = '016';
-						$name = 'MAYBANK va';
-                    break;
-                    case 'permata':
-						$id = '013';
-						$name = 'PERMATA VA';
-					break;
-					default:
-						$id = '014';
-						$name = 'BCAATM';
-					break;
-            break;
+                /* Bank Transfer */ 
+                case 'internet_banking':
+                    switch ($paymentId[1]) {
+                        case 'bca':
+                            $id = '014';
+                            $name = 'BCA VA Online';
+                        break;
+                        case 'bni':
+                            $id = '009';
+                            $name = 'BNI VA';
+                        break;
+                        case 'bptn':
+                            $id = '075';
+                            $name = 'Jenius IB';
+                        break;
+                        case 'bri':
+                            $id = '002';
+                            $name = 'BRI VA';
+                        break;
+                        case 'cimb':
+                            $id = '022';
+                            $name = 'VA CIMB Niaga';
+                        break;
+                        case 'danamon':
+                            $id = '011';
+                            $name = 'Danamon Online Banking';
+                        break;
+                        case 'dbs':
+                            $id = '046';
+                            $name = 'DBS VA';
+                        break;
+                        case 'mandiri':
+                            $id = '008';
+                            $name = 'MANDIRI VA';
+                        break;
+                        case 'mandiri_syariah':
+                            $id = '451';
+                            $name = 'Mandiri Syariah VA';
+                        break;
+                        case 'maspion':
+                            $id = '157';
+                            $name = 'VA MASPION';
+                        break;
+                        case 'maybank':
+                            $id = '016';
+                            $name = 'MAYBANK va';
+                        break;
+                        case 'permata':
+                            $id = '013';
+                            $name = 'PERMATA VA';
+                        break;
+                        default:
+                            $id = '014';
+                            $name = 'BCAATM';
+                        break;
+                break;
+            }
             
             /* Virtual */ 
-			case 'virtual':
-				switch ($paymentId[2]) {
+            case 'virtual':
+                switch ($paymentId[2]) {
                     case 'gopay':
-						$id = '014';
-						$name = 'GOPAY';
+                        $id = '014';
+                        $name = 'GOPAY';
                     break;
                     case 'credivo':
-						$id = '014';
-						$name = 'KREDIVO';
+                        $id = '014';
+                        $name = 'KREDIVO';
                     break;       
-					case 'tcash':
-						$id = '008';
-						$name = 'TCASH';
+                    case 'tcash':
+                        $id = '008';
+                        $name = 'TCASH';
                     break;
                     case 'indomaret':
-						$id = '066';
-						$name = 'INDOMARET';
+                        $id = '066';
+                        $name = 'INDOMARET';
                     break;
                     case 'alfa':
-						$id = '026';
-						$name = 'ALFA';
+                        $id = '026';
+                        $name = 'ALFA';
                     break;
                     case 'dana':
-						$id = '008';
-						$name = 'DANA';
+                        $id = '008';
+                        $name = 'DANA';
                     break;
                     case 'link_aja':
-						$id = '008';
-						$name = 'Link Aja';
+                        $id = '008';
+                        $name = 'Link Aja';
                     break;
                     case 'shoppe_pay':
-						$id = '008';
-						$name = 'SHOPEEPAY JUMPAPP';
+                        $id = '008';
+                        $name = 'SHOPEEPAY JUMPAPP';
                     break;
-					case 'saldomu':
-						$id = '008';
-						$name = 'SALDOMU';
-					break;
+                    case 'saldomu':
+                        $id = '008';
+                        $name = 'SALDOMU';
+                    break;
                     case 'jenius':
-						$id = '075';
-						$name = 'JENIUSIB';
-					break;
-					case 'ovo':
-						$id = '503';
-						$name = 'OVO';
+                        $id = '075';
+                        $name = 'JENIUSIB';
+                    break;
+                    case 'ovo':
+                        $id = '503';
+                        $name = 'OVO';
                     break;
                     case 'paypal':
-						$id = '717';
-						$name = 'PAYPAL';
+                        $id = '717';
+                        $name = 'PAYPAL';
                     break;
                     default:
                         $id = '503';
                         $name = 'OVO';
                     break;
-				}
+                }
             break;
 
             // case 'credit_card':
-			// 	switch ($paymentId[3]) {
-			// 		case 'ccinstall3':
-			// 			$id = '008';
-			// 			$name = 'CCINSTALL3';
-			// 		break;
-			// 		case 'ccinstal12':
-			// 			$id = '008';
-			// 			$name = 'CCINSTALL12';
-			// 		break;
-			// 		case 'visa_master':
-			// 			$id = '008';
-			// 			$name = 'Credit Card Visa / Master';
+            // 	switch ($paymentId[3]) {
+            // 		case 'ccinstall3':
+            // 			$id = '008';
+            // 			$name = 'CCINSTALL3';
+            // 		break;
+            // 		case 'ccinstal12':
+            // 			$id = '008';
+            // 			$name = 'CCINSTALL12';
+            // 		break;
+            // 		case 'visa_master':
+            // 			$id = '008';
+            // 			$name = 'Credit Card Visa / Master';
             //         break;
             //         case 'ccv_promotion':
-			// 			$id = '008';
-			// 			$name = 'CCPROMO';
-			// 		break;
-			// 		case 'ccinstall6':
-			// 			$id = '008';
-			// 			$name = 'CCINSTALL6';
-			// 		break;
-			// 	}
-			// break;
-		}
-		return (object) ['id' => $id, 'name' => $name];
-    }
+            // 			$id = '008';
+            // 			$name = 'CCPROMO';
+            // 		break;
+            // 		case 'ccinstall6':
+            // 			$id = '008';
+            // 			$name = 'CCINSTALL6';
+            // 		break;
+            // 	}
+            // break;
+            return (object) ['id' => $id, 'name' => $name];
+        }
     
+    }
+
 }
