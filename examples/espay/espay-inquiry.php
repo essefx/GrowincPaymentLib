@@ -27,8 +27,8 @@ try {
             /*----*/
             'rq_uuid' => $raw_data->rq_uuid,
             'rq_datetime' => $raw_data->rq_datetime,
-            'sender_id' => $raw_data->sender_id,
-            'receiver_id' => $raw_data->receiver_id,
+            'sender_id' => $raw_data->sender_id ?? '',
+            'receiver_id' => $raw_data->receiver_id ?? '',
             'password' => $raw_data->password, // optional
             'comm_code' => $raw_data->comm_code,
             'member_id' => $raw_data->member_id ?? '', // optional

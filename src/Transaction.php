@@ -42,7 +42,6 @@ class Transaction
 	protected $comm_code;
 	protected $bank_code;
 	protected $Y_N;
-	protected $exp_va;
 	protected $signature_key;
 	protected $mode;
 	protected $is_paymen_notif;
@@ -57,6 +56,15 @@ class Transaction
 		$this->currency = 'IDR';
 		$this->currency_code = '360';
 		$this->expire_at = 100;
+		// espay attr
+		$this->signature_key = 'ces0bu1jh9qrsakq';
+		$this->password = 'Y0F,(5EM=#';
+		$this->comm_code = 'SGWGROWINC';
+		$this->mode = [
+			'sendinvoice' => 'SENDINVOICE',
+			'checkstatus' => 'CHECKSTATUS',
+			'closeinvoice' => 'CLOSEDINVOICE'
+		];
 	}
 
 	public function setTime(string $time): void
@@ -373,16 +381,6 @@ class Transaction
 		return $this->Y_N;
 	}
 
-	public function setVaExp(string $exp_va): void
-	{
-		$this->exp_va = $exp_va;
-	}
-
-	public function getVaExp(): ?string
-	{
-		return $this->exp_va;
-	}
-
 	public function setSignatureKey(string $signature_key): void
 	{
 		$this->signature_key = $signature_key;
@@ -393,12 +391,12 @@ class Transaction
 		return $this->signature_key;
 	}
 
-	public function setMode(string $mode): void
+	public function setMode(array $mode): void
 	{
 		$this->mode = $mode;
 	}
 
-	public function getMode(): ?string
+	public function getMode(): ?array
 	{
 		return $this->mode;
 	}
