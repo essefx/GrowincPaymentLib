@@ -15,6 +15,12 @@ class	Init
 	protected $callback_url;
 	protected $return_url;
 	protected $token_url;
+	//
+	protected $backend_url;
+	protected $response_url;
+
+	// merchant code
+	protected $merchant_code;
 
 	public function __construct($mid, $secret = '')
 	{
@@ -95,14 +101,51 @@ class	Init
 	{
 		return $this->return_url;
 	}
+
 	// token cc
-	public function setTokenUrl(string $token_url): void
+
+	public function setTokenURL(string $token_url): void
 	{
 		$this->token_url = $token_url;
 	}
 
-	public function getTokenUrl(): ?string
+	public function getTokenURL(): ?string
 	{
 		return $this->token_url;
 	}
+
+	//
+
+	public function setBackendURL(string $backend_url): void
+	{
+		$this->backend_url = $backend_url;
+	}
+
+	public function getBackendURL(): ?string
+	{
+		return $this->backend_url;
+	}
+
+	public function setResponseUrl(string $response_url): void
+	{
+		$this->response_url = $response_url;
+	}
+
+	public function getResponseUrl(): ?string
+	{
+		return $this->response_url;
+	}
+
+	// merchant code
+
+	public function setMerchantKey(string $merchant_code): void
+	{
+		$this->merchant_code = $merchant_code;
+	}
+
+	public function getMerchantKey(): ?string
+	{
+		return $this->merchant_code;
+	}
+
 }

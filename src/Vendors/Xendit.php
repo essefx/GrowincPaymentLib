@@ -77,7 +77,12 @@ class Xendit extends Requestor implements VendorInterface
 					'shipping_address' => $this->form['shipping_address'],
 				];
 
-			$this->form['payment_method'] = strtoupper($this->transaction->getPaymentMethod());
+			$arr = explode(',', $this->transaction->getPaymentMethod());
+			$payment_method = $arr[0] ?? '';
+			$payment_channel = $arr[1] ?? '';
+
+			// $this->form['payment_type'] = $this->transaction->getPaymentType();
+			// $this->form['payment_method'] = strtoupper($this->transaction->getPaymentMethod());
 			$this->form['payment_url'] = $this->init->getPaymentURL() . '/callback_virtual_accounts';
 			$this->form['expiry_period'] = $this->transaction->getExpireAt(); // minutes
 			
@@ -90,7 +95,7 @@ class Xendit extends Requestor implements VendorInterface
 			
 			$this->request['data'] = [
 				'external_id' => $this->form['order_id'],
-				'bank_code' => $this->form['payment_method'],
+				'bank_code' => strtoupper($payment_channel),
 				'name' => $this->form['customer_name'],
 				"is_closed" => true,
 				"expiration_date" => $expected_amount,
@@ -116,7 +121,7 @@ class Xendit extends Requestor implements VendorInterface
 			
 			if (!empty($status_code) && $status_code === 200) {
 				$content = (object) json_decode($content);
-				return print_r($content);
+				// return print_r($content);
 				if (	!empty($content->status)
 						&& $content->status == 'PENDING'
 				) {
@@ -148,6 +153,13 @@ class Xendit extends Requestor implements VendorInterface
 							'response' => [
 									'content' => json_encode($content),
 									'status_code' => 200,
+									'va_number' => $content['data']['account_number'],
+									'bank_code' => $payment_channel,
+									'amount' => $content['data']['expected_amount'],
+									'transaction_id' => $content['data']['owner_id'], // vendor transaction_id
+									'order_id' => $content['data']['external_id'], // PGA order_id
+									'payment_type' => $payment_method,
+									'transaction_status' => $content['data']['status'],
 								],
 						];
 				} else {
@@ -196,6 +208,13 @@ class Xendit extends Requestor implements VendorInterface
 						'response' => [
 								'content' => json_encode($content),
 								'status_code' => 200,
+								'order_id' => $content['data']['external_id'],
+								'transaction_id' => $content['data']['payment_id'],
+								'status' => '',
+								'transaction_time' => $content['data']['transaction_timestamp'],
+								'amount' => $content['data']['amount'],
+								'bank_code' => $content['data']['bank_code'],
+								'va_number' => $content['data']['account_number'],
 							],
 					];
 			} else {
@@ -238,6 +257,13 @@ class Xendit extends Requestor implements VendorInterface
 					'response' => [
 							'content' => json_encode($content),
 							'status_code' => 200,
+							'id' => $content['data']['id'],
+							'order_id' => $content['data']['external_id'],
+							'transaction_id' => $content['data']['owner_id'],
+							'bank_code' => $content['data']['bank_code'],
+							'va_number' => $content['data']['account_number'],
+							'status' => $content['data']['status'],
+							'expired_date' => $content['data']['expiration_date'],
 						],
 				];
 			
@@ -251,15 +277,17 @@ class Xendit extends Requestor implements VendorInterface
 	public function Inquiry(object $request)
 	{
 		try {
-			SELF::Validate($request, ['order_id']);
+			SELF::Validate($request, ['order_id','transaction_id']);
 			// Go
 			$this->request['time'] = time();
-			$this->request['url'] = $this->init->getRequestURL() . '/callback_virtual_account_payments/payment_id=' . $request->order_id;
+			$this->request['url'] = $this->init->getRequestURL() . '/callback_virtual_account_payments/payment_id=' . $request->transaction_id;
 			$this->request['headers'] = [
 				'Content-Type' => 'application/json',
 				'Accept' => 'application/json',
 				'Authorization' => 'Basic '.base64_encode($this->init->getMID().':')
 			];
+
+			$this->request['data'] = [];
 			
 			$get = $this->DoRequest('GET', $this->request);
 
@@ -285,6 +313,7 @@ class Xendit extends Requestor implements VendorInterface
 						"transaction_timestamp": "2017-08-11T11:14:57.080Z"
 					}
 					*/
+
 					$content = [
 							'status' => '000',
 							'data' => (array) $content,
@@ -294,6 +323,12 @@ class Xendit extends Requestor implements VendorInterface
 							'response' => [
 									'content' => json_encode($content),
 									'status_code' => 200,
+									'va_number' => $content['data']['account_number'],
+									'bank_code' => $content['data']['bank_code'],
+									'amount' => $content['data']['amount'],
+									'transaction_id' => $content['data']['payment_id'], // vendor transaction_id
+									'order_id' => $content['data']['external_id'], // PGA order_id
+									'transaction_status' => '',
 								],
 						];
 				} else {

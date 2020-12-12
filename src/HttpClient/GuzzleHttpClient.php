@@ -62,10 +62,10 @@ class GuzzleHttpClient
 				$type = 'json';
 			}
 			// Request options
-			$option = [
+			$option = array_merge($option, [
 					'headers' => $headers,
 					$type => $data,
-				];
+				]);
 			$on_stat = [
 					'on_stats' => function(TransferStats $stats) {
 							$this->effective_uri = $stats->getEffectiveUri();

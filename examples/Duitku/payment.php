@@ -9,9 +9,9 @@ $init->setCallbackURL('https://ibank.growinc.dev/oanwef4851ashrb/pg/dk/redapi_re
 $init->setReturnURL('https://ibank.growinc.dev/oanwef4851ashrb/pg/dk/redapi_form');
 
 $transaction = new \Growinc\Payment\Transaction();
-$transaction->setCustomerName('SEAN');
-$transaction->setCustomerEmail('essefx@gmail.com');
-$transaction->setCustomerPhone('081298983535');
+$transaction->setCustomerName('LOREM');
+$transaction->setCustomerEmail('lorem@ipsum.com');
+$transaction->setCustomerPhone('081212121313');
 $transaction->setAmount(100000);
 // VC	Credit Card (Visa / Master)
 // BK	BCA KlikPay
@@ -28,7 +28,7 @@ $transaction->setAmount(100000);
 // SA	Shopee Pay Apps
 // AG	Bank Artha Graha
 // S1	Bank Sahabat Sampoerna
-$transaction->setPaymentMethod('B1');
+$transaction->setPaymentMethod('VC');
 
 $vendor = new \Growinc\Payment\Vendors\Duitku($init);
 
