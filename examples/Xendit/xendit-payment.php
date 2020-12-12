@@ -19,8 +19,9 @@ $transaction->setCountrycode('IDN');
 	BCA , MANDIRI , BNI , BRI , PERMATA
 */
 // xendit param required
-$transaction->setPaymentMethod('bca'); // for VA 
-$transaction->setPaymentType('bank_transfer');
+// $transaction->setPaymentMethod('bca'); // for VA 
+// $transaction->setPaymentType('bank_transfer');
+$transaction->setPaymentMethod('bank_transfer,bca');
 $transaction->setDescription('Pembelian Elektronik');
 
 $vendor = new \Growinc\Payment\Vendors\Xendit($init);

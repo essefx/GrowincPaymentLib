@@ -77,8 +77,12 @@ class Xendit extends Requestor implements VendorInterface
 					'shipping_address' => $this->form['shipping_address'],
 				];
 
-			$this->form['payment_type'] = $this->transaction->getPaymentType();
-			$this->form['payment_method'] = strtoupper($this->transaction->getPaymentMethod());
+			$arr = explode(',', $this->transaction->getPaymentMethod());
+			$payment_method = $arr[0] ?? '';
+			$payment_channel = $arr[1] ?? '';
+
+			// $this->form['payment_type'] = $this->transaction->getPaymentType();
+			// $this->form['payment_method'] = strtoupper($this->transaction->getPaymentMethod());
 			$this->form['payment_url'] = $this->init->getPaymentURL() . '/callback_virtual_accounts';
 			$this->form['expiry_period'] = $this->transaction->getExpireAt(); // minutes
 			
@@ -91,7 +95,7 @@ class Xendit extends Requestor implements VendorInterface
 			
 			$this->request['data'] = [
 				'external_id' => $this->form['order_id'],
-				'bank_code' => $this->form['payment_method'],
+				'bank_code' => strtoupper($payment_channel),
 				'name' => $this->form['customer_name'],
 				"is_closed" => true,
 				"expiration_date" => $expected_amount,
@@ -150,11 +154,11 @@ class Xendit extends Requestor implements VendorInterface
 									'content' => json_encode($content),
 									'status_code' => 200,
 									'va_number' => $content['data']['account_number'],
-									'bank_code' => $content['data']['bank_code'],
+									'bank_code' => $payment_channel,
 									'amount' => $content['data']['expected_amount'],
 									'transaction_id' => $content['data']['owner_id'], // vendor transaction_id
 									'order_id' => $content['data']['external_id'], // PGA order_id
-									'payment_type' => $this->form['payment_type'],
+									'payment_type' => $payment_method,
 									'transaction_status' => $content['data']['status'],
 								],
 						];
