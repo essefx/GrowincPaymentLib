@@ -384,11 +384,11 @@ class Transaction
     {
         return $this->signature_key;
     }
-    public function setMode(string $mode): void
+    public function setMode(array $mode): void
     {
         $this->mode = $mode;
     }
-    public function getMode(): ?string
+    public function getMode(): ?array
     {
         return $this->mode;
     }

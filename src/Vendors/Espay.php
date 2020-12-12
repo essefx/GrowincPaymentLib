@@ -104,7 +104,7 @@ class Espay extends Requestor implements VendorInterface
             $payment_method = $_paymentMethode[0] ?? '';
 			$payment_channel = $_paymentMethode[1] ?? '';
 
-            $this->form['payment_type'] =  $this->getPayId($_paymentMethode);
+            $this->form['payment_type'] = $this->getPayId($_paymentMethode);
 
             $this->form['payment_url'] = $this->init->getPaymentURL();
             // go
@@ -481,10 +481,9 @@ class Espay extends Requestor implements VendorInterface
 
     // 
     public function getPayId($paymentId){
-		switch (strtolower($paymentId[0])) {
+		switch ($paymentId[0]) {
                 /* Bank Transfer */ 
-                case 'bank_transfer':
-                
+                case 'bank_transfer':      
                     switch ($paymentId[1]) {
                         case 'bca':
                             $id = '014';
@@ -600,8 +599,8 @@ class Espay extends Requestor implements VendorInterface
                             $id = '014';
                             $name = 'BCAATM';
                         break;
+                    }
                 break;
-            }
             
             /* Virtual */ 
             case 'virtual':
@@ -685,9 +684,8 @@ class Espay extends Requestor implements VendorInterface
             // 		break;
             // 	}
             // break;
-            return (object) ['id' => $id, 'name' => $name];
         }
-    
+        return (object) ['id' => $id, 'name' => $name];
     }
 
 }
