@@ -23,7 +23,7 @@ $transaction->setCustomerPhone('081298983535');
 $transaction->setCustomerName('Growinc');
 $transaction->setCustomerEmail('lorem@ipsum.com');
 $transaction->setUpdateOrderId('Y'); // Y update data for order id, N new order
-$transaction->setPaymentMethod('bank_transfer,bca'); // bank code
+$transaction->setPaymentMethod('bank_transfer,bri'); // bank code
 
 $item_detail = [
 	[
