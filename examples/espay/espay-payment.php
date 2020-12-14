@@ -22,7 +22,8 @@ $transaction = new \Growinc\Payment\Transaction();
 $transaction->setCustomerPhone('081298983535');
 $transaction->setCustomerName('Growinc');
 $transaction->setCustomerEmail('lorem@ipsum.com');
-$transaction->setUpdateOrderId('Y'); // Y update data for order id, N new order
+$transaction->setUpdateOrderId('Y'); // Y update data for order id, N new order\
+$transaction->setCredentialAttr('ces0bu1jh9qrsakq//Y0F,(5EM=#//SGWGROWINC//SENDINVOICE');
 $transaction->setPaymentMethod('bank_transfer,bri'); // bank code
 
 $item_detail = [
@@ -34,7 +35,7 @@ $item_detail = [
         "brand" => "Xiaomi",
         "category" => "Handphone",
         "merchant_name" => "eas_blues-store"
-	] // only cc
+	]
 ];
 $transaction->setItem($item_detail);
 $transaction->setDescription('Pembelian Elektronik');

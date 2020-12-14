@@ -8,13 +8,14 @@ $init->setBaseURI('https://sandbox-api.espay.id');
 $init->setRequestURL('https://sandbox-api.espay.id/rest/merchant/status');
 
 $transaction = new \Growinc\Payment\Transaction();
-// va 4490510956653585
-$transaction->setRuuid('INV07665896');
-$transaction->setTime('2020-12-11 12:51:41');
-$transaction->setOrderID('0007665896');
-$transaction->setIsPaymentNotif(''); // Y = will hit Merchant's payment notif URL N = will update trx_status to S in Espay Dashboard Not sent/not filled/filled with "" = standard check payment status
+// va 1609512884449682
 // $transaction->setCommcode('SGWGROWINC');
 // $transaction->setSignatureKey('ces0bu1jh9qrsakq');
+$transaction->setRuuid('INV07944483');
+$transaction->setReqDateTime('2020-12-14 18:14:49');
+$transaction->setOrderID('0007944483');
+$transaction->setIsPaymentNotif(''); // Y = will hit Merchant's payment notif URL N = will update trx_status to S in Espay Dashboard Not sent/not filled/filled with "" = standard check payment status
+$transaction->setCredentialAttr('ces0bu1jh9qrsakq//Y0F,(5EM=#//SGWGROWINC//CHECKSTATUS');
 
 
 $vendor = new \Growinc\Payment\Vendors\Espay($init);
@@ -22,7 +23,7 @@ $vendor = new \Growinc\Payment\Vendors\Espay($init);
 try {
     $result = $vendor->StatusPayment($transaction); // return payment URL
     // $result = $vendor->RedirectPayment($transaction); // redirect to vendor URL
-    // extract($result);
+    extract($result);
     print_r($result);
     // print_r($vendor->getResponse()); // Get  PSR7 object
 } catch (\Throwable $e) {
