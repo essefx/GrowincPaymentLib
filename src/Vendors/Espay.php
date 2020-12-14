@@ -69,20 +69,25 @@ class Espay extends Requestor implements VendorInterface
                 'billing_address' => $this->form['billing_address'],
                 'shipping_address' => $this->form['shipping_address'],
             ];
-
             //
+            $credential = \explode("//", $this->transaction->getCredentialAttr());
+            $signature_key = $credential[0];
+            $credential_password = $credential[1];
+            $comm_code = $credential[2];
+            $send_invoice = $credential[3];
+            // 
             $this->form['rq_uuid'] = $this->transaction->getInvoiceNo();
             $this->form['rq_datetime'] = $this->transaction->getTime();
             $this->form['order_id'] = $this->transaction->getOrderID();
             $this->form['ccy'] = $this->transaction->getCurrency();
-            $this->form['comm_code'] = $this->transaction->getCommcode();
+            $this->form['comm_code'] = $comm_code;
             $this->form['remark1'] = $this->transaction->getCustomerPhone(); // optional
             $this->form['remark2'] = $this->transaction->getCustomerName(); // optional
             $this->form['remark3'] = $this->transaction->getCustomerEmail(); // optional
             $this->form['update'] = $this->transaction->getUpdateOrderId(); // optional
             $this->form['va_expired'] = $this->transaction->getExpireAt();
-            $this->form['password'] = $this->transaction->getPassword();
-
+            $this->form['password'] = $credential_password;
+            
             // item details
             $this->form['item_details'] = $this->transaction->getItem();
             $amount_total = 0;
@@ -92,9 +97,9 @@ class Espay extends Requestor implements VendorInterface
             // $this->transaction->setAmount($amount_total);
             $this->form['amount'] = (float) $amount_total.'.00';
             //
-            $uppercase = strtoupper('##' . $transaction->getSignatureKey() . '##' . $transaction->getInvoiceNo() 
+            $uppercase = strtoupper('##' . $signature_key . '##' . $transaction->getInvoiceNo() 
             . '##' . $transaction->getTime() . '##' . $transaction->getOrderID() . '##' . $amount_total . '##' . 
-            $transaction->getCurrency() . '##' . $transaction->getCommcode() . '##' . $transaction->getMode()['sendinvoice'] . '##');
+            $transaction->getCurrency() . '##' . $comm_code . '##' . $send_invoice . '##');
             $signature = hash('sha256', $uppercase);
 
             $this->form['signature'] = $signature;
@@ -248,15 +253,21 @@ class Espay extends Requestor implements VendorInterface
         try {
             $this->transaction = $transaction;
             //
+            $credential = \explode("//", $this->transaction->getCredentialAttr());
+            $signature_key = $credential[0];
+            $credential_password = $credential[1];
+            $comm_code = $credential[2];
+            $cek_status = $credential[3];
+            // 
             $this->form['uuid'] = $this->transaction->getRuuid();
-            $this->form['rq_datetime'] = $this->transaction->getTime();
-            $this->form['comm_code'] = $this->transaction->getCommcode();
+            $this->form['rq_datetime'] = $this->transaction->getReqDateTime();
+            $this->form['comm_code'] = $comm_code;
             $this->form['order_id'] = $this->transaction->getOrderID();
             $this->form['is_paymentnotif'] = $this->transaction->getIsPaymentNotif(); // optional
             //
             $this->form['request_url'] = $this->init->getRequestURL();
 
-            $uppercase = strtoupper('##' . $transaction->getSignatureKey() . '##' . $transaction->getTime() . '##' . $transaction->getOrderID() . '##' . $transaction->getMode()['checkstatus'] . '##');
+            $uppercase = strtoupper('##' . $signature_key . '##' . $transaction->getReqDateTime() . '##' . $transaction->getOrderID() . '##' . $cek_status . '##');
             $signature = hash('sha256', $uppercase);
 
             $this->form['signature'] = $signature;
@@ -331,14 +342,13 @@ class Espay extends Requestor implements VendorInterface
                         'data' => (array) $content,
                     ];
 
-
-                    $ava_tx_status = [
+                    $__tx_status = [
                         'SP' => 'Suspect',
                         'IP' => 'In Process',
                         'F' => 'Failed',
                         'S' => 'Success' 
                     ];
-                    $status = $ava_tx_status[$content['data']['tx_status']] ?? $content['data']['tx_status'];
+                    $status = $__tx_status[$content['data']['tx_status']] ?? $content['data']['tx_status'];
 
                     $result = [
                         'request' => (array) $this->request,
@@ -403,33 +413,42 @@ class Espay extends Requestor implements VendorInterface
         return $result ?? [];
     }
 
-    public function CloseInvoice(\Growinc\Payment\Transaction $transaction)
+    public function CancelTransaction(\Growinc\Payment\Transaction $transaction)
     {
         try {
             $this->transaction = $transaction;
             //
-            $this->form['uuid'] = $this->transaction->getRuuid();
-            $this->form['rq_datetime'] = $this->transaction->getTime();
-            $this->form['comm_code'] = $this->transaction->getCommcode();
+            $credential = \explode("//", $this->transaction->getCredentialAttr());
+            $signature_key = $credential[0];
+            $credential_password = $credential[1];
+            $comm_code = $credential[2];
+            $expire_transaction = $credential[3];
+            // 
+            $this->form['rq_uuid'] = $this->transaction->getRuuid();
+            $this->form['rq_datetime'] = $this->transaction->getReqDateTime();
+            $this->form['comm_code'] = $comm_code;
             $this->form['order_id'] = $this->transaction->getOrderID();
+            $this->form['tx_remark'] = $this->transaction->getTransactionRemak();
+
+            $uppercase = strtoupper('##' . $signature_key . '##' . 
+                $transaction->getReqDateTime() . '##' . $transaction->getOrderID() . '##' . 
+                $expire_transaction .'##');
+            $signature = hash('sha256', $uppercase);
+    
+            $this->form['signature'] = $signature;
             //
             $this->form['request_url'] = $this->init->getRequestURL();
-
-            $uppercase = strtoupper('##' . $transaction->getSignatureKey() . '##' . $transaction->getRuuid() . '##' . 
-            $transaction->getTime() . '##' . $transaction->getOrderID() . '##' . $transaction->getCommcode() . '##' . $transaction->getMode()['closeinvoice'] .'##');
-            $signature = hash('sha256', $uppercase);
-
-            $this->form['signature'] = $signature;
             // go
             $this->request['form'] = $this->form;
             $this->request['time'] = $this->transaction->getTime();
             $this->request['url'] = $this->form['request_url'];
 
             $this->request['data'] = [
-                'uuid' => $this->form['uuid'],
+                'uuid' => $this->form['rq_uuid'],
                 'rq_datetime' => $this->form['rq_datetime'],
                 'comm_code' => $this->form['comm_code'],
                 'order_id' => $this->form['order_id'],
+                'tx_remark' => $this->form['tx_remark'],
                 'signature' => $this->form['signature'],
             ];
 
@@ -444,15 +463,22 @@ class Espay extends Requestor implements VendorInterface
             $this->request['option'] = [
                 'request_opt' => 'json',
             ];
-            // return \print_r($this->request['data']);
+        
             $post = $this->DoRequest('POST', $this->request);
-           
+         
             $response = (array) $post['response'];
             extract($response);
             $content = (object) json_decode($content);
  
             if (!empty($status_code) && $status_code === 200) {
                 if (!empty($content->error_code) && ($content->error_code == 0000)) {
+
+                    // "rq_uuid": "INV07937085",
+                    // "rs_datetime": "2020-12-14 18:02:00",
+                    // "error_code": "0000",
+                    // "error_message": "",
+                    // "tx_id": "ESP1607937091F0RA"
+
                     $content = [
                         'status' => '0000',
                         'data' => (array) $content,
@@ -603,62 +629,62 @@ class Espay extends Requestor implements VendorInterface
                 break;
             
             /* Virtual */ 
-            case 'virtual':
-                switch ($paymentId[2]) {
-                    case 'gopay':
-                        $id = '014';
-                        $name = 'GOPAY';
-                    break;
-                    case 'credivo':
-                        $id = '014';
-                        $name = 'KREDIVO';
-                    break;       
-                    case 'tcash':
-                        $id = '008';
-                        $name = 'TCASH';
-                    break;
-                    case 'indomaret':
-                        $id = '066';
-                        $name = 'INDOMARET';
-                    break;
-                    case 'alfa':
-                        $id = '026';
-                        $name = 'ALFA';
-                    break;
-                    case 'dana':
-                        $id = '008';
-                        $name = 'DANA';
-                    break;
-                    case 'link_aja':
-                        $id = '008';
-                        $name = 'Link Aja';
-                    break;
-                    case 'shoppe_pay':
-                        $id = '008';
-                        $name = 'SHOPEEPAY JUMPAPP';
-                    break;
-                    case 'saldomu':
-                        $id = '008';
-                        $name = 'SALDOMU';
-                    break;
-                    case 'jenius':
-                        $id = '075';
-                        $name = 'JENIUSIB';
-                    break;
-                    case 'ovo':
-                        $id = '503';
-                        $name = 'OVO';
-                    break;
-                    case 'paypal':
-                        $id = '717';
-                        $name = 'PAYPAL';
-                    break;
-                    default:
-                        $id = '503';
-                        $name = 'OVO';
-                    break;
-                }
-            break;
+            // case 'virtual':
+            //     switch ($paymentId[2]) {
+            //         case 'gopay':
+            //             $id = '014';
+            //             $name = 'GOPAY';
+            //         break;
+            //         case 'credivo':
+            //             $id = '014';
+            //             $name = 'KREDIVO';
+            //         break;       
+            //         case 'tcash':
+            //             $id = '008';
+            //             $name = 'TCASH';
+            //         break;
+            //         case 'indomaret':
+            //             $id = '066';
+            //             $name = 'INDOMARET';
+            //         break;
+            //         case 'alfa':
+            //             $id = '026';
+            //             $name = 'ALFA';
+            //         break;
+            //         case 'dana':
+            //             $id = '008';
+            //             $name = 'DANA';
+            //         break;
+            //         case 'link_aja':
+            //             $id = '008';
+            //             $name = 'Link Aja';
+            //         break;
+            //         case 'shoppe_pay':
+            //             $id = '008';
+            //             $name = 'SHOPEEPAY JUMPAPP';
+            //         break;
+            //         case 'saldomu':
+            //             $id = '008';
+            //             $name = 'SALDOMU';
+            //         break;
+            //         case 'jenius':
+            //             $id = '075';
+            //             $name = 'JENIUSIB';
+            //         break;
+            //         case 'ovo':
+            //             $id = '503';
+            //             $name = 'OVO';
+            //         break;
+            //         case 'paypal':
+            //             $id = '717';
+            //             $name = 'PAYPAL';
+            //         break;
+            //         default:
+            //             $id = '503';
+            //             $name = 'OVO';
+            //         break;
+            //     }
+            // break;
 
             // case 'credit_card':
             // 	switch ($paymentId[3]) {
