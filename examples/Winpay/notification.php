@@ -21,7 +21,9 @@ try {
 		}';
 	}
 	$request = (object) json_decode($raw_data);
+
 	$result = $vendor->Callback($request);
+
 	extract($result);
 	print_r($result);
 } catch (\Throwable $e) {
