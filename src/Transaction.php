@@ -48,6 +48,9 @@ class Transaction
     protected $payment_id;
     protected $today;
 
+    protected $credential_attr;
+    protected $req_datetime;
+    protected $transaction_remak;
 
 	public function __construct()
 	{
@@ -58,14 +61,14 @@ class Transaction
 		$this->currency = 'IDR';
 		$this->expire_at = 100;
 		// espay attr
-		$this->signature_key = 'ces0bu1jh9qrsakq';
-		$this->password = 'Y0F,(5EM=#';
-		$this->comm_code = 'SGWGROWINC';
-		$this->mode = [
-			'sendinvoice' => 'SENDINVOICE',
-			'checkstatus' => 'CHECKSTATUS',
-			'closeinvoice' => 'CLOSEDINVOICE'
-		];
+		// $this->signature_key = 'ces0bu1jh9qrsakq';
+		// $this->password = 'Y0F,(5EM=#';
+		// $this->comm_code = 'SGWGROWINC';
+		// $this->mode = [
+		// 	'sendinvoice' => 'SENDINVOICE',
+		// 	'checkstatus' => 'CHECKSTATUS',
+		// 	'closeinvoice' => 'CLOSEDINVOICE'
+		// ];
 	}
 
     public function setTime(string $time): void
@@ -417,6 +420,32 @@ class Transaction
 	{
 		return $this->cc_token;
 	}
-	// credit card end
+    // credit card end
+    
+    public function setCredentialAttr(string $credential_attr) : void
+    {
+        $this->credential_attr = $credential_attr;
+    }
+    public function getCredentialAttr() : ?string 
+    {
+        return $this->credential_attr;
+    }
 
+    public function setReqDateTime(string $req_datetime) : void
+    {
+        $this->req_datetime = $req_datetime;
+    }
+    public function getReqDateTime() : ? string
+    {
+        return $this->req_datetime;
+    }
+
+    public function setTransactionRemak(string $transaction_remak) : void
+    {
+        $this->transaction_remak = $transaction_remak;
+    }
+    public function getTransactionRemak() : ? string
+    {
+        return $this->transaction_remak;
+    }
 }

@@ -5,19 +5,21 @@ require_once "../../vendor/autoload.php";
 
 $init = new \Growinc\Payment\Init('66a82db380f34bdfa9b1738eacfb1ac6'); /*(server_key , client_key)*/
 $init->setBaseURI('https://sandbox-api.espay.id');
-$init->setRequestURL('https://sandbox-api.espay.id/rest/merchant/closeinvoice');
+$init->setRequestURL('https://sandbox-api.espay.id/rest/merchant/updateexpire');
 
 $transaction = new \Growinc\Payment\Transaction();
-$transaction->setRuuid('INV07665422');
-$transaction->setTime('2020-12-11 12:43:47');
-$transaction->setOrderID('0007665289');
 // $transaction->setCommcode('SGWGROWINC');
 // $transaction->setSignatureKey('ces0bu1jh9qrsakq');
+$transaction->setRuuid('INV07944483');
+$transaction->setReqDateTime('2020-12-14 18:14:49');
+$transaction->setOrderID('0007944483');
+$transaction->setTransactionRemak('payment for 0007931095 is canceled');
+$transaction->setCredentialAttr('ces0bu1jh9qrsakq//Y0F,(5EM=#//SGWGROWINC//EXPIRETRANSACTION');
 
 $vendor = new \Growinc\Payment\Vendors\Espay($init);
 
 try {
-    $result = $vendor->CloseInvoice($transaction); // return payment URL
+    $result = $vendor->CancelTransaction($transaction); // return payment URL
     // $result = $vendor->RedirectPayment($transaction); // redirect to vendor URL
     // extract($result);
     print_r($result);
