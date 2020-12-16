@@ -13,7 +13,7 @@ $transaction = new \Growinc\Payment\Transaction();
 $transaction->setRuuid('INV07944483');
 $transaction->setReqDateTime('2020-12-14 18:14:49');
 $transaction->setOrderID('0007944483');
-$transaction->setTransactionRemak('payment for 0007931095 is canceled');
+$transaction->setTransactionRemark('payment for 0007931095 is canceled');
 $transaction->setCredentialAttr('ces0bu1jh9qrsakq//Y0F,(5EM=#//SGWGROWINC//EXPIRETRANSACTION');
 
 $vendor = new \Growinc\Payment\Vendors\Espay($init);
