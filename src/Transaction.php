@@ -2,7 +2,7 @@
 
 namespace Growinc\Payment;
 
-class Transaction
+class Transaction extends TransactionExtends
 {
 
 	protected $time;
@@ -18,35 +18,23 @@ class Transaction
 	protected $customer_email;
 	protected $customer_phone;
 	protected $customer_address;
+	protected $customer_city;
 	protected $country_code;
+	protected $postal_code;
 	//
 	protected $payment_method;
+	protected $payment_type;
 	protected $expire_at;
 	//
-	protected $payment_type;
 	protected $item;
 	//
-	protected $customer_userid; // klikbca login
+	protected $customer_userid; // internet banking login
 	// cc
 	protected $cc_card_number;
 	protected $cc_card_exp_month;
 	protected $cc_card_exp_year;
 	protected $cc_card_cvv;
 	protected $cc_token;
-	//
-	// protected $ruuid;
-	// protected $member_id;
-	// protected $password;
-	// protected $signature;
-	// protected $key;
-	// protected $comm_code;
-	// protected $bank_code;
-	// protected $Y_N;
-	// protected $exp_va;
-	// protected $signature_key;
-	// protected $mode;
-	// protected $is_paymen_notif;
-	// protected $payment_id;
 
 	public function __construct()
 	{
@@ -173,6 +161,16 @@ class Transaction
 		return $this->customer_address;
 	}
 
+	public function setCustomerCity($customer_city): void
+	{
+		$this->customer_city = $customer_city;
+	}
+
+	public function getCustomerCity(): ?string
+	{
+		return $this->customer_city;
+	}
+
 	public function setCountrycode($country_code): void
 	{
 		$this->country_code = $country_code;
@@ -181,6 +179,16 @@ class Transaction
 	public function getCountryCode(): ?string
 	{
 		return $this->country_code;
+	}
+
+	public function setPostalCode($postal_code): void
+	{
+		$this->postal_code = $postal_code;
+	}
+
+	public function getPostalCode(): ?string
+	{
+		return $this->postal_code;
 	}
 
 	//
@@ -195,6 +203,16 @@ class Transaction
 		return $this->payment_method;
 	}
 
+	public function setPaymentType($payment_type): void
+	{
+		$this->payment_type = $payment_type;
+	}
+
+	public function getPaymentType(): ?string
+	{
+		return $this->payment_type;
+	}
+
 	public function setExpireAt($expire_at): void
 	{
 		$this->expire_at = $expire_at;
@@ -206,16 +224,6 @@ class Transaction
 	}
 
 	//
-
-	public function setPaymentType($payment_type): void
-	{
-		$this->payment_type = $payment_type;
-	}
-
-	public function getPaymentType(): ?string
-	{
-		return $this->payment_type;
-	}
 
 	public function setItem(&$item_detail): void
 	{
@@ -290,139 +298,5 @@ class Transaction
 	{
 		return $this->cc_token;
 	}
-
-	//
-
-	// public function setRuuid(string $ruuid): void
-	// {
-	// 	$this->ruuid = $ruuid;
-	// }
-
-	// public function getRuuid(): ?string
-	// {
-	// 	return $this->ruuid;
-	// }
-
-	// public function setMemberid(string $member_id): void
-	// {
-	// 	$this->member_id = $member_id;
-	// }
-
-	// public function getMemberid(): ?string
-	// {
-	// 	return $this->member_id;
-	// }
-
-	// public function setCommcode(string $comm_code): void
-	// {
-	// 	$this->comm_code = $comm_code;
-	// }
-
-	// public function getCommcode(): ?string
-	// {
-	// 	return $this->comm_code;
-	// }
-
-	// public function setPassword(string $password): void
-	// {
-	// 	$this->password = $password;
-	// }
-
-	// public function getPassword(): ?string
-	// {
-	// 	return $this->password;
-	// }
-
-	// public function setSignature(string $signature): void
-	// {
-	// 	$this->signature = $signature;
-	// }
-
-	// public function getSignature(): ?string
-	// {
-	// 	return $this->signature;
-	// }
-
-	// public function setKey(string $key): void
-	// {
-	// 	$this->key = $key;
-	// }
-
-	// public function getKey(): ?string
-	// {
-	// 	return $this->key;
-	// }
-
-	// public function setBankCode(string $bank_code): void
-	// {
-	// 	$this->bank_code = $bank_code;
-	// }
-
-	// public function getBankCode(): ?string
-	// {
-	// 	return $this->bank_code;
-	// }
-
-	// public function setUpdateOrderId(string $Y_N): void
-	// {
-	// 	$this->Y_N = $Y_N;
-	// }
-
-	// public function getUpdateOrderId(): ?string
-	// {
-	// 	return $this->Y_N;
-	// }
-
-	// public function setVaExp(string $exp_va): void
-	// {
-	// 	$this->exp_va = $exp_va;
-	// }
-
-	// public function getVaExp(): ?string
-	// {
-	// 	return $this->exp_va;
-	// }
-
-	// public function setSignatureKey(string $signature_key): void
-	// {
-	// 	$this->signature_key = $signature_key;
-	// }
-
-	// public function getSignatureKey(): ?string
-	// {
-	// 	return $this->signature_key;
-	// }
-
-	// public function setMode(string $mode): void
-	// {
-	// 	$this->mode = $mode;
-	// }
-
-	// public function getMode(): ?string
-	// {
-	// 	return $this->mode;
-	// }
-
-	// public function setIsPaymentNotif(string $is_paymen_notif): void
-	// {
-	// 	$this->is_paymen_notif = $is_paymen_notif;
-	// }
-
-	// public function getIsPaymentNotif(): ?string
-	// {
-	// 	return $this->is_paymen_notif;
-	// }
-
-	// // credit card end
-
-	// public function setPaymentId(int $payment_id): void
-	// {
-	// 	$this->payment_id = $payment_id;
-	// }
-
-	// public function getPaymentId(): ?int
-	// {
-	// 	return $this->payment_id;
-	// }
 
 }

@@ -3,9 +3,9 @@
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 $init = new \Growinc\Payment\Init(
-		'xnd_development_8OoTlgwIthHrTr7R9gg0AIUhH2PAAPjAdReAltPc7yQxzBlRnhAmYwdGqn6vG4Y',
-		'xnd_public_development_UmKcL9LSSd96GKqb7ZN3UNZIPNUClJIBd4ndBoqFPRpqslgJ5q7GzCV0lWMOXRZy'
-	); /*(secret_key , public_key)*/
+		'xnd_development_8OoTlgwIthHrTr7R9gg0AIUhH2PAAPjAdReAltPc7yQxzBlRnhAmYwdGqn6vG4Y', // secret_key
+		'xnd_public_development_UmKcL9LSSd96GKqb7ZN3UNZIPNUClJIBd4ndBoqFPRpqslgJ5q7GzCV0lWMOXRZy' // public_key
+	);
 $init->setBaseURI('https://api.xendit.co');
 $init->setPaymentURL('https://api.xendit.co');
 

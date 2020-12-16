@@ -24,7 +24,7 @@ $transaction->setCustomerName('Growinc');
 $transaction->setCustomerEmail('lorem@ipsum.com');
 $transaction->setUpdateOrderId('Y'); // Y update data for order id, N new order\
 $transaction->setCredentialAttr('ces0bu1jh9qrsakq//Y0F,(5EM=#//SGWGROWINC//SENDINVOICE');
-$transaction->setPaymentMethod('bank_transfer,bri'); // bank code
+$transaction->setPaymentMethod('bank_transfer,permata'); // bank code
 
 $item_detail = [
 	[
@@ -34,7 +34,7 @@ $item_detail = [
         "name" => "Redmi 9A",
         "brand" => "Xiaomi",
         "category" => "Handphone",
-        "merchant_name" => "eas_blues-store"
+        "merchant_name" => "Eas Blues Store"
 	]
 ];
 $transaction->setItem($item_detail);
