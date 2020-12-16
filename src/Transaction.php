@@ -47,6 +47,15 @@ class Transaction
 	// protected $mode;
 	// protected $is_paymen_notif;
 	// protected $payment_id;
+    protected $credential_attr;
+    protected $req_datetime;
+    protected $transaction_remak;
+    
+    protected $product_code;
+    protected $promo_code;
+    protected $is_async;
+    protected $branch_id;
+    protected $transaction_id;
 
 	public function __construct()
 	{
@@ -424,5 +433,69 @@ class Transaction
 	// {
 	// 	return $this->payment_id;
 	// }
+
+    public function setTransactionRemak(string $transaction_remak) : void
+    {
+        $this->transaction_remak = $transaction_remak;
+    }
+    public function getTransactionRemak() : ? string
+    {
+        return $this->transaction_remak;
+    }
+
+    public function setTransactionID(string $transaction_id) : void
+    {
+        $this->transaction_id = $transaction_id;
+    }
+    public function getTransactionID() : ? string
+    {
+        return $this->transaction_id;
+    }
+
+    public function setProductCode(string $product_code) : void
+    {
+        $this->product_code = $product_code;
+    }
+    public function getProductCode() : ? string
+    {
+        return $this->product_code;
+    }
+
+    public function setPromoCode(string $promo_code) : void
+    {
+        $this->promo_code = $promo_code;
+    }
+    public function getPromoCode() : ? string
+    {
+        return $this->promo_code;
+    }
+
+    public function setIsAsync(int $is_async) : void
+    {
+        $this->is_async = $is_async;
+    }
+    public function getIsAsync() : ? int
+    {
+        return $this->is_async;
+    }
+
+    public function setBranchId(string $branch_id) : void
+    {
+        $this->branch_id = $branch_id;
+    }
+    public function getBranchId() : ? string
+    {
+        return $this->branch_id;
+    }
+
+    public function setPostId(string $post_id) : void
+    {
+        $this->post_id = $post_id;
+    }
+    public function getPostId() : ? string
+    {
+        return $this->post_id;
+    }
+
 
 }
