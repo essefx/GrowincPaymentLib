@@ -417,30 +417,29 @@ class Midtrans extends Requestor implements VendorInterface
 						"merchant_id": "G345053042"
 					}
 					*/
-					if(strtolower($this->form['payment_method']) == 'permata'){
-						$va_number = $content->permata_va_number;
-						$bank_code = strtolower($this->form['payment_method']);
-					}else{
-						$va_number = $content->va_numbers[0]->va_number;
-						$bank_code = $content->va_numbers[0]->bank;
-					}
-
-					$content = [
-						'status' => '000',
-						'data' => (array) $content,
-					];
+					// if(strtolower($this->form['payment_method']) == 'permata'){
+					// 	$va_number = $content->permata_va_number;
+					// 	$bank_code = strtolower($this->form['payment_method']);
+					// }else{
+					// 	$va_number = $content->va_numbers[0]->va_number;
+					// 	$bank_code = $content->va_numbers[0]->bank;
+					// }
+					$res = [
+							'status' => '000',
+							'data' => (array) $content,
+						];
 					$result = [
 							'request' => (array) $this->request,
 							'response' => [
-									'content' => json_encode($content),
+									'content' => json_encode($res),
 									'status_code' => 200,
-									'va_number' => $va_number,
-									'bank_code' => $bank_code,
-									'amount' => $content['data']['gross_amount'],
-									'transaction_id' => $content['data']['transaction_id'], // vendor transaction_id
-									'order_id' => $content['data']['order_id'], // PGA order_id
-									'payment_type' => $payment_method, 
-									'transaction_status' => $content['data']['transaction_status'],
+									// 'va_number' => $va_number,
+									// 'bank_code' => $bank_code,
+									// 'amount' => (float) $content['data']['gross_amount'],
+									// 'transaction_id' => $content['data']['transaction_id'], // vendor transaction_id
+									// 'order_id' => $content['data']['order_id'], // PGA order_id
+									// 'payment_type' => $payment_method,
+									// 'transaction_status' => $content['data']['transaction_status'],
 								],
 						];
 				} else {
@@ -487,34 +486,31 @@ class Midtrans extends Requestor implements VendorInterface
 			// print_r($signature);
 			// exit();
 			if (strcmp($signature, $request->signature_key) === 0) {
-				$content = [
-					'status' => '000',
-					'data' => (array) $request,
-				];
-
-				if(isset($content->permata_va_number)){
-					$bank_code = 'Permata';
-					$va_number = $content->permata_va_number;
-				}else{
-					$bank_code = $content->va_numbers[0]->bank;
-					$va_number = $content->va_numbers[0]->va_number;
-				}
-
+				$res = [
+						'status' => '000',
+						'data' => (array) $request,
+					];
+				// if(isset($content->permata_va_number)){
+				// 	$bank_code = 'Permata';
+				// 	$va_number = $content->permata_va_number;
+				// }else{
+				// 	$bank_code = $content->va_numbers[0]->bank;
+				// 	$va_number = $content->va_numbers[0]->va_number;
+				// }
 				$result = [
-					'request' => (array) $request,
-					'response' => [
-						'content' => json_encode($content),
-						'status_code' => 200,
-						'order_id' => $content['data']['order_id'],
-						'transaction_id' => $content['data']['transaction_id'],
-						'status' => $content['data']['transaction_status'],
-						'transaction_time' => $content['data']['transaction_time'],
-						'amount' => $content['data']['gross_amount'],
-						'bank_code' => $bank_code,
-						'va_number' => $va_number,
-					],
-				];
-
+						'request' => (array) $request,
+						'response' => [
+								'content' => json_encode($res),
+								'status_code' => 200,
+								// 'order_id' => $content['data']['order_id'],
+								// 'transaction_id' => $content['data']['transaction_id'],
+								// 'status' => $content['data']['transaction_status'],
+								// 'transaction_time' => $content['data']['transaction_time'],
+								// 'amount' => (float) $content['data']['gross_amount'],
+								// 'bank_code' => $bank_code,
+								// 'va_number' => $va_number,
+							],
+					];
 			} else {
 				throw new \Exception('Signature check failed');
 			}
@@ -541,10 +537,7 @@ class Midtrans extends Requestor implements VendorInterface
 				'Accept' => 'application/json',
 				'Authorization' => 'Basic ' . base64_encode($this->init->getMID() . ':'),
 			];
-
 			$this->request['data'] = [];
-
-
 			$get = $this->DoRequest('GET', $this->request);
 			$response = (array) $get['response'];
 			extract($response);
@@ -582,32 +575,30 @@ class Midtrans extends Requestor implements VendorInterface
 						"merchant_id": "G345053042"
 					}
 					*/
-					if(strtolower($payment_channel) == 'permata'){
-						$va_number = $content->permata_va_number;
-						$bank_code = strtolower($payment_channel);
-					}else{
-						$va_number = $content->va_numbers[0]->va_number;
-						$bank_code = $content->va_numbers[0]->bank;
-					}
-
-					$content = [
+					// if(strtolower($payment_channel) == 'permata'){
+					// 	$va_number = $content->permata_va_number;
+					// 	$bank_code = strtolower($payment_channel);
+					// }else{
+					// 	$va_number = $content->va_numbers[0]->va_number;
+					// 	$bank_code = $content->va_numbers[0]->bank;
+					// }
+					$res = [
 							'status' => '000',
 							'data' => (array) $content,
 						];
 					$result = [
-						'request' => (array) $request,
-						'response' => [
-							'content' => json_encode($content),
-							'status_code' => 200,
-							'va_number' => $va_number,
-							'bank_code' => $bank_code,
-							'amount' => $content['data']['gross_amount'],
-							'transaction_id' => $content['data']['transaction_id'], // vendor transaction_id
-							'order_id' => $content['data']['order_id'], // PGA order_id
-							'transaction_status' => $content['data']['transaction_status'],
-						],
-					];
-
+							'request' => (array) $request,
+							'response' => [
+									'content' => json_encode($res),
+									'status_code' => 200,
+									// 'va_number' => $va_number,
+									// 'bank_code' => $bank_code,
+									// 'amount' => $content['data']['gross_amount'],
+									// 'transaction_id' => $content['data']['transaction_id'], // vendor transaction_id
+									// 'order_id' => $content['data']['order_id'], // PGA order_id
+									// 'transaction_status' => $content['data']['transaction_status'],
+								],
+						];
 				} else {
 					throw new \Exception($content->status_message);
 				}
