@@ -32,12 +32,12 @@ class Xendit extends Requestor implements VendorInterface
 
 	public function SecurePayment(\Growinc\Payment\Transaction $transaction)
 	{
-		try{
+		try {
 			$this->transaction = $transaction;
 			//
 			$this->form['order_id'] = $this->transaction->getOrderID();
 			$this->form['invoice_no'] = $this->transaction->getInvoiceNo();
-			$this->form['amount'] = $this->transaction->getAmount();
+			$this->form['amount'] = (float) $this->transaction->getAmount();
 			$this->form['description'] = $this->transaction->getDescription();
 			$this->form['currency'] = $this->transaction->getCurrency();
 			//
@@ -46,84 +46,113 @@ class Xendit extends Requestor implements VendorInterface
 			$this->form['customer_phone'] = $this->transaction->getCustomerPhone();
 			$this->form['customer_address'] = $this->transaction->getCustomerAddress();
 			$this->form['country_code'] = $this->transaction->getCountryCode();
-			
 			//
 			$this->form['billing_address'] = [
 					'first_name' => $this->form['customer_name'],
-					'last_name' => 'IPSUM',
+					'last_name' => '',
 					'email' => $this->form['customer_email'],
 					'phone' => $this->form['customer_phone'],
-					'address' => 'sudirman',
-					'city' => 'Jakarta',
-					'postal_code' => '12190',
+					'address' => ' ',
+					'city' => ' ',
+					'postal_code' => ' ',
 					'country_code' => $this->form['country_code'],
 				];
 			$this->form['shipping_address'] = [
 					'first_name' => $this->form['customer_name'],
-					'last_name' => 'IPSUM',
+					'last_name' => '',
 					'email' => $this->form['customer_email'],
 					'phone' => $this->form['customer_phone'],
-					'address' => 'sudirman',
-					'city' => 'Jakarta',
-					'postal_code' => '12190',
+					'address' => ' ',
+					'city' => ' ',
+					'postal_code' => ' ',
 					'country_code' => $this->form['country_code'],
 				];
 			$this->form['customer_details'] = [
 					'first_name' => $this->form['customer_name'],
-					'last_name' => 'IPSUM',
+					'last_name' => '',
 					'email' => $this->form['customer_email'],
 					'phone' => $this->form['customer_phone'],
 					'billing_address' => $this->form['billing_address'],
 					'shipping_address' => $this->form['shipping_address'],
 				];
-
+			//
 			$arr = explode(',', $this->transaction->getPaymentMethod());
 			$payment_method = $arr[0] ?? '';
 			$payment_channel = $arr[1] ?? '';
+			//
+			switch ($payment_method) {
+				case 'bank_transfer':
+					$this->form['payment_url'] = $this->init->getPaymentURL() . '/callback_virtual_accounts';
+					$this->form['expiry_period'] = $this->transaction->getExpireAt();
+					$this->form['expiration_date'] = gmdate("Y-m-d\TH:i:s\Z", strtotime("now") + ($this->form['expiry_period'] * 60));
+					//
+					$this->request['data'] = [
+							'external_id' => $this->form['order_id'],
+							'bank_code' => strtoupper($payment_channel),
+							'name' => $this->form['customer_name'],
+							"is_closed" => true, // When set to true, the virtual account will be closed and will only accept the amount specified in expected_amount
+							"expiration_date" => $this->form['expiration_date'],
+							"expected_amount" => $this->form['amount']
+						];
+					break;
+				case 'credit_card':
+					throw new \Exception("Currently Inapplicable", 1);
+					break;
+				case 'ewallet':
+					throw new \Exception("Currently Inapplicable", 1);
+					break;
+				case 'qris':
+					throw new \Exception("Currently Inapplicable", 1);
+					break;
+				case 'cstore':
+					throw new \Exception("Currently Inapplicable", 1);
+					break;
+			}
 
+			/*
 			// $this->form['payment_type'] = $this->transaction->getPaymentType();
 			// $this->form['payment_method'] = strtoupper($this->transaction->getPaymentMethod());
 			$this->form['payment_url'] = $this->init->getPaymentURL() . '/callback_virtual_accounts';
 			$this->form['expiry_period'] = $this->transaction->getExpireAt(); // minutes
-			
+
 			$this->request['form'] = $this->form;
 			$this->request['time'] = $this->transaction->getTime();
 			$this->request['url'] = $this->form['payment_url'];
-			
-			 // Returns ISO8601 in proper format
-			$expected_amount = gmdate("Y-m-d\TH:i:s\Z", strtotime("now") + ($this->form['expiry_period'] * 60));
-			
+
+			// Returns ISO8601 in proper format
+			$expiration_date = gmdate("Y-m-d\TH:i:s\Z", strtotime("now") + ($this->form['expiry_period'] * 60));
+
 			$this->request['data'] = [
-				'external_id' => $this->form['order_id'],
-				'bank_code' => strtoupper($payment_channel),
-				'name' => $this->form['customer_name'],
-				"is_closed" => true,
-				"expiration_date" => $expected_amount,
-				"expected_amount" => $this->form['amount']
-			];
-			
+					'external_id' => $this->form['order_id'],
+					'bank_code' => strtoupper($payment_channel),
+					'name' => $this->form['customer_name'],
+					"is_closed" => true,
+					"expiration_date" => $expiration_date,
+					"expected_amount" => $this->form['amount']
+				];
+			*/
+
+			$this->request['form'] = $this->form;
+			$this->request['time'] = $this->transaction->getTime();
+			$this->request['url'] = $this->form['payment_url'];
 			$this->request['headers'] = [
-				'Content-Type' => 'application/json',
-				'Accept' => 'application/json',
-				'Authorization' => 'Basic '.base64_encode($this->init->getMID().':'),
-				'Content-Length' => strlen(json_encode($this->request['data'])),
-			];
-			
+					'Content-Type' => 'application/json',
+					'Accept' => 'application/json',
+					'Authorization' => 'Basic ' . base64_encode($this->init->getMID() . ':'),
+					'Content-Length' => strlen(json_encode($this->request['data'])),
+				];
 			$this->request['option'] = [
-				'as_json' => true,
-			];
-			
-			// print_r($this->request['data']);exit();
-			
+					'as_json' => true,
+				];
 			$post = $this->DoRequest('POST', $this->request);
 			$response = (array) $post['response'];
 			extract($response);
-			
 			if (!empty($status_code) && $status_code === 200) {
 				$content = (object) json_decode($content);
 				// return print_r($content);
-				if (	!empty($content->status)
-						&& $content->status == 'PENDING'
+				if (
+					!empty($content->status)
+					&& $content->status == 'PENDING'
 				) {
 					/* Success
 					{
@@ -142,24 +171,22 @@ class Xendit extends Requestor implements VendorInterface
 						"id": "5fa035de49715e400fc114f9"
 					}
 					*/
-
-					$content = [
+					$res = [
 							'status' => '000',
 							'data' => (array) $content,
 						];
-
 					$result = [
 							'request' => (array) $this->request,
 							'response' => [
-									'content' => json_encode($content),
+									'content' => json_encode($res),
 									'status_code' => 200,
-									'va_number' => $content['data']['account_number'],
-									'bank_code' => $payment_channel,
-									'amount' => $content['data']['expected_amount'],
-									'transaction_id' => $content['data']['owner_id'], // vendor transaction_id
-									'order_id' => $content['data']['external_id'], // PGA order_id
-									'payment_type' => $payment_method,
-									'transaction_status' => $content['data']['status'],
+									// 'va_number' => $content['data']['account_number'],
+									// 'bank_code' => $payment_channel,
+									// 'amount' => $content['data']['expected_amount'],
+									// 'transaction_id' => $content['data']['owner_id'], // vendor transaction_id
+									// 'order_id' => $content['data']['external_id'], // PGA order_id
+									// 'payment_type' => $payment_method,
+									// 'transaction_status' => $content['data']['status'],
 								],
 						];
 				} else {
@@ -168,7 +195,6 @@ class Xendit extends Requestor implements VendorInterface
 			} else {
 				throw new \Exception($content);
 			}
-			
 		} catch (\Throwable $e) {
 			throw new \Exception($this->ThrowError($e));
 		}
@@ -198,29 +224,28 @@ class Xendit extends Requestor implements VendorInterface
 		*/
 		try {
 			$callbackToken = $_SERVER['HTTP_X_CALLBACK_TOKEN'];
-			if(strcmp($callbackToken, $this->init->getSecret()) === 0){
-				$content = [
+			if (strcmp($callbackToken, $this->init->getSecret()) === 0) {
+				$res = [
 						'status' => '000',
 						'data' => (array) $request,
 					];
 				$result = [
 						'request' => (array) $request,
 						'response' => [
-								'content' => json_encode($content),
+								'content' => json_encode($res),
 								'status_code' => 200,
-								'order_id' => $content['data']['external_id'],
-								'transaction_id' => $content['data']['payment_id'],
-								'status' => '',
-								'transaction_time' => $content['data']['transaction_timestamp'],
-								'amount' => $content['data']['amount'],
-								'bank_code' => $content['data']['bank_code'],
-								'va_number' => $content['data']['account_number'],
+								// 'order_id' => $content['data']['external_id'],
+								// 'transaction_id' => $content['data']['payment_id'],
+								// 'status' => '',
+								// 'transaction_time' => $content['data']['transaction_timestamp'],
+								// 'amount' => $content['data']['amount'],
+								// 'bank_code' => $content['data']['bank_code'],
+								// 'va_number' => $content['data']['account_number'],
 							],
 					];
 			} else {
 				throw new \Exception('Token check failed');
 			}
-			
 		} catch (\Throwable $e) {
 			throw new \Exception($this->ThrowError($e));
 		}
@@ -248,26 +273,24 @@ class Xendit extends Requestor implements VendorInterface
 		}
 		*/
 		try {
-			$content = [
+			$res = [
 					'status' => '000',
 					'data' => (array) $request,
 				];
 			$result = [
 					'request' => (array) $request,
 					'response' => [
-							'content' => json_encode($content),
+							'content' => json_encode($res),
 							'status_code' => 200,
-							'id' => $content['data']['id'],
-							'order_id' => $content['data']['external_id'],
-							'transaction_id' => $content['data']['owner_id'],
-							'bank_code' => $content['data']['bank_code'],
-							'va_number' => $content['data']['account_number'],
-							'status' => $content['data']['status'],
-							'expired_date' => $content['data']['expiration_date'],
+							// 'id' => $content['data']['id'],
+							// 'order_id' => $content['data']['external_id'],
+							// 'transaction_id' => $content['data']['owner_id'],
+							// 'bank_code' => $content['data']['bank_code'],
+							// 'va_number' => $content['data']['account_number'],
+							// 'status' => $content['data']['status'],
+							// 'expired_date' => $content['data']['expiration_date'],
 						],
 				];
-			
-			
 		} catch (\Throwable $e) {
 			throw new \Exception($this->ThrowError($e));
 		}
@@ -277,26 +300,24 @@ class Xendit extends Requestor implements VendorInterface
 	public function Inquiry(object $request)
 	{
 		try {
-			SELF::Validate($request, ['order_id','transaction_id']);
+			SELF::Validate($request, ['order_id', 'transaction_id']);
 			// Go
 			$this->request['time'] = time();
 			$this->request['url'] = $this->init->getRequestURL() . '/callback_virtual_account_payments/payment_id=' . $request->transaction_id;
+			$this->request['data'] = [];
 			$this->request['headers'] = [
 				'Content-Type' => 'application/json',
 				'Accept' => 'application/json',
-				'Authorization' => 'Basic '.base64_encode($this->init->getMID().':')
+				'Authorization' => 'Basic ' . base64_encode($this->init->getMID() . ':')
 			];
-
-			$this->request['data'] = [];
-			
 			$get = $this->DoRequest('GET', $this->request);
-
 			$response = (array) $get['response'];
 			extract($response);
 			if (!empty($status_code) && $status_code === 200) {
 				$content = (object) json_decode($content);
-				if ( !isset($content->error_code)
-						&& !isset($content->message)
+				if (
+					!isset($content->error_code)
+					&& !isset($content->message)
 				) {
 					// Success
 					/*
@@ -313,22 +334,21 @@ class Xendit extends Requestor implements VendorInterface
 						"transaction_timestamp": "2017-08-11T11:14:57.080Z"
 					}
 					*/
-
-					$content = [
+					$res = [
 							'status' => '000',
 							'data' => (array) $content,
 						];
 					$result = [
 							'request' => (array) $request,
 							'response' => [
-									'content' => json_encode($content),
+									'content' => json_encode($res),
 									'status_code' => 200,
-									'va_number' => $content['data']['account_number'],
-									'bank_code' => $content['data']['bank_code'],
-									'amount' => $content['data']['amount'],
-									'transaction_id' => $content['data']['payment_id'], // vendor transaction_id
-									'order_id' => $content['data']['external_id'], // PGA order_id
-									'transaction_status' => '',
+									// 'va_number' => $content['data']['account_number'],
+									// 'bank_code' => $content['data']['bank_code'],
+									// 'amount' => $content['data']['amount'],
+									// 'transaction_id' => $content['data']['payment_id'], // vendor transaction_id
+									// 'order_id' => $content['data']['external_id'], // PGA order_id
+									// 'transaction_status' => '',
 								],
 						];
 				} else {
@@ -362,5 +382,4 @@ class Xendit extends Requestor implements VendorInterface
 	{
 		// Inapplicable
 	}
-
 }
