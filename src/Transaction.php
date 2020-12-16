@@ -34,16 +34,9 @@ class Transaction
 	protected $cc_card_cvv;
 	protected $cc_token;
 	//
-	// protected $ruuid;
+	protected $ruuid;
 	// protected $member_id;
-	// protected $password;
-	// protected $signature;
-	// protected $key;
-	// protected $comm_code;
-	// protected $bank_code;
-	// protected $Y_N;
-	// protected $exp_va;
-	// protected $signature_key;
+	protected $Y_N;
 	// protected $mode;
 	// protected $is_paymen_notif;
 	// protected $payment_id;
@@ -302,125 +295,35 @@ class Transaction
 
 	//
 
-	// public function setRuuid(string $ruuid): void
-	// {
-	// 	$this->ruuid = $ruuid;
-	// }
+	public function setRuuid(string $ruuid): void
+	{
+		$this->ruuid = $ruuid;
+	}
 
-	// public function getRuuid(): ?string
-	// {
-	// 	return $this->ruuid;
-	// }
+	public function getRuuid(): ?string
+	{
+		return $this->ruuid;
+	}
 
-	// public function setMemberid(string $member_id): void
-	// {
-	// 	$this->member_id = $member_id;
-	// }
+	public function setUpdateOrderId(string $Y_N): void
+	{
+		$this->Y_N = $Y_N;
+	}
 
-	// public function getMemberid(): ?string
-	// {
-	// 	return $this->member_id;
-	// }
+	public function getUpdateOrderId(): ?string
+	{
+		return $this->Y_N;
+	}
 
-	// public function setCommcode(string $comm_code): void
-	// {
-	// 	$this->comm_code = $comm_code;
-	// }
+	public function setIsPaymentNotif(string $is_paymen_notif): void
+	{
+		$this->is_paymen_notif = $is_paymen_notif;
+	}
 
-	// public function getCommcode(): ?string
-	// {
-	// 	return $this->comm_code;
-	// }
-
-	// public function setPassword(string $password): void
-	// {
-	// 	$this->password = $password;
-	// }
-
-	// public function getPassword(): ?string
-	// {
-	// 	return $this->password;
-	// }
-
-	// public function setSignature(string $signature): void
-	// {
-	// 	$this->signature = $signature;
-	// }
-
-	// public function getSignature(): ?string
-	// {
-	// 	return $this->signature;
-	// }
-
-	// public function setKey(string $key): void
-	// {
-	// 	$this->key = $key;
-	// }
-
-	// public function getKey(): ?string
-	// {
-	// 	return $this->key;
-	// }
-
-	// public function setBankCode(string $bank_code): void
-	// {
-	// 	$this->bank_code = $bank_code;
-	// }
-
-	// public function getBankCode(): ?string
-	// {
-	// 	return $this->bank_code;
-	// }
-
-	// public function setUpdateOrderId(string $Y_N): void
-	// {
-	// 	$this->Y_N = $Y_N;
-	// }
-
-	// public function getUpdateOrderId(): ?string
-	// {
-	// 	return $this->Y_N;
-	// }
-
-	// public function setVaExp(string $exp_va): void
-	// {
-	// 	$this->exp_va = $exp_va;
-	// }
-
-	// public function getVaExp(): ?string
-	// {
-	// 	return $this->exp_va;
-	// }
-
-	// public function setSignatureKey(string $signature_key): void
-	// {
-	// 	$this->signature_key = $signature_key;
-	// }
-
-	// public function getSignatureKey(): ?string
-	// {
-	// 	return $this->signature_key;
-	// }
-
-	// public function setMode(string $mode): void
-	// {
-	// 	$this->mode = $mode;
-	// }
-
-	// public function getMode(): ?string
-	// {
-	// 	return $this->mode;
-	// }
-
-	// public function setIsPaymentNotif(string $is_paymen_notif): void
-	// {
-	// 	$this->is_paymen_notif = $is_paymen_notif;
-	// }
-
-	// public function getIsPaymentNotif(): ?string
-	// {
-	// 	return $this->is_paymen_notif;
-	// }
+	public function getIsPaymentNotif(): ?string
+	{
+		return $this->is_paymen_notif;
+	}
 
 	// // credit card end
 
@@ -496,6 +399,24 @@ class Transaction
     {
         return $this->post_id;
     }
+
+    public function setCredentialAttr(string $credential_attr): void
+	{
+		$this->credential_attr = $credential_attr;
+	}
+	public function getCredentialAttr(): ?string
+	{
+		return $this->credential_attr;
+    }
+    
+    public function setReqDateTime(string $req_datetime): void
+	{
+		$this->req_datetime = $req_datetime;
+	}
+	public function getReqDateTime(): ?string
+	{
+		return $this->req_datetime;
+	}
 
 
 }
