@@ -94,7 +94,7 @@ class Espay extends Requestor implements VendorInterface
             foreach ($this->form['item_details'] as $price) {
                 $amount_total += (int) $price['price'] * (int) $price['quantity'];
             }
-            // $this->transaction->setAmount($amount_total);
+
             $this->form['amount'] = (float) $amount_total.'.00';
             //
             $uppercase = strtoupper('##' . $signature_key . '##' . $transaction->getInvoiceNo() 
@@ -505,6 +505,299 @@ class Espay extends Requestor implements VendorInterface
         return $result ?? [];
     }
 
+    public function SecurePaymentWallet(\Growinc\Payment\Transaction $transaction) 
+    {
+        try {
+            $this->transaction = $transaction;
+            // credential
+            $credential = \explode("//", $this->transaction->getCredentialAttr());
+            $signature_key = $credential[0];
+            $credential_password = $credential[1];
+            $comm_code = $credential[2];
+            $push_to_pay = $credential[3];
+            // payment method
+            $_paymentMethode =  explode(',', $this->transaction->getPaymentMethod());
+            $payment_method = $_paymentMethode[0] ?? '';
+            $payment_channel = $_paymentMethode[1] ?? '';
+            $this->form['payment_type'] = $this->getPayId($_paymentMethode);
+            $product_name_payment = $this->getPayId($_paymentMethode)->name;
+            // item details
+            $this->form['item_details'] = $this->transaction->getItem();
+            $amount_total = 0;
+            foreach ($this->form['item_details'] as $price) {
+                $amount_total += (int) $price['price'] * (int) $price['quantity'];
+            }
+            // signature                      
+            $uppercase = strtoupper('##' . $transaction->getInvoiceNo() . '##' . $comm_code . '##'.  $this->form['payment_type']->id 
+            . '##' .  $transaction->getOrderID() . '##' . $amount_total . '##' . $push_to_pay . '##' . $signature_key . '##');
+            $signature = hash('sha256', $uppercase);
+            // 
+            $this->form['customer_name'] = $this->transaction->getCustomerName();
+            $this->form['customer_email'] = $this->transaction->getCustomerEmail();
+            $this->form['customer_phone'] = $this->transaction->getCustomerPhone();
+            $this->form['country_code'] = $this->transaction->getCountrycode();
+
+            $this->form['billing_address'] = [
+                'first_name' => $this->form['customer_name'],
+                'last_name' => 'IPSUM',
+                'email' => $this->form['customer_email'],
+                'phone' => $this->form['customer_phone'],
+                'address' => 'sudirman',
+                'city' => 'Jakarta',
+                'postal_code' => '12190',
+                'country_code' => $this->form['country_code'],
+            ];
+            $this->form['shipping_address'] = [
+                'first_name' => $this->form['customer_name'],
+                'last_name' => 'IPSUM',
+                'email' => $this->form['customer_email'],
+                'phone' => $this->form['customer_phone'],
+                'address' => 'sudirman',
+                'city' => 'Jakarta',
+                'postal_code' => '12190',
+                'country_code' => $this->form['country_code'],
+            ];
+            $this->form['customer_details'] = [
+                'first_name' => $this->form['customer_name'],
+                'last_name' => 'IPSUM',
+                'email' => $this->form['customer_email'],
+                'phone' => $this->form['customer_phone'],
+                'billing_address' => $this->form['billing_address'],
+                'shipping_address' => $this->form['shipping_address'],
+            ];
+            // 
+            // $this->form['product_code'] = $this->transaction->getProductCode();
+            $this->form['rq_uuid'] = $this->transaction->getInvoiceNo();
+            $this->form['rq_datetime'] = date('Y-m-d H:i:s', $this->transaction->getTime()); // $this->transaction->getTime();
+            $this->form['comm_code'] = $comm_code;
+            $this->form['order_id'] = $this->transaction->getOrderID();
+            $this->form['customer_id'] = $this->transaction->getCustomerUserid();
+            $this->form['promo_code'] = $this->transaction->getPromoCode();
+            $this->form['is_sync'] = $this->transaction->getIsAsync();
+            $this->form['branch_id'] = $this->transaction->getBranchId();
+            $this->form['pos_id'] = $this->transaction->getPostId();
+            $this->form['description'] = $this->transaction->getDescription();
+            $this->form['amount'] = (float) $amount_total;
+            $this->form['signature'] = $signature;
+
+            $this->form['payment_url'] = $this->init->getPaymentURL();
+            // go
+            $this->request['form'] = $this->form;
+            $this->request['time'] = $this->transaction->getTime();
+            $this->request['url'] = $this->form['payment_url'];
+
+            $this->request['data'] = [
+                'rq_uuid' => $this->form['rq_uuid'],
+                'rq_datetime' => $this->form['rq_datetime'],
+                'comm_code' => $this->form['comm_code'],
+                'order_id' => $this->form['order_id'],
+                'product_code' => $this->form['payment_type']->id,
+                'amount' => $this->form['amount'],
+                'customer_id' => $this->form['customer_id'],
+                'promo_code' => $this->form['promo_code'],
+                'is_sync' => $this->form['is_sync'],
+                'branch_id' => $this->form['branch_id'],
+                'pos_id' => $this->form['pos_id'],
+                'description' => $this->form['description'],
+                'signature' => $this->form['signature'],
+            ];
+       
+            $this->request['headers'] = [
+                'Content-Type' => 'application/x-www-form-urlencoded',
+                'Accept' => 'application/json',
+                'Authorization' => 'Basic ' . base64_encode("GROWINC:$credential_password"),
+                'Content-Length' => strlen(json_encode($this->request['data'])),
+            ];
+
+            $this->request['option'] = [
+                'request_opt' => 'json',
+            ];
+
+            $post = $this->DoRequest('POST', $this->request);
+
+            $response = (array) $post['response'];
+    
+            \extract($response);
+
+            if(!empty($status_code) && $status_code === 200) {
+                $content = (Object) \json_decode($content);
+
+                if(!empty($content->error_code) && $content->error_code !== 0000)
+                {
+                    // OVO
+                    // "rq_uuid": "INV08029063",
+                    // "rs_datetime": "2020-12-15 17:44:32",
+                    // "error_code": "0000",
+                    // "error_message": "",
+                    // "trx_id": "ESP16080290677RK8",
+                    // "customer_id": "081111504410",
+                    // "order_id": "0008029063",
+                    // "trx_status": "SP",
+                    // "amount": "180000",
+                    // "approval_code": "110163",
+                    // "product_code": "OVO"
+
+                    // LINK
+                    // "rq_uuid": "INV08030123",
+                    // "rs_datetime": "2020-12-15 18:02:10",
+                    // "error_code": "0000",
+                    // "error_message": "Success",
+                    // "trx_id": "ESP1608030129DDNZ",
+                    // "QRLink": "https://sandbox-api.espay.id/rest/digitalnotify/qr/?trx_id=ESP1608030129DDNZ",
+                    // "QRCode": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJMAAACTAQMAAACwK7lWAAAABlBMVEX///8AAABVwtN+AAAACXBIWXMAAA7EAAAOxAGVKw4bAAAB+0lEQVRIieWWsa30IBCE1yIgww0g0QYZLdkNcHYDdktktGGJBuzMAfL+w/NJ7w/Z+CF0uvtOstjZ2cFEf22NzFvglSlqhy+PhBlSe+L15o3U4vFTwkLZtLpS24/HP1JGkWz0NMnZynXk2k4hZaQ2cqd3V6r0W1sXa/r58t3/adrDsIbs1uROXc7f1nWxMfHi7efmi92m3SNhAx9zVlto+s25iBg0uzIvZMmrHa6RsTqn+kmKs+NEk4SN7fh2vI/hdsCnhA23Nb4s4RhZMb8972XGu0WXKzUB1vuto5vpGuHTYCftlvD2rZdBthXHCage8h8iNqTaqk/V6MP4GkXshkNphtcCPK4eCTMeHwWRsGnI956lm2mHIFk8r1mh50bCSKN09Lys6YgBppOwgPjBY9ye7OSPKGGQLVIz2kZ1ZhmDfmdAzzFefNK3b50MvQK+Ms2MIFGLiIWykIN+m3c72yhhQ7KwjKG2YyARw2Dt8ClVCgdy9BSxgDzAPYMTlTWXRcIouEfzdaNvdUhv/nUz5FC2GM3PXT9sjYSNCTEAk7rmU+ZTwugbJ7AMxJMx3DMIsE9CQRV5YCSs3W9N/jbTkd6rppuFNtA/2dn2JGQtwzR8Wh5fScjg061djBaX1SNi7f3lGHKdMJ3fvvUy6Ldnd6Hh7fXnPUsv+1vrH6ThjE2DVkpUAAAAAElFTkSuQmCC"
+
+                    $content = [
+                        'status' => '0000',
+                        'data' => (array) $content,
+                    ];
+
+                    if($payment_channel === 'ovo') {
+                        $__tx_status = ['SP'=>'Suspect','IP'=>'In Process','F'=>'Failed','S'=>'Success'];
+                        $status = $__tx_status[$content['data']['trx_status']] ?? $content['data']['trx_status'];                        
+                    }
+
+                    switch($payment_channel) {
+                        case 'ovo': 
+                            $result = [                    
+                                'request' => (array) $this->request,
+                                'response' => [
+                                    'content' => json_encode($content),
+                                    'status_code' => 200,
+                                    'transaction_id' => $content['data']['trx_id'],
+                                    'order_id' => $content['data']['order_id'], // PGA order_id
+                                    'payment_type' => $payment_method, 
+                                    'product_name_payment' => $content['data']['product_code'],
+                                    'amount' => $content['data']['amount'],
+                                    'transaction_status' => $status,
+                                ]
+                            ];
+                        break;
+                        case 'link_aja': 
+                            $result = [
+                                'request' => (array) $this->request,
+                                'response' => [
+                                    'content' => \json_encode($content),
+                                    'status_code' => 200,
+                                    'transaction_id' => $content['data']['trx_id'],
+                                    'quick_response_link' => (string) $content['data']['QRLink'],
+                                    'quick_response_code' => (string) $content['data']['QRCode'],
+                                    'order_id' => $this->request['data']['order_id'], // PGA order_id
+                                    'payment_type' => $payment_method, 
+                                    'product_name_payment' => $product_name_payment,
+                                    'amount' => $amount_total,
+									'transaction_status' => 'In Progres',
+                                ]
+                            ];
+                    }
+
+                } else {
+                    throw new \Exception($content->error_message);
+                }
+            } else {
+                throw new \Exception($content);
+            }
+        } catch(\Throwable $e) {
+            throw new \Exception($this->ThrowError($e));
+        }
+        return $result ?? [];
+    }
+
+    public function CancelTransactionWallet(\Growinc\Payment\Transaction $transaction)
+    {
+        try {
+            $this->transaction = $transaction;
+            // credential
+            $credential = \explode("//", $this->transaction->getCredentialAttr());
+            $signature_key = $credential[0];
+            $credential_password = $credential[1];
+            $comm_code = $credential[2];
+            $_void = $credential[3];
+            // signature
+            $uppercase = strtoupper('##' . $transaction->getRuuid() . '##' . $comm_code . '##'.  $transaction->getProductCode() 
+            . '##' .  $transaction->getOrderID() . '##' . $transaction->getAmount() . '##' . $_void . '##' . $signature_key . '##');
+            $signature = hash('sha256', $uppercase);
+            // 
+            $this->form['rq_uuid'] = $this->transaction->getRuuid();
+            $this->form['rq_datetime'] = $this->transaction->getReqDateTime();
+            $this->form['comm_code'] = $comm_code;
+            $this->form['order_id'] = $this->transaction->getOrderID();
+            $this->form['trx_id'] = $this->transaction->getTransactionID();
+            $this->form['product_code'] = $this->transaction->getProductCode();
+            $this->form['amount'] = $this->transaction->getAmount();
+            $this->form['signature'] = $signature;
+            //
+            $this->form['request_url'] = $this->init->getRequestURL();
+            // go
+            $this->request['form'] = $this->form;
+            $this->request['time'] = $this->transaction->getTime();
+            $this->request['url'] = $this->form['request_url'];
+
+            $this->request['data'] = [
+                'rq_uuid' => $this->form['rq_uuid'],
+                'rq_datetime' => $this->form['rq_datetime'],
+                'comm_code' => $this->form['comm_code'],
+                'order_id' => $this->form['order_id'],
+                'trx_id' => $this->form['trx_id'],
+                'product_code' => $this->form['product_code'],
+                'amount' => $this->form['amount'],
+                'signature' => $this->form['signature'],
+            ];
+
+            $this->request['headers'] = [
+                'Content-Type' => 'application/x-www-form-urlencoded',
+                // 'Content-Type' => 'application/json',
+                'Accept' => 'application/json',
+                'Authorization' => 'Basic ' . base64_encode("GROWINC:$credential_password"),
+                'Content-Length' => strlen(json_encode($this->request['data'])),
+            ];
+
+            $this->request['option'] = [
+                'request_opt' => 'json',
+            ];
+        
+            $post = $this->DoRequest('POST', $this->request);
+         
+            $response = (array) $post['response'];
+            extract($response);
+            $content = (object) json_decode($content);
+
+            if (!empty($status_code) && $status_code === 200) {
+                if (!empty($content->error_code) && ($content->error_code == 0000)) {
+
+                    // "rq_uuid": "INV08101194",
+                    // "rs_datetime": "2020-12-16 14:28:48",
+                    // "error_code": "0000",
+                    // "error_message": "",
+                    // "order_id": "0008101194",
+                    // "trx_id": "ESP1608101205KMY7",
+                    // "trx_status": "V"
+
+                    $content = [
+                        'status' => '0000',
+                        'data' => (array) $content,
+                    ];
+
+                    $result = [
+                        'request' => (array) $this->request,
+                        'response' => [
+                            'content' => json_encode($content),
+                            'status_code' => 200,
+                        ],
+                    ];
+
+                } else {
+                    throw new \Exception($content->error_desc);
+                }
+            } else {
+                throw new \Exception($content);
+            }
+
+        } catch (\Throwable $e) {
+            throw new \Exception($this->ThrowError($e));
+        }
+        return $result ?? [];
+    }
+
     // 
     public function getPayId($paymentId){
 		switch ($paymentId[0]) {
@@ -515,21 +808,9 @@ class Espay extends Requestor implements VendorInterface
                             $id = '014';
                             $name = 'BCAATM';
                         break;
-                        case 'bni':
-                            $id = '009';
-                            $name = 'BNIATM';
-                        break;
-                        case 'bptn':
-                            $id = '075';
-                            $name = 'BPTN';
-                        break;
                         case 'bri':
                             $id = '002';
                             $name = 'BRIATM';
-                        break;
-                        case 'btpn':
-                            $id = '213';
-                            $name = 'BTPNWOW';
                         break;
                         case 'cimb':
                             $id = '022';
@@ -539,21 +820,9 @@ class Espay extends Requestor implements VendorInterface
                             $id = '011';
                             $name = 'DANAMONATM';
                         break;
-                        case 'dbs':
-                            $id = '046';
-                            $name = 'DBSATM';
-                        break;
                         case 'mandiri':
                             $id = '008';
                             $name = 'MANDIRIATM';
-                        break;
-                        case 'mandiri_syariah':
-                            $id = '451';
-                            $name = 'MANDIRISYARIAHATM';
-                        break;
-                        case 'maspion':
-                            $id = '157';
-                            $name = 'MASPIONATM';
                         break;
                         case 'maybank':
                             $id = '016';
@@ -567,6 +836,26 @@ class Espay extends Requestor implements VendorInterface
                             $id = '014';
                             $name = 'BCAATM';
                         break;
+                        // case 'bni':
+                        //     $id = '009';
+                        //     $name = 'BNIATM';
+                        // break;
+                        // case 'bptn':
+                        //     $id = '075';
+                        //     $name = 'BPTN';
+                        // break;
+                        // case 'btpn':
+                        //     $id = '213';
+                        //     $name = 'BTPNWOW';
+                        // break;
+                        // case 'mandiri_syariah':
+                        //     $id = '451';
+                        //     $name = 'MANDIRISYARIAHATM';
+                        // break;
+                        // case 'maspion':
+                        //     $id = '157';
+                        //     $name = 'MASPIONATM';
+                        // break;
                     }
                 break;
 
@@ -576,18 +865,6 @@ class Espay extends Requestor implements VendorInterface
                         case 'bca':
                             $id = '014';
                             $name = 'BCA VA Online';
-                        break;
-                        case 'bni':
-                            $id = '009';
-                            $name = 'BNI VA';
-                        break;
-                        case 'bptn':
-                            $id = '075';
-                            $name = 'Jenius IB';
-                        break;
-                        case 'bri':
-                            $id = '002';
-                            $name = 'BRI VA';
                         break;
                         case 'cimb':
                             $id = '022';
@@ -605,14 +882,6 @@ class Espay extends Requestor implements VendorInterface
                             $id = '008';
                             $name = 'MANDIRI VA';
                         break;
-                        case 'mandiri_syariah':
-                            $id = '451';
-                            $name = 'Mandiri Syariah VA';
-                        break;
-                        case 'maspion':
-                            $id = '157';
-                            $name = 'VA MASPION';
-                        break;
                         case 'maybank':
                             $id = '016';
                             $name = 'MAYBANK va';
@@ -623,68 +892,40 @@ class Espay extends Requestor implements VendorInterface
                         break;
                         default:
                             $id = '014';
-                            $name = 'BCAATM';
+                            $name = 'BCA VA Online';
                         break;
                     }
                 break;
             
-            /* Virtual */ 
-            // case 'virtual':
-            //     switch ($paymentId[2]) {
-            //         case 'gopay':
-            //             $id = '014';
-            //             $name = 'GOPAY';
-            //         break;
-            //         case 'credivo':
-            //             $id = '014';
-            //             $name = 'KREDIVO';
-            //         break;       
-            //         case 'tcash':
-            //             $id = '008';
-            //             $name = 'TCASH';
-            //         break;
-            //         case 'indomaret':
-            //             $id = '066';
-            //             $name = 'INDOMARET';
-            //         break;
-            //         case 'alfa':
-            //             $id = '026';
-            //             $name = 'ALFA';
-            //         break;
-            //         case 'dana':
-            //             $id = '008';
-            //             $name = 'DANA';
-            //         break;
-            //         case 'link_aja':
-            //             $id = '008';
-            //             $name = 'Link Aja';
-            //         break;
-            //         case 'shoppe_pay':
-            //             $id = '008';
-            //             $name = 'SHOPEEPAY JUMPAPP';
-            //         break;
-            //         case 'saldomu':
-            //             $id = '008';
-            //             $name = 'SALDOMU';
-            //         break;
-            //         case 'jenius':
-            //             $id = '075';
-            //             $name = 'JENIUSIB';
-            //         break;
-            //         case 'ovo':
-            //             $id = '503';
-            //             $name = 'OVO';
-            //         break;
-            //         case 'paypal':
-            //             $id = '717';
-            //             $name = 'PAYPAL';
-            //         break;
-            //         default:
-            //             $id = '503';
-            //             $name = 'OVO';
-            //         break;
-            //     }
-            // break;
+            /*  */ 
+            case 'e_wallet':
+                switch ($paymentId[1]) {
+                    case 'ovo':
+                        $id = 'OVO';
+                        $name = 'OVO';
+                    break;   
+                    case 'link_aja':
+                        $id = 'LINKAJA';
+                        $name = 'LINKAJA';
+                    break;    
+                    default:
+                        $id = '503';
+                        $name = 'OVO';
+                    break;
+                }
+            break;
+            
+            case 'outlet' : 
+                switch ($paymentId[1]) {
+                    case 'indomaret':
+                        $id = '066';
+                        $name = 'INDOMARET';
+                    break;
+                    case 'alfa':
+                        $id = '026';
+                        $name = 'ALFA';
+                    break;
+                }
 
             // case 'credit_card':
             // 	switch ($paymentId[3]) {
