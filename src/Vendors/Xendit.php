@@ -300,16 +300,18 @@ class Xendit extends Requestor implements VendorInterface
 	public function Inquiry(object $request)
 	{
 		try {
-			SELF::Validate($request, ['order_id', 'transaction_id']);
+			SELF::Validate($request, [
+					'id'
+				]);
 			// Go
 			$this->request['time'] = time();
-			$this->request['url'] = $this->init->getRequestURL() . '/callback_virtual_account_payments/payment_id=' . $request->transaction_id;
+			$this->request['url'] = $this->init->getRequestURL() . 'callback_virtual_accounts/' . $request->id;
 			$this->request['data'] = [];
 			$this->request['headers'] = [
-				'Content-Type' => 'application/json',
-				'Accept' => 'application/json',
-				'Authorization' => 'Basic ' . base64_encode($this->init->getMID() . ':')
-			];
+					'Content-Type' => 'application/json',
+					'Accept' => 'application/json',
+					'Authorization' => 'Basic ' . base64_encode($this->init->getMID() . ':')
+				];
 			$get = $this->DoRequest('GET', $this->request);
 			$response = (array) $get['response'];
 			extract($response);
@@ -322,16 +324,87 @@ class Xendit extends Requestor implements VendorInterface
 					// Success
 					/*
 					{
-						"id": "598d91b1191029596846047f",
-						"payment_id": "1502450097080",
-						"callback_virtual_account_id": "598d5f71bf64853820c49a18",
-						"external_id": "demo-1502437214715",
-						"merchant_code": "77517",
-						"account_number": "1000016980",
-						"bank_code": "BNI",
-						"amount": 5000,
-						"sender_name": "JOHN DOE",
-						"transaction_timestamp": "2017-08-11T11:14:57.080Z"
+						"status": "000",
+						"data": {
+							"is_closed": true,
+							"status": "ACTIVE",
+							"currency": "IDR",
+							"owner_id": "5f706881fefc961e3f708f02",
+							"external_id": "0008115320",
+							"bank_code": "BCA",
+							"merchant_code": "10766",
+							"name": "LOREM IPSUM",
+							"account_number": "107669999020779",
+							"expected_amount": 100000,
+							"expiration_date": "2020-12-16T12:22:00.000Z",
+							"is_single_use": false,
+							"id": "5fd9e479ed81dd402014403c"
+						}
+					}
+					*/
+					$res = [
+							'status' => '000',
+							'data' => (array) $content,
+						];
+					$result = [
+							'request' => (array) $request,
+							'response' => [
+									'content' => json_encode($res),
+									'status_code' => 200,
+								],
+						];
+				} else {
+					throw new \Exception($content->message);
+				}
+			} else {
+				throw new \Exception($content);
+			}
+		} catch (\Throwable $e) {
+			throw new \Exception($this->ThrowError($e));
+		}
+		return $result ?? [];
+	}
+
+	public function InquiryPayment(object $request)
+	{
+		try {
+			SELF::Validate($request, [
+					'payment_id',
+				]);
+			// Go
+			$this->request['time'] = time();
+			$this->request['url'] = $this->init->getRequestURL() . 'callback_virtual_account_payments/payment_id=' . $request->payment_id;
+			$this->request['data'] = [];
+			$this->request['headers'] = [
+					'Content-Type' => 'application/json',
+					'Accept' => 'application/json',
+					'Authorization' => 'Basic ' . base64_encode($this->init->getMID() . ':')
+				];
+			$get = $this->DoRequest('GET', $this->request);
+			$response = (array) $get['response'];
+			extract($response);
+			if (!empty($status_code) && $status_code === 200) {
+				$content = (object) json_decode($content);
+				if (
+					!isset($content->error_code)
+					&& !isset($content->message)
+				) {
+					// Success
+					/*
+					{
+						"status": "000",
+						"data": {
+							"payment_id": "5f9fb9758d65ab3c1141f230",
+							"callback_virtual_account_id": "5f9fb82dbcbf722b71041f3f",
+							"external_id": "VA_fixed-1604302892",
+							"account_number": "9999000002",
+							"bank_code": "MANDIRI",
+							"amount": 50000,
+							"transaction_timestamp": "2020-11-02T07:47:01.000Z",
+							"merchant_code": "88608",
+							"currency": "IDR",
+							"id": "5f9fb9758940c131b3d7b96d"
+						}
 					}
 					*/
 					$res = [
