@@ -9,12 +9,20 @@ $init = new \Growinc\Payment\Init(
 $init->setBaseURI('https://api.xendit.co');
 $init->setPaymentURL('https://api.xendit.co');
 
+/*------------------------------ V V V Start of Required by EWALLET and QRIS ---------- */
+$init->setCallbackURL('https://ibank.growinc.dev/oanwef4851ashrb/pg/dk/redapi_result');
+$init->setReturnURL('https://ibank.growinc.dev/oanwef4851ashrb/pg/dk/redapi_form');
+/*------------------------------ A A A End of Required by EWALLET and QRIS ---------- */
+
 $transaction = new \Growinc\Payment\Transaction();
 $transaction->setCustomerName('LOREM IPSUM');
 $transaction->setCustomerEmail('lorem@ipsum.com');
 $transaction->setCustomerPhone('088812345678');
-$transaction->setAmount(100000);
 $transaction->setCountrycode('IDN');
+//
+$transaction->setItem('Apple');
+$transaction->setAmount(100000);
+$transaction->setDescription('Pembelian Elektronik');
 
 // Payment Method Supported:
 // 1. bank_transfer (VA) ----------- CURRENTLY ONLY THIS SUPPORTED
@@ -34,17 +42,15 @@ $transaction->setCountrycode('IDN');
 // 	alfamart
 // 	indomaret
 
-$transaction->setPaymentMethod('bank_transfer,bca');
+// $transaction->setPaymentMethod('bank_transfer,bca');
 // $transaction->setPaymentMethod('bank_transfer,mandiri');
-// $transaction->setPaymentMethod('bank_transfer,permata');
-// $transaction->setPaymentMethod('credit_card');
+$transaction->setPaymentMethod('bank_transfer,permata');
+// $transaction->setPaymentMethod('credit_card'); // Currently Inapplicable
 // $transaction->setPaymentMethod('ewallet,ovo');
 // $transaction->setPaymentMethod('ewallet,linkaja');
 // $transaction->setPaymentMethod('qris');
 // $transaction->setPaymentMethod('cstore,indomaret');
 // $transaction->setPaymentMethod('cstore,alfamart');
-
-$transaction->setDescription('Pembelian Elektronik');
 
 $vendor = new \Growinc\Payment\Vendors\Xendit($init);
 

@@ -225,12 +225,14 @@ class Transaction extends TransactionExtends
 
 	//
 
-	public function setItem(&$item_detail): void
+	// public function setItem(&$item_detail): void
+	public function setItem($item): void
 	{
-		$this->item = $item_detail;
+		$this->item = $item;
 	}
 
-	public function getItem(): ?array
+	// public function getItem(): ?array
+	public function getItem()
 	{
 		return $this->item;
 	}

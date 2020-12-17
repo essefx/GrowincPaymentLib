@@ -10,6 +10,47 @@ class Xendit extends Requestor implements VendorInterface
 
 	protected $form;
 
+	/*==========================================================================================
+												Start of Private
+	==========================================================================================**/
+
+		public function _CreateCardToken($args)
+		{
+			// try {
+			// 	$this->request['headers'] = [
+			// 		'Content-Type' => 'application/json',
+			// 		'Accept' => 'application/json',
+			// 	];
+			// 	$this->request['url'] = $args['token_url'];
+			// 	$this->request['data'] = [
+			// 			'amount' => $args['amount'],
+			// 			'card_number' => $args['card_number'],
+			// 			'card_exp_month' => $args['card_exp_month'],
+			// 			'card_exp_year' => $args['card_exp_year'],
+			// 			'card_cvn' => $args['card_cvn'],
+			// 			'is_multiple_use' => $args['is_multiple_use'],
+			// 			'should_authenticate' => $args['should_authenticate'],
+			// 		];
+			// 	$get = $this->DoRequest('GET', $this->request);
+			// 	$response = (array) $get['response'];
+			// 	extract($response);
+			// 	if (!empty($status_code) && $status_code === 200) {
+			// 		$content = (object) json_decode($content);
+			// 		if (
+			// 			!empty($content->status_code)
+			// 			&& $content->status_code == 200
+			// 		) {
+			// 			$result = $content->token_id;
+			// 		}
+			// 	}
+			// } catch (\Throwable $e) {
+			// 	throw new \Exception($this->ThrowError($e));
+			// }
+			// return $result ?? [];
+		}
+
+	/*=================================   End of Private   ==================================*/
+
 	public function Index()
 	{
 		// Inapplicable
@@ -37,9 +78,11 @@ class Xendit extends Requestor implements VendorInterface
 			//
 			$this->form['order_id'] = $this->transaction->getOrderID();
 			$this->form['invoice_no'] = $this->transaction->getInvoiceNo();
+			$this->form['currency'] = $this->transaction->getCurrency();
+			//
+			$this->form['item'] = $this->transaction->getItem();
 			$this->form['amount'] = (float) $this->transaction->getAmount();
 			$this->form['description'] = $this->transaction->getDescription();
-			$this->form['currency'] = $this->transaction->getCurrency();
 			//
 			$this->form['customer_name'] = $this->transaction->getCustomerName();
 			$this->form['customer_email'] = $this->transaction->getCustomerEmail();
@@ -82,30 +125,71 @@ class Xendit extends Requestor implements VendorInterface
 			//
 			switch ($payment_method) {
 				case 'bank_transfer':
-					$this->form['payment_url'] = $this->init->getPaymentURL() . '/callback_virtual_accounts';
-					$this->form['expiry_period'] = $this->transaction->getExpireAt();
-					$this->form['expiration_date'] = gmdate("Y-m-d\TH:i:s\Z", strtotime("now") + ($this->form['expiry_period'] * 60));
-					//
+					$this->request['url'] = $this->init->getPaymentURL() . '/callback_virtual_accounts';
 					$this->request['data'] = [
 							'external_id' => $this->form['order_id'],
 							'bank_code' => strtoupper($payment_channel),
 							'name' => $this->form['customer_name'],
-							"is_closed" => true, // When set to true, the virtual account will be closed and will only accept the amount specified in expected_amount
-							"expiration_date" => $this->form['expiration_date'],
-							"expected_amount" => $this->form['amount']
+							'is_closed' => true, // When set to true, the virtual account will be closed and will only accept the amount specified in expected_amount
+							'expiration_date' => gmdate("Y-m-d\TH:i:s\Z", strtotime("now") + ($this->transaction->getExpireAt() * 60)),
+							'expected_amount' => $this->form['amount'],
 						];
 					break;
 				case 'credit_card':
 					throw new \Exception("Currently Inapplicable", 1);
 					break;
 				case 'ewallet':
-					throw new \Exception("Currently Inapplicable", 1);
+					$this->request['url'] = $this->init->getPaymentURL() . '/ewallets';
+					$this->request['data'] = [
+							'external_id' => $this->form['order_id'],
+							'amount' => $this->form['amount'],
+							'phone' => $this->form['customer_phone'],
+							'ewallet_type' => strtoupper($payment_channel),
+						];
+					switch (strtoupper($payment_channel)) {
+						case 'DANA':
+							$this->request['data'] = array_merge($this->request['data'], [
+									'callback_url' => $this->init->getCallbackURL(),
+									'redirect_url' => $this->init->getReturnURL(),
+								]);
+							break;
+						case 'LINKAJA':
+							$this->request['data'] = array_merge($this->request['data'], [
+									// 'items' => $this->transaction->getItem(),
+									'items' => [
+											[
+													'id' => '1',
+													'name' => $this->form['item'],
+													'price' => $this->form['amount'],
+													'quantity' => 1,
+												],
+										],
+									'callback_url' => $this->init->getCallbackURL(),
+									'redirect_url' => $this->init->getReturnURL(),
+								]);
+							break;
+					}
 					break;
 				case 'qris':
-					throw new \Exception("Currently Inapplicable", 1);
+					$this->request['url'] = $this->init->getPaymentURL() . '/qr_codes';
+					$this->request['data'] = [
+							'external_id' => $this->form['order_id'],
+							'type' => 'STATIC',
+							'callback_url' => $this->init->getCallbackURL(),
+							'amount' => $this->form['amount'],
+						];
 					break;
 				case 'cstore':
-					throw new \Exception("Currently Inapplicable", 1);
+					$this->request['url'] = $this->init->getPaymentURL() . '/fixed_payment_code';
+					$this->request['data'] = [
+							'external_id' => $this->form['order_id'],
+							'retail_outlet_name' => strtoupper($payment_channel),
+							'name' => $this->form['customer_name'],
+							'expected_amount' => $this->form['amount'],
+							// 'payment_code' => '',
+							'expiration_date' => gmdate("Y-m-d\TH:i:s\Z", strtotime("now") + ($this->transaction->getExpireAt() * 60)),
+							'is_single_use' => 'true',
+						];
 					break;
 			}
 
@@ -134,7 +218,6 @@ class Xendit extends Requestor implements VendorInterface
 
 			$this->request['form'] = $this->form;
 			$this->request['time'] = $this->transaction->getTime();
-			$this->request['url'] = $this->form['payment_url'];
 			$this->request['url'] = preg_replace('#/+#','/', $this->request['url']);
 			$this->request['headers'] = [
 					'Content-Type' => 'application/json',
@@ -153,9 +236,15 @@ class Xendit extends Requestor implements VendorInterface
 				// return print_r($content);
 				if (
 					!empty($content->status)
-					&& $content->status == 'PENDING'
+					&&
+						(
+							$content->status == 'PENDING'
+							|| $content->status == 'ACTIVE'
+							|| $content->status == 'REQUEST_RECEIVED'
+						)
 				) {
-					/* Success
+					// Success
+					/*
 					{
 						"is_closed": true,
 						"status": "PENDING",
@@ -170,6 +259,20 @@ class Xendit extends Requestor implements VendorInterface
 						"expiration_date": "2020-11-08T17:00:00.000Z",
 						"is_single_use": false,
 						"id": "5fa035de49715e400fc114f9"
+					}
+					*/
+					// Pending
+					/*
+					{
+						"id": "qr_a5ddd405-5ffb-4a63-a6f8-ca51c620bea1",
+						"external_id": "0008177386",
+						"amount": null,
+						"qr_string": "00020101021126660014ID.LINKAJA.WWW011893600911002411480002152004230411480010303UME51450015ID.OR.GPNQR.WWW02150000000000000000303UME520454995802ID5920Placeholder merchant6007Jakarta610612345662190715fhBNl5rSWmgMfwV53033606304F35B",
+						"callback_url": "https://ibank.growinc.dev/oanwef4851ashrb/pg/dk/redapi_result",
+						"type": "STATIC",
+						"status": "ACTIVE",
+						"created": "2020-12-17T03:56:29.685Z",
+						"updated": "2020-12-17T03:56:29.685Z"
 					}
 					*/
 					$res = [
