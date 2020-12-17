@@ -185,10 +185,19 @@ class Winpay extends Requestor implements VendorInterface
 			$this->request['url'] = $this->form['payment_url'];
 			$this->form['xpayment_date'] = date( "YmdHis", strtotime(date('H:i:s'))+(60*$this->form['expiry_period']));
 
-			$this->request['data'] = [
-			  'token' => $this->form['get_token'],
-			  'json_string' => json_encode(
-			    [
+			$addArray = [];
+			switch ($bankName->name) {
+				case 'QRISPAY':
+					$addArray = [
+						"spi_qr_type" => "static",
+						"spi_qr_fee_type" => "percent",
+						"spi_qr_fee" => "10",
+					];
+				break;
+
+			}
+
+			$dataPost = [
 			      'cms' => "WINPAY API",
 			      'spi_callback' => $this->init->getCallbackURL(),
 			      'url_listener' => $this->init->getReturnURL(),
@@ -204,7 +213,15 @@ class Winpay extends Requestor implements VendorInterface
 								'spi_paymentDate' => $this->form['xpayment_date'],
 								'get_link'=> 'no',
 								
-			    ]
+			    ];
+			$dataPost = $dataPost + $addArray;
+
+			// print_r($dataPost);exit();
+
+			$this->request['data'] = [
+			  'token' => $this->form['get_token'],
+			  'json_string' => json_encode(
+			    $dataPost
 			  )
 			];
 			// print_r($this->request);exit();
@@ -223,14 +240,16 @@ class Winpay extends Requestor implements VendorInterface
 			$post = $this->DoRequest('POST',  $this->request);
 		
 			$response = (array) $post['response'];
-			$response = json_decode($response['content']);
+			// $response = json_decode($response['content']);
 			// print_r($response);exit();
-	
+			extract($response);
 		
 
-			if (!empty($response->rc) && $response->rc === '00') {
-				if (!empty($response->rc)
-						&& $response->rc == '00'
+			// if (!empty($response->rc) && $response->rc === '00') {
+			if (!empty($status_code) && $status_code === 200) {
+				$content = (object) json_decode($content);
+				if (!empty($content->rc)
+						&& $content->rc == '00'
 				) {
 					
 					/* Success
@@ -262,13 +281,13 @@ class Winpay extends Requestor implements VendorInterface
 							'response' => [
 								'content' => json_encode($content),
 								'status_code' => 200,
-								'va_number' => $content['data']['data']->payment_code,
-								'bank_code' => $this->form['payment_method'],
-								'amount' => $content['data']['data']->total_amount,
-								'transaction_id' => $content['data']['data']->order_id, // vendor transaction id
-								'order_id' => $content['data']['data']->order_id, // PGA order_id
-								'payment_type' => $this->form['payment_type'],
-								'transaction_status' => $content['data']['rc'],
+								// 'va_number' => $content['data']['data']->payment_code,
+								// 'bank_code' => $this->form['payment_method'],
+								// 'amount' => $content['data']['data']->total_amount,
+								// 'transaction_id' => $content['data']['data']->order_id, // vendor transaction id
+								// 'order_id' => $content['data']['data']->order_id, // PGA order_id
+								// 'payment_type' => $this->form['payment_type'],
+								// 'transaction_status' => $content['data']['rc'],
 							],
 
 							// 'response' => [
@@ -277,10 +296,10 @@ class Winpay extends Requestor implements VendorInterface
 							// 	],
 						];
 				} else {
-					throw new \Exception($content->status_message);
+					throw new \Exception($content->rd);
 				}
 			} else {
-				throw new \Exception($response);
+				throw new \Exception($content);
 			}
 
 		} catch (\Throwable $e) {
@@ -330,8 +349,7 @@ class Winpay extends Requestor implements VendorInterface
 		switch (strtolower($paymentId[0])) {
 			/* Bank Transfer */ 
 			case 'bank_transfer':
-			
-				switch ($paymentId[1]) {
+				switch (strtolower($paymentId[1])) {
 					case 'bca':
 						$name = 'BCAVA';
 					break;
@@ -351,6 +369,85 @@ class Winpay extends Requestor implements VendorInterface
 						$name = 'BCAVA';
 					break;
 				}
+			break;
+
+			case 'cstore':
+				switch (strtolower($paymentId[1])) {
+					case 'indomaret':
+						$name = 'INDOMARET';
+					break;
+					case 'alfamart':
+						$name = 'ALFAMART';
+					break;
+					case 'fastpay':
+						$name = 'FASTPAY';
+					break;
+				}
+			break;
+
+			case 'qris':
+				switch (strtolower($paymentId[1])) {
+					case 'qris':
+						$name = 'QRISPAY';
+					break;
+				}
+
+			case 'pulsa':
+				switch (strtolower($paymentId[1])) {
+					case 'telkomsel':
+						$name = 'TCASH';
+					break;
+					case 'xl':
+						$name = 'XLTUNAI';
+					break;
+					case 'indosat':
+						$name = 'DOMPETKU';
+					break;
+				}
+			case 'payment_code':
+				switch (strtolower($paymentId[1])) {
+					case 'atm137':
+						$name = 'ATM137';
+					break;
+					case 'bebasbayar':
+						$name = 'BEBASBAYAR';
+					break;
+					case 'cimbc':
+						$name = 'CIMBC';
+					break;
+					case 'danamon':
+						$name = 'DANAMON';
+					break;
+					case 'btnonline':
+						$name = 'BTNONLINE';
+					break;
+					case 'briep':
+						$name = 'BRIEP';
+					break;
+					case 'finpay':
+						$name = 'FINPAY';
+					break;
+					case 'bcakp':
+						$name = 'BCAKP';
+					break;
+					case 'kkwp':
+						$name = 'KKWP';
+					break;
+					case 'mandiriec':
+						$name = 'MANDIRIEC';
+					break;
+					case 'mandiripc':
+						$name = 'MANDIRIPC';
+					break;
+					case 'mandiricp':
+						$name = 'MANDIRICP';
+					break;
+					case 'muamalat':
+						$name = 'MUAMALAT';
+					break;
+					
+				}
+			
 			break;
 		}
 		return (object) ['name' => $name];
