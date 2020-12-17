@@ -135,6 +135,7 @@ class Xendit extends Requestor implements VendorInterface
 			$this->request['form'] = $this->form;
 			$this->request['time'] = $this->transaction->getTime();
 			$this->request['url'] = $this->form['payment_url'];
+			$this->request['url'] = preg_replace('#/+#','/', $this->request['url']);
 			$this->request['headers'] = [
 					'Content-Type' => 'application/json',
 					'Accept' => 'application/json',
@@ -305,7 +306,8 @@ class Xendit extends Requestor implements VendorInterface
 				]);
 			// Go
 			$this->request['time'] = time();
-			$this->request['url'] = $this->init->getRequestURL() . 'callback_virtual_accounts/' . $request->id;
+			$this->request['url'] = $this->init->getRequestURL() . '/callback_virtual_accounts/' . $request->id;
+			$this->request['url'] = preg_replace('#/+#','/', $this->request['url']);
 			$this->request['data'] = [];
 			$this->request['headers'] = [
 					'Content-Type' => 'application/json',
@@ -373,7 +375,8 @@ class Xendit extends Requestor implements VendorInterface
 				]);
 			// Go
 			$this->request['time'] = time();
-			$this->request['url'] = $this->init->getRequestURL() . 'callback_virtual_account_payments/payment_id=' . $request->payment_id;
+			$this->request['url'] = $this->init->getRequestURL() . '/callback_virtual_account_payments/payment_id=' . $request->payment_id;
+			$this->request['url'] = preg_replace('#/+#','/', $this->request['url']);
 			$this->request['data'] = [];
 			$this->request['headers'] = [
 					'Content-Type' => 'application/json',
