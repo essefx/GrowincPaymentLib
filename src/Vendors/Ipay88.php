@@ -56,38 +56,38 @@ class Ipay88 extends Requestor implements VendorInterface
 			$this->form['city'] = $this->transaction->getCustomerCity();
 		
 
-      /** 
-       * Billing Address
-      */
-
-      $this->form['billing_address'] = [
-        'first_name' => $this->form['customer_name'],
-        'last_name' => 'IPSUM',
-        'address' => $this->form['customer_address'],
-        'city' => $this->form['city'] ?? 'Jakarta',
-        'postal_code' => $this->form['postal_code'],
-        'phone' => $this->form['customer_phone'],
-        'country_code' => $this->form['country_code'] ?? 'IDN',
-        'email' => $this->form['customer_email'],
-      ];
-
-      /** 
-       * Shipping Address
-      */
-
-      $this->form['shipping_address'] = [
-        'first_name' => $this->form['customer_name'],
-        'last_name' => 'IPSUM',
-        'address' => $this->form['customer_address'],
-        'city' => $this->form['city'] ?? 'Jakarta',
-        'postal_code' => $this->form['postal_code'],
-        'phone' => $this->form['customer_phone'],
-        'country_code' => $this->form['country_code'] ?? 'IDN',
-        'email' => $this->form['customer_email']
-      ];
 			/** 
-       * Sellers
-      */
+			* Billing Address
+			*/
+
+			$this->form['billing_address'] = [
+				'first_name' => $this->form['customer_name'],
+				'last_name' => 'IPSUM',
+				'address' => $this->form['customer_address'],
+				'city' => $this->form['city'] ?? 'Jakarta',
+				'postal_code' => $this->form['postal_code'],
+				'phone' => $this->form['customer_phone'],
+				'country_code' => $this->form['country_code'] ?? 'IDN',
+				'email' => $this->form['customer_email'],
+			];
+
+			/** 
+			* Shipping Address
+			*/
+
+			$this->form['shipping_address'] = [
+				'first_name' => $this->form['customer_name'],
+				'last_name' => 'IPSUM',
+				'address' => $this->form['customer_address'],
+				'city' => $this->form['city'] ?? 'Jakarta',
+				'postal_code' => $this->form['postal_code'],
+				'phone' => $this->form['customer_phone'],
+				'country_code' => $this->form['country_code'] ?? 'IDN',
+				'email' => $this->form['customer_email']
+			];
+				/** 
+			* Sellers
+			*/
 			$this->form['sellers'] = $this->transaction->getSeller();
 				
 			$this->form['item_details'] = $this->transaction->getItem();
@@ -110,31 +110,32 @@ class Ipay88 extends Requestor implements VendorInterface
 
 			// generate signature 
 			$signature = $this->init->getSecret().$this->init->getMID().$this->transaction->getOrderID().$amountTotal.$this->form['currency'];
-      $encode_signature = base64_encode(hex2bin(sha1($signature)));
+      		$encode_signature = base64_encode(hex2bin(sha1($signature)));
 			
 			// request data  
 			$this->request['data'] = [
-        'MerchantCode' 			=> $this->init->getMID(),
-        'PaymentId' 				=> $this->form['payment_type']->id,
-        'Currency' 					=> $this->form['currency'],
-        'RefNo' 						=>  $this->transaction->getOrderID(),
-        'Amount'						=> (int) $amountTotal, 
-        'ProdDesc'					=> $this->form['description'], 
-        'UserName'					=> $this->form['customer_name'],
-        'UserEmail'					=> $this->form['customer_email'],
-        'UserContact'				=> $this->form['customer_phone'],
-        'Remark'						=> 'Transaction ',
-				'Lang'							=> 'UTF-8',
-        'ResponseURL'				=> $this->form['payment_url'],
-        'BackendURL'				=>  $this->form['payment_url'],
-				'Signature' 				=> $encode_signature,
-				"xfield1"						=> "",
-				'itemTransactions' => $this->form['item_details'],
-				'ShippingAddress' => $this->form['shipping_address'],
-				'BillingAddress' => $this->form['billing_address'],
-				'Sellers' => $this->form['sellers'],
+		        'MerchantCode' 			=> $this->init->getMID(),
+		        'PaymentId' 			=> $this->form['payment_type']->id,
+		        'Currency' 				=> $this->form['currency'],
+		        'RefNo' 				=>  $this->transaction->getOrderID(),
+		        'Amount'				=> (int) $amountTotal, 
+		        'ProdDesc'				=> $this->form['description'], 
+		        'UserName'				=> $this->form['customer_name'],
+		        'UserEmail'				=> $this->form['customer_email'],
+		        'UserContact'			=> $this->form['customer_phone'],
+		        'Remark'				=> 'Transaction ',
+				'Lang'					=> 'UTF-8',
+		        'ResponseURL'			=> $this->form['payment_url'],
+		        'BackendURL'			=>  $this->form['payment_url'],
+				'Signature' 			=> $encode_signature,
+				"xfield1"				=> "",
+				'itemTransactions'		 => $this->form['item_details'],
+				'ShippingAddress' 		=> $this->form['shipping_address'],
+				'BillingAddress' 		=> $this->form['billing_address'],
+				'Sellers' 				=> $this->form['sellers'],
 			];
 			
+			print_r(json_encode($this->request['data']));exit();
 			/* HEADER */ 
 			$this->request['headers'] = [
 				'Content-Type' => 'application/json',
@@ -149,42 +150,61 @@ class Ipay88 extends Requestor implements VendorInterface
 			
 			$post = $this->DoRequest('POST', $this->request);
 			
-
 			$response = (array) $post['response'];
-		
 			extract($response);
-			$content = (object) json_decode($content);
-		
-			if ($content->Status != "") {
-				if (empty($content->ErrDesc) && $content->ErrDesc === "") {
-
-					$content = [
-						'status' => '000',
-						'data' => (array) $content,
-					];
-					/**/ 
-					if ($content['data']['Status'] == 6 ) {
-						$status = 'pending';
+			
+			if (!empty($status_code) && $status_code === 200) {
+				$content = (object) json_decode($content);
+				if ($content->Status != "") {
+					if (empty($content->ErrDesc) && $content->ErrDesc === "") {
+						/* ewallet
+							{
+							   "Status":"6",
+							   "ErrDesc":"",
+							   "MerchantCode":"ID01625",
+							   "PaymentId":"75",
+							   "Currency":"IDR",
+							   "RefNo":"0008276045",
+							   "Amount":"250000",
+							   "Remark":"Transaction ",
+							   "Signature":"kWvzVi4X\/LFBB\/5s3df+8hFVwto=",
+							   "xfield1":"",
+							   "TransId":"T0051309800",
+							   "AuthCode":"",
+							   "VirtualAccountAssigned":"https:\/\/api.uat.wallet.airpay.co.id\/v3\/merchant-host\/qr\/download?qr=Kd2lofpylhA6xaiZxeDfdeTeFYLPu1p1xMZaWagtTG",
+							   "CheckoutURL":"https:\/\/sandbox.ipay88.co.id\/epayment\/entryv3.asp?CheckoutID=72b89e6aeb89818296488ead3f963bcf799eca4cd6ae85906214c930d75abdb5&Signature=2IX6cemMjOUVPsiT9C55OwrlGX8%3d"
+							}
+						*/
+						$content = [
+							'status' => '000',
+							'data' => (array) $content,
+						];
+						/**/ 
+						if ($content['data']['Status'] == 6 ) {
+							$status = 'pending';
+						}
+						$result = [
+								'request' => (array) $this->request,
+								'response' => [
+									'content' => json_encode($content),
+									'status_code' =>  $content['data']['Status'] == 6 ? 200 : 302 ,
+									// 'va_number' => $content['data']['VirtualAccountAssigned'],
+									// 'bank_code' => $this->form['payment_type']->name,
+									// 'amount' => $content['data']['Amount'],
+									// 'transaction_id' => $content['data']['TransId'], // vendor transaction_id
+									// 'order_id' => $content['data']['RefNo'], // PGA order_id
+									// 'payment_type' => $paymentMethode[0], // Payment Method
+									// 'checkout' => $content['data']['CheckoutURL'], // Payment URL
+									// 'transaction_status' =>  $status,
+								],
+						];
+							
+					} else {
+						throw new \Exception($content->ErrDesc);
 					}
-					$result = [
-							'request' => (array) $this->request,
-							'response' => [
-								'content' => json_encode($content),
-								'status_code' =>  $content['data']['Status'] == 6 ? 200 : 302 ,
-								'va_number' => $content['data']['VirtualAccountAssigned'],
-								'bank_code' => $this->form['payment_type']->name,
-								'amount' => $content['data']['Amount'],
-								'transaction_id' => $content['data']['TransId'], // vendor transaction_id
-								'order_id' => $content['data']['RefNo'], // PGA order_id
-								'payment_type' => $paymentMethode[0], // Payment Method
-								'checkout' => $content['data']['CheckoutURL'], // Payment URL
-								'transaction_status' =>  $status,
-							],
-					];
-						
-				} else {
-					throw new \Exception($content->ErrDesc);
 				}
+			} else {
+				throw new \Exception($content);
 			}
 
 		}	catch (\Throwable $e) {
@@ -198,11 +218,10 @@ class Ipay88 extends Requestor implements VendorInterface
 	 * @return $result ? []
 	 * */ 
 	public function getPayId($paymentId){
-		switch ($paymentId[0]) {
+		switch (strtolower($paymentId[0])) {
 			/* Bank Transfer */ 
 			case 'bank_transfer':
-			
-				switch ($paymentId[1]) {
+				switch (strtolower($paymentId[1])) {
 					case 'bca':
 						$id = 30;
 						$name = 'BCA';
@@ -229,10 +248,38 @@ class Ipay88 extends Requestor implements VendorInterface
 					break;
 				}
 			break;
-
-			/* Bank Transfer */ 
+			/* Others */ 
+			case 'others':
+				switch (strtolower($paymentId[1])) {
+					case 'alfamart':
+						$id = 60;
+						$name = 'alfamart';
+					break;
+					case 'indomaret':
+						$id = 65;
+						$name = 'indomaret';
+					break;
+					case 'akulaku':
+						$id = 71;
+						$name = 'akulaku';
+					break;
+					case 'indodana':
+						$id = 70;
+						$name = 'indodana';
+					break;					
+					case 'kredivo':
+						$id = 55;
+						$name = 'kredivo';
+					break;
+					default:
+						$id = 60;
+						$name = 'alfamart';
+					break;
+				}
+			break;
+			/* Internet Banking */ 
 			case 'internet_banking':
-				switch ($paymentId[1]) {
+				switch (strtolower($paymentId[1])) {
 					case 'bcakp':
 						$id = 8;
 						$name = 'BCA';
@@ -255,6 +302,72 @@ class Ipay88 extends Requestor implements VendorInterface
 					break;
 				}
 			break;
+			/* Credit Card */ 
+			case 'credit_card':
+				switch (strtolower($paymentId[1])) {
+					case 'bca':
+						$id = 52;
+						$name = 'cc_bca';
+					break;
+					case 'bri':
+						$id = 35;
+						$name = 'BRI';
+					break;
+					case 'cimb':
+						$id = 42;
+						$name = 'cimb';
+					break;
+					case 'cimb_auth':
+						$id = 56;
+						$name = 'cimb_authorization';
+					break;
+					case 'cimb_ipg':
+						$id = 34;
+						$name = 'cimb_ipg';
+					break;
+					case 'danamon':
+						$id = 45;
+						$name = 'danamon';
+					break;
+					case 'mandiri':
+						$id = 53;
+						$name = 'mandiri';
+					break;
+					case 'maybank':
+						$id = 43;
+						$name = 'maybank';
+					break;
+					case 'union_pay':
+						$id = 54;
+						$name = 'union_pay';
+					break;
+					case 'uob':
+						$id = 46;
+						$name = 'UOB';
+					break;
+					default:
+						$id = 8;
+						$name = 'BCA';
+					break;
+				}
+			/* e-wallet */ 
+			case 'ewallet':
+				switch (strtolower($paymentId[1])) {
+					case 'shopeepay':
+						$id = 75;
+						$name = 'shopeepay';
+					break;
+					case 'ovo':
+						$id = 63;
+						$name = 'ovo';
+					break;
+					default:
+						$id = 13;
+						$name = 'linkaja';
+					break;
+				}
+			break;
+			
 		}
 		return (object) ['id' => $id, 'name' => $name];
 	}

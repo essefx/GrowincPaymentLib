@@ -14,7 +14,7 @@
   $transaction = new \Growinc\Payment\Transaction();
   $transaction->setCustomerName('LOREB');
   $transaction->setCustomerEmail('lorem@gmail.com');
-  $transaction->setCustomerPhone('081298983535');
+  $transaction->setCustomerPhone('081293145954');
   $transaction->setPostalcode('12345');
   
 
@@ -34,15 +34,20 @@
       Mandiri ATM => bank_transfer,mandiri
       BNI VA      => bank_transfer,bni
       Permata VA  => bank_transfer,permata
-    --> internet_banking
-      BCA KlikPay => internet_banking,bcakp
-      CIMB Clicks => internet_banking,cimbkp
-      Muamalat IB => internet_banking,muamalatkp
-      Danamon Online internet_banking,Banking => danamonkp
+
+    --> ewallet
+      shopeepay => ewallet,shopeepay
+      
+    --> others
+      alfamart => others,alfamart
+      indomaret => others,indomaret
+      indodana => others,indodana
+      akulaku => others,akulaku
+      kredivo => others,kredivo
 
     */
 
-  $transaction->setPaymentMethod('bank_transfer,bca');
+  $transaction->setPaymentMethod('ewallet,ovo');
 
   /* set Seller */ 
   $seller_detail = [
@@ -66,7 +71,7 @@
   
 
   $item_detail = [
-    ["id" => "a1", "price" => 50000, "quantity" => 5, "name" => "apel", "brand" => "Fuji Apple", "category" => "Fruit","merchant_name" => "Fruit-store"] //only cc
+    ["id" => "a1", "price" => 10000, "quantity" => 1, "name" => "apel", "brand" => "Fuji Apple", "category" => "Fruit","merchant_name" => "Fruit-store"] //only cc
   ];
   $transaction->setItem($item_detail);
   
