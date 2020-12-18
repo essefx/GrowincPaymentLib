@@ -16,9 +16,9 @@ $transaction = new \Growinc\Payment\Transaction();
 $transaction->setCustomerName('LOREM');
 $transaction->setCustomerEmail('lorem@ipsum.com');
 $transaction->setCustomerPhone('081212121313');
-// $transaction->setAmount(100000); // Inapplicable
 $transaction->setCountrycode('IDN');
 
+/*
 // midtrans should use item detail
 $item_detail = [
 	[
@@ -32,6 +32,11 @@ $item_detail = [
 		] // only cc
 ];
 $transaction->setItem($item_detail);
+$transaction->setDescription('Pembelian Elektronik');
+*/
+// New method setting up item:
+$transaction->setItem('Apple');
+$transaction->setAmount(100000);
 $transaction->setDescription('Pembelian Elektronik');
 
 // credit card
@@ -92,7 +97,8 @@ $vendor = new \Growinc\Payment\Vendors\Midtrans($init);
 try {
 	$result = $vendor->SecurePayment($transaction); // return payment URL
 	extract($result);
-	print_r($response);
+	// print_r($response);
+	print_r($result);
 	//
 	// Get  PSR7 object
 	// print_r($vendor->getRequest());

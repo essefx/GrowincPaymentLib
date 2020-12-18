@@ -10,6 +10,45 @@ class Midtrans extends Requestor implements VendorInterface
 
 	protected $form;
 
+	/*==========================================================================================
+												Start of Private
+	==========================================================================================**/
+
+		public function _CreateCardToken($args)
+		{
+			try {
+				$this->request['headers'] = [
+					'Content-Type' => 'application/json',
+					'Accept' => 'application/json',
+				];
+				$this->request['url'] = $args['token_url'];
+				$this->request['data'] = [
+						'client_key' => $args['client_key'],
+						'card_number' => $args['card_number'],
+						'card_exp_month' => $args['card_exp_month'],
+						'card_exp_year' => $args['card_exp_year'],
+						'card_cvv' => $args['card_cvv']
+					];
+				$get = $this->DoRequest('GET', $this->request);
+				$response = (array) $get['response'];
+				extract($response);
+				if (!empty($status_code) && $status_code === 200) {
+					$content = (object) json_decode($content);
+					if (
+						!empty($content->status_code)
+						&& $content->status_code == 200
+					) {
+						$result = $content->token_id;
+					}
+				}
+			} catch (\Throwable $e) {
+				throw new \Exception($this->ThrowError($e));
+			}
+			return $result ?? [];
+		}
+
+	/*=================================   End of Private   ==================================*/
+
 	public function Index()
 	{
 		// Inapplicable
@@ -17,35 +56,7 @@ class Midtrans extends Requestor implements VendorInterface
 
 	public function GetToken($args)
 	{
-		try {
-			$this->request['headers'] = [
-				'Content-Type' => 'application/json',
-				'Accept' => 'application/json',
-			];
-			$this->request['url'] = $args['token_url'];
-			$this->request['data'] = [
-					'client_key' => $args['client_key'],
-					'card_number' => $args['card_number'],
-					'card_exp_month' => $args['card_exp_month'],
-					'card_exp_year' => $args['card_exp_year'],
-					'card_cvv' => $args['card_cvv']
-				];
-			$get = $this->DoRequest('GET', $this->request);
-			$response = (array) $get['response'];
-			extract($response);
-			if (!empty($status_code) && $status_code === 200) {
-				$content = (object) json_decode($content);
-				if (
-					!empty($content->status_code)
-					&& $content->status_code == 200
-				) {
-					$result = $content->token_id;
-				}
-			}
-		} catch (\Throwable $e) {
-			throw new \Exception($this->ThrowError($e));
-		}
-		return $result ?? [];
+		// Inapplicable
 	}
 
 	public function CreateDummyForm($args)
@@ -65,9 +76,11 @@ class Midtrans extends Requestor implements VendorInterface
 			//
 			$this->form['order_id'] = $this->transaction->getOrderID();
 			$this->form['invoice_no'] = $this->transaction->getInvoiceNo();
-			// $this->form['amount'] = $this->transaction->getAmount(); // Inapplicable
-			$this->form['description'] = $this->transaction->getDescription();
 			$this->form['currency'] = $this->transaction->getCurrency();
+			//
+			$this->form['item'] = $this->transaction->getItem();
+			$this->form['amount'] = (float) $this->transaction->getAmount();
+			$this->form['description'] = $this->transaction->getDescription();
 			//
 			$this->form['customer_name'] = $this->transaction->getCustomerName();
 			$this->form['customer_email'] = $this->transaction->getCustomerEmail();
@@ -104,7 +117,18 @@ class Midtrans extends Requestor implements VendorInterface
 					'shipping_address' => $this->form['shipping_address'],
 				];
 			// item details
-			$this->form['item_details'] = $this->transaction->getItem();
+			// $this->form['item_details'] = $this->transaction->getItem();
+			$this->form['item_details'] = [
+					[
+							'id' => '1',
+							'price' => $this->form['amount'],
+							'quantity' => 1,
+							'name' => $this->form['item'],
+							'brand' => '',
+							'category' => '',
+							'merchant_name' => '',
+						],
+				];
 			// amount
 			$amount_total = 0;
 			foreach ($this->form['item_details'] as $price) {
@@ -159,7 +183,7 @@ class Midtrans extends Requestor implements VendorInterface
 			// switch ($this->form['payment_type']) {
 			switch ($payment_method) {
 				case 'credit_card':
-					$getToken = $this->GetToken([
+					$card_token = $this->_CreateCardToken([
 							'time' => $this->transaction->getTime(),
 							'token_url' => $this->init->getTokenURL(),
 							'client_key' => $this->init->getSecret(),
@@ -169,7 +193,7 @@ class Midtrans extends Requestor implements VendorInterface
 							'card_cvv' => $this->transaction->getCardExpCvv()
 						]);
 					$this->form['data']['credit_card'] = [
-							'token_id' => $getToken,
+							'token_id' => $card_token,
 							'authentication' => true
 						];
 					break;

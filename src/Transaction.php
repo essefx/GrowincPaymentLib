@@ -2,7 +2,7 @@
 
 namespace Growinc\Payment;
 
-class Transaction
+class Transaction extends TransactionExtends
 {
 
 	protected $time;
@@ -18,37 +18,23 @@ class Transaction
 	protected $customer_email;
 	protected $customer_phone;
 	protected $customer_address;
+	protected $customer_city;
 	protected $country_code;
+	protected $postal_code;
 	//
 	protected $payment_method;
+	protected $payment_type;
 	protected $expire_at;
 	//
-	protected $payment_type;
 	protected $item;
 	//
-	protected $customer_userid; // klikbca login
+	protected $customer_userid; // internet banking login
 	// cc
 	protected $cc_card_number;
 	protected $cc_card_exp_month;
 	protected $cc_card_exp_year;
 	protected $cc_card_cvv;
 	protected $cc_token;
-	//
-	protected $ruuid;
-	// protected $member_id;
-	protected $Y_N;
-	// protected $mode;
-	// protected $is_paymen_notif;
-	// protected $payment_id;
-    protected $credential_attr;
-    protected $req_datetime;
-    protected $transaction_remak;
-    
-    protected $product_code;
-    protected $promo_code;
-    protected $is_async;
-    protected $branch_id;
-    protected $transaction_id;
 
 	public function __construct()
 	{
@@ -175,6 +161,16 @@ class Transaction
 		return $this->customer_address;
 	}
 
+	public function setCustomerCity($customer_city): void
+	{
+		$this->customer_city = $customer_city;
+	}
+
+	public function getCustomerCity(): ?string
+	{
+		return $this->customer_city;
+	}
+
 	public function setCountrycode($country_code): void
 	{
 		$this->country_code = $country_code;
@@ -183,6 +179,16 @@ class Transaction
 	public function getCountryCode(): ?string
 	{
 		return $this->country_code;
+	}
+
+	public function setPostalCode($postal_code): void
+	{
+		$this->postal_code = $postal_code;
+	}
+
+	public function getPostalCode(): ?string
+	{
+		return $this->postal_code;
 	}
 
 	//
@@ -197,6 +203,16 @@ class Transaction
 		return $this->payment_method;
 	}
 
+	public function setPaymentType($payment_type): void
+	{
+		$this->payment_type = $payment_type;
+	}
+
+	public function getPaymentType(): ?string
+	{
+		return $this->payment_type;
+	}
+
 	public function setExpireAt($expire_at): void
 	{
 		$this->expire_at = $expire_at;
@@ -209,22 +225,14 @@ class Transaction
 
 	//
 
-	public function setPaymentType($payment_type): void
+	// public function setItem(&$item_detail): void
+	public function setItem($item): void
 	{
-		$this->payment_type = $payment_type;
+		$this->item = $item;
 	}
 
-	public function getPaymentType(): ?string
-	{
-		return $this->payment_type;
-	}
-
-	public function setItem(&$item_detail): void
-	{
-		$this->item = $item_detail;
-	}
-
-	public function getItem(): ?array
+	// public function getItem(): ?array
+	public function getItem()
 	{
 		return $this->item;
 	}
@@ -292,131 +300,5 @@ class Transaction
 	{
 		return $this->cc_token;
 	}
-
-	//
-
-	public function setRuuid(string $ruuid): void
-	{
-		$this->ruuid = $ruuid;
-	}
-
-	public function getRuuid(): ?string
-	{
-		return $this->ruuid;
-	}
-
-	public function setUpdateOrderId(string $Y_N): void
-	{
-		$this->Y_N = $Y_N;
-	}
-
-	public function getUpdateOrderId(): ?string
-	{
-		return $this->Y_N;
-	}
-
-	public function setIsPaymentNotif(string $is_paymen_notif): void
-	{
-		$this->is_paymen_notif = $is_paymen_notif;
-	}
-
-	public function getIsPaymentNotif(): ?string
-	{
-		return $this->is_paymen_notif;
-	}
-
-	// // credit card end
-
-	// public function setPaymentId(int $payment_id): void
-	// {
-	// 	$this->payment_id = $payment_id;
-	// }
-
-	// public function getPaymentId(): ?int
-	// {
-	// 	return $this->payment_id;
-	// }
-
-    public function setTransactionRemak(string $transaction_remak) : void
-    {
-        $this->transaction_remak = $transaction_remak;
-    }
-    public function getTransactionRemak() : ? string
-    {
-        return $this->transaction_remak;
-    }
-
-    public function setTransactionID(string $transaction_id) : void
-    {
-        $this->transaction_id = $transaction_id;
-    }
-    public function getTransactionID() : ? string
-    {
-        return $this->transaction_id;
-    }
-
-    public function setProductCode(string $product_code) : void
-    {
-        $this->product_code = $product_code;
-    }
-    public function getProductCode() : ? string
-    {
-        return $this->product_code;
-    }
-
-    public function setPromoCode(string $promo_code) : void
-    {
-        $this->promo_code = $promo_code;
-    }
-    public function getPromoCode() : ? string
-    {
-        return $this->promo_code;
-    }
-
-    public function setIsAsync(int $is_async) : void
-    {
-        $this->is_async = $is_async;
-    }
-    public function getIsAsync() : ? int
-    {
-        return $this->is_async;
-    }
-
-    public function setBranchId(string $branch_id) : void
-    {
-        $this->branch_id = $branch_id;
-    }
-    public function getBranchId() : ? string
-    {
-        return $this->branch_id;
-    }
-
-    public function setPostId(string $post_id) : void
-    {
-        $this->post_id = $post_id;
-    }
-    public function getPostId() : ? string
-    {
-        return $this->post_id;
-    }
-
-    public function setCredentialAttr(string $credential_attr): void
-	{
-		$this->credential_attr = $credential_attr;
-	}
-	public function getCredentialAttr(): ?string
-	{
-		return $this->credential_attr;
-    }
-    
-    public function setReqDateTime(string $req_datetime): void
-	{
-		$this->req_datetime = $req_datetime;
-	}
-	public function getReqDateTime(): ?string
-	{
-		return $this->req_datetime;
-	}
-
 
 }

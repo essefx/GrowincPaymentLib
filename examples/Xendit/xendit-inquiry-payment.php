@@ -12,8 +12,8 @@ $init->setRequestURL('https://api.xendit.co/');
 $vendor = new \Growinc\Payment\Vendors\Xendit($init);
 
 try {
-	$result = $vendor->Inquiry((object) [
-			'id' => '5fd9e479ed81dd402014403c',
+	$result = $vendor->InquiryPayment((object) [
+			'payment_id' => '5f9fb9758d65ab3c1141f230',
 		]);
 	// extract($result);
 	// print_r($response);
@@ -22,19 +22,16 @@ try {
 	{
 		"status": "000",
 		"data": {
-			"is_closed": true,
-			"status": "ACTIVE",
+			"payment_id": "5f9fb9758d65ab3c1141f230",
+			"callback_virtual_account_id": "5f9fb82dbcbf722b71041f3f",
+			"external_id": "VA_fixed-1604302892",
+			"account_number": "9999000002",
+			"bank_code": "MANDIRI",
+			"amount": 50000,
+			"transaction_timestamp": "2020-11-02T07:47:01.000Z",
+			"merchant_code": "88608",
 			"currency": "IDR",
-			"owner_id": "5f706881fefc961e3f708f02",
-			"external_id": "0008115320",
-			"bank_code": "BCA",
-			"merchant_code": "10766",
-			"name": "LOREM IPSUM",
-			"account_number": "107669999020779",
-			"expected_amount": 100000,
-			"expiration_date": "2020-12-16T12:22:00.000Z",
-			"is_single_use": false,
-			"id": "5fd9e479ed81dd402014403c"
+			"id": "5f9fb9758940c131b3d7b96d"
 		}
 	}
 	*/
