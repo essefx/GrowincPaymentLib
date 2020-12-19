@@ -1,5 +1,7 @@
 <?php
 
+date_default_timezone_set('Asia/Jakarta');
+
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 $init = new \Growinc\Payment\Init(

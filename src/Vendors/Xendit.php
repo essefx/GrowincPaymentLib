@@ -123,6 +123,9 @@ class Xendit extends Requestor implements VendorInterface
 			$payment_method = $arr[0] ?? '';
 			$payment_channel = $arr[1] ?? '';
 			//
+			// $expire_date = gmdate("Y-m-d\TH:i:s\Z",  $this->transaction->getTime() + (3600 * ( 7 + $this->transaction->getExpireAt()))) . '+07:00';
+			$expire_date = gmdate("Y-m-d\TH:i:s",  $this->transaction->getTime() + (3600 * ( 7 + $this->transaction->getExpireAt()))) . '+07:00';
+			//
 			switch ($payment_method) {
 				case 'bank_transfer':
 					$this->request['url'] = $this->init->getPaymentURL() . '/callback_virtual_accounts';
@@ -131,7 +134,8 @@ class Xendit extends Requestor implements VendorInterface
 							'bank_code' => strtoupper($payment_channel),
 							'name' => $this->form['customer_name'],
 							'is_closed' => true, // When set to true, the virtual account will be closed and will only accept the amount specified in expected_amount
-							'expiration_date' => gmdate("Y-m-d\TH:i:s\Z", strtotime("now") + ($this->transaction->getExpireAt() * 60)),
+							// 'expiration_date' => gmdate("Y-m-d\TH:i:s\Z", strtotime("now") + ($this->transaction->getExpireAt() * 60)),
+							'expiration_date' => $expire_date,
 							'expected_amount' => $this->form['amount'],
 						];
 					break;
@@ -187,7 +191,8 @@ class Xendit extends Requestor implements VendorInterface
 							'name' => $this->form['customer_name'],
 							'expected_amount' => $this->form['amount'],
 							// 'payment_code' => '',
-							'expiration_date' => gmdate("Y-m-d\TH:i:s\Z", strtotime("now") + ($this->transaction->getExpireAt() * 60)),
+							// 'expiration_date' => gmdate("Y-m-d\TH:i:s\Z", strtotime("now") + ($this->transaction->getExpireAt() * 60)),
+							'expiration_date' => $expire_date,
 							'is_single_use' => 'true',
 						];
 					break;
@@ -228,6 +233,9 @@ class Xendit extends Requestor implements VendorInterface
 			$this->request['option'] = [
 					'as_json' => true,
 				];
+
+print_r($this->request);
+				exit();
 			$post = $this->DoRequest('POST', $this->request);
 			$response = (array) $post['response'];
 			extract($response);

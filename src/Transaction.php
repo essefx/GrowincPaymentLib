@@ -44,7 +44,7 @@ class Transaction extends TransactionExtends
 		$this->description = 'Payment for ' . $this->invoice_no;
 		$this->currency = 'IDR';
 		$this->currency_code = '360';
-		$this->expire_at = 100;
+		$this->expire_at = 2; // In hour
 	}
 
 	public function setTime(string $time): void
