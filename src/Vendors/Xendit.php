@@ -120,8 +120,8 @@ class Xendit extends Requestor implements VendorInterface
 				];
 			//
 			$arr = explode(',', $this->transaction->getPaymentMethod());
-			$payment_method = $arr[0] ?? '';
-			$payment_channel = $arr[1] ?? '';
+			$payment_method = strtolower(trim( $arr[0] ?? '' ));
+			$payment_channel = strtolower(trim( $arr[1] ?? '' ));
 			//
 			// $expire_date = gmdate("Y-m-d\TH:i:s\Z",  $this->transaction->getTime() + (3600 * ( 7 + $this->transaction->getExpireAt()))) . '+07:00';
 			$expire_date = gmdate("Y-m-d\TH:i:s",  $this->transaction->getTime() + (3600 * ( 7 + $this->transaction->getExpireAt()))) . '+07:00';
@@ -179,7 +179,8 @@ class Xendit extends Requestor implements VendorInterface
 					$this->request['url'] = $this->init->getPaymentURL() . '/qr_codes';
 					$this->request['data'] = [
 							'external_id' => $this->form['order_id'],
-							'type' => 'STATIC',
+							'type' => 'DYNAMIC', // DYNAMIC QR code contains the payment value upon scanning and can be paid multiple times
+							// 'type' => 'STATIC', // STATIC QR code requires end user to input the payment value and can be paid multiple times
 							'callback_url' => $this->init->getCallbackURL(),
 							'amount' => $this->form['amount'],
 						];
