@@ -199,6 +199,10 @@ class Xendit extends Requestor implements VendorInterface
 					break;
 			}
 
+			if (!trim($this->request['url'])) {
+				throw new \Exception("URL is empty", 1);
+			}
+
 			/*
 			// $this->form['payment_type'] = $this->transaction->getPaymentType();
 			// $this->form['payment_method'] = strtoupper($this->transaction->getPaymentMethod());

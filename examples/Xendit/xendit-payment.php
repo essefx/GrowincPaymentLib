@@ -46,11 +46,11 @@ $transaction->setDescription('Pembelian Elektronik');
 
 // $transaction->setPaymentMethod('bank_transfer,bca');
 // $transaction->setPaymentMethod('bank_transfer,mandiri');
-$transaction->setPaymentMethod('bank_transfer,permata');
+// $transaction->setPaymentMethod('bank_transfer,permata');
 // $transaction->setPaymentMethod('credit_card'); // Currently Inapplicable
 // $transaction->setPaymentMethod('ewallet,ovo');
 // $transaction->setPaymentMethod('ewallet,linkaja');
-// $transaction->setPaymentMethod('qris');
+$transaction->setPaymentMethod('qris');
 // $transaction->setPaymentMethod('cstore,indomaret');
 // $transaction->setPaymentMethod('cstore,alfamart');
 
