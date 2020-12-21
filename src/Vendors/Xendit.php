@@ -137,6 +137,7 @@ class Xendit extends Requestor implements VendorInterface
 							// 'expiration_date' => gmdate("Y-m-d\TH:i:s\Z", strtotime("now") + ($this->transaction->getExpireAt() * 60)),
 							'expiration_date' => $expire_date,
 							'expected_amount' => $this->form['amount'],
+							'is_single_use' => 'true',
 						];
 					break;
 				case 'credit_card':
