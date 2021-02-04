@@ -5,15 +5,16 @@
  
   require_once __DIR__ . '/../../vendor/autoload.php';
 
-  $init = new \Growinc\Payment\Init('ID01625', '1gUbnGkdKA');
+  // init ('merchant_code', 'merchant_key')
+  $init = new \Growinc\Payment\Init('ID01676', '0XScE2NdvU');
   $init->setBaseURI('https://sandbox.ipay88.co.id');
   $init->setPaymentURL('https://sandbox.ipay88.co.id/ePayment/WebService/PaymentAPI/Checkout');
-  $init->setResponseUrl('https://your-site/ipay88-response');
-  $init->setBackendURL('https://your-site/ipay88-backend');
+  $init->setResponseUrl('https://your-site/responseUrl');
+  $init->setBackendURL('https://your-site/backendUrl');
 
   $transaction = new \Growinc\Payment\Transaction();
-  $transaction->setCustomerName('LOREB');
-  $transaction->setCustomerEmail('lorem@gmail.com');
+  $transaction->setCustomerName('LOREM');
+  $transaction->setCustomerEmail('lorem@ipsum.com');
   $transaction->setCustomerPhone('081293145954');
   $transaction->setPostalcode('12345');
   
@@ -23,8 +24,8 @@
   // $transaction->setAmount(100000);
   $transaction->setCustomerCity('Jakarta');
     /* end optional*/ 
-  $transaction->setDescription('Product B00016 Baju Baru');
-  $transaction->setCustomerAddress('Jl. Maju mundur kena');
+  $transaction->setDescription('Product Gaming');
+  $transaction->setCustomerAddress('Jl. Kemayoran');
   
     /*	paymentType:
 
@@ -47,7 +48,7 @@
 
     */
 
-  $transaction->setPaymentMethod('ewallet,ovo');
+  $transaction->setPaymentMethod('bank_transfer,mandiri');
 
   /* set Seller */ 
   $seller_detail = [
@@ -71,7 +72,7 @@
   
 
   $item_detail = [
-    ["id" => "a1", "price" => 10000, "quantity" => 1, "name" => "apel", "brand" => "Fuji Apple", "category" => "Fruit","merchant_name" => "Fruit-store"] //only cc
+    ["id" => "a1", "price" => 10000, "quantity" => 1, "name" => "Banana", "brand" => "Banana Game", "category" => "Game","merchant_name" => "Game-store"] //only cc
   ];
   $transaction->setItem($item_detail);
   

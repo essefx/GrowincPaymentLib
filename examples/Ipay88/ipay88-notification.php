@@ -1,12 +1,13 @@
 <?php 
-  //  error_reporting(E_ALL);
+  	//  error_reporting(E_ALL);
 	//  ini_set('display_errors', 1);
 
-  require_once __DIR__ . '/../../vendor/autoload.php';
+	require_once __DIR__ . '/../../vendor/autoload.php';
 
-	$init = new \Growinc\Payment\Init('ID01625', '1gUbnGkdKA');
+	// init ('merchant_code', 'merchant_key')
+	$init = new \Growinc\Payment\Init('ID01676', '0XScE2NdvU');
 	$vendor = new \Growinc\Payment\Vendors\Ipay88($init);
-	
+
 	try {
 		$raw_data = file_get_contents("php://input");
 		if (!$raw_data) {
@@ -18,7 +19,7 @@
 			*/
 
 			$raw_data = '{
-				"MerchantCode"	: "ID01625",
+				"MerchantCode"	: "ID01676",
 				"PaymentId"		: "30",
 				"RefNo"		: "0007610175",
 				"Amount"		: "250000",

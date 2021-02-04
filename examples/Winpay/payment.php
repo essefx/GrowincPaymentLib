@@ -10,35 +10,35 @@
 	require_once __DIR__ . '/../../vendor/autoload.php';
 
 	/* init('apikey1', 'apikey2') */ 
-	$init = new \Growinc\Payment\Init('9220fbdeb1d115a4f2e9b2636edc24cc','5b74d200096570de0280b9838c7af1ab'); 
+	$init = new \Growinc\Payment\Init('000f1f4cb5118390cc2ec79af671d617','19c6f7a74281b16c2e70ba485dcf1750');
 
 	/* merchant key */ 
-	$init->setMerchantKey('c9c64d57f0c606ef06c297f96697cab4');
-	$init->setBaseURI('https://sandbox-payment.winpay.id');
-	$init->setPaymentURL('https://sandbox-payment.winpay.id');
+	$init->setMerchantKey('a85b54a715b31119a654928c400c8bb8');
+	$init->setBaseURI('https://secure-payment.winpay.id');
+	$init->setPaymentURL('https://secure-payment.winpay.id');
 
-	$init->setCallbackURL('https://ibank.growinc.dev/oanwef4851ashrb/pg/dk/redapi_result');
-	$init->setReturnURL('https://ibank.growinc.dev/oanwef4851ashrb/pg/dk/redapi_form');
+	$init->setCallbackURL('https://vogame.dev/callbackUrl');
+	$init->setReturnURL('https://vogame.dev/returnUrl');
 
 	$transaction = new \Growinc\Payment\Transaction();
 
 	/*set cust information */ 
 	$transaction->setCustomerName('LOREM');
 	$transaction->setCustomerEmail('lorem@ipsum.com');
-	$transaction->setCustomerPhone('081298983535');
+	$transaction->setCustomerPhone('081212121234');
 
 	    /* start optional*/ 
 	$transaction->setCountryCode('IDN');
 	// $transaction->setAmount(100000);
 	$transaction->setCustomerCity('Jakarta');
 		/* end optional*/ 
-	$transaction->setDescription('Product B00016 Baju Baru');
+	$transaction->setDescription('Product Game');
 	$transaction->setCustomerAddress('Jl. Maju mundur kena');
 
 	/* set Detail items */ 
 	$item_detail = [
-		["name" => "Baju Bali", "sku" => "01020304", "qty" => 2, "unitPrice" => 20000, "desc" => "Baju Tidur"],
-		["name" => "Baju Bali", "sku" => "01020304", "qty" => 2, "unitPrice" => 12000, "desc" => "Baju Tidur"]
+		["name" => "Game 01", "sku" => "01020304", "qty" => 2, "unitPrice" => 20000, "desc" => "Game 01"],
+		["name" => "Game 01", "sku" => "01020304", "qty" => 2, "unitPrice" => 12000, "desc" => "Game 01"]
 	];
 	$transaction->setItem($item_detail);
 

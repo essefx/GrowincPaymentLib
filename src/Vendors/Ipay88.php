@@ -125,8 +125,8 @@ class Ipay88 extends Requestor implements VendorInterface
 		        'UserContact'			=> $this->form['customer_phone'],
 		        'Remark'				=> 'Transaction ',
 				'Lang'					=> 'UTF-8',
-		        'ResponseURL'			=> $this->form['payment_url'],
-		        'BackendURL'			=>  $this->form['payment_url'],
+		        'ResponseURL'			=> $this->init->getResponseUrl(),
+		        'BackendURL'			=> $this->init->getBackendURL(),
 				'Signature' 			=> $encode_signature,
 				"xfield1"				=> "",
 				'itemTransactions'		 => $this->form['item_details'],
@@ -135,7 +135,7 @@ class Ipay88 extends Requestor implements VendorInterface
 				'Sellers' 				=> $this->form['sellers'],
 			];
 			
-			print_r(json_encode($this->request['data']));exit();
+			// print_r(json_encode($this->request['data']));exit();
 			/* HEADER */ 
 			$this->request['headers'] = [
 				'Content-Type' => 'application/json',
