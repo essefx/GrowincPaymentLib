@@ -19,11 +19,6 @@ $init->setPaymentURL('https://dev.faspay.co.id/cvr/300011/10'); // Post Data Tra
 // Live URL
 // $init->setPaymentURL('https://web.faspay.co.id/cvr/300011/10'); // Post Data Transaction
 
-// $init->setCallbackURL('https://ibank.growinc.dev/oanwef4851ashrb/pg/gv/notify');
-// $init->setReturnURL('https://ibank.growinc.dev/oanwef4851ashrb/pg/gv/notify');
-$init->setCallbackURL('https://a.g-dev.io/secure/callback/demo');
-$init->setReturnURL('https://a.g-dev.io/secure/callback/demo');
-
 $order_id = time();
 $invoice_no = 'INV' . $order_id;
 
@@ -93,8 +88,6 @@ $transaction->setPaymentMethod('825');
 $vendor = new \Growinc\Payment\Vendors\Faspay($init);
 
 try {
-
-	// First we create a payment
 	$result = $vendor->SecurePayment($transaction); // return payment URL
 	extract($result);
 	print_r($response);
@@ -121,67 +114,7 @@ try {
 			"redirect_url": "https:\/\/dev.faspay.co.id\/pws\/100003\/0830000010100000\/f04740f3492b5f0b249cb1f620d56c50fee21e61?trx_id=3366080100000042&merchant_id=33660&bill_no=1612772364"
 		}
 	}
-	{
-		"status": "000",
-		"data": {
-			"response": "Transmisi Info Detil Pembelian",
-			"trx_id": "3366082500000166",
-			"merchant_id": "33660",
-			"merchant": "VoGame Indonesia",
-			"bill_no": "1612772509",
-			"bill_items": [{
-				"product": "Apple",
-				"amount": "533300",
-				"qty": "1",
-				"payment_plan": "1",
-				"tenor": "00",
-				"merchant_id": "33660"
-			}],
-			"response_code": "00",
-			"response_desc": "Sukses",
-			"redirect_url": "https:\/\/dev.faspay.co.id\/pws\/100003\/0830000010100000\/3ed6336a49e480f8208cb7c1dfabcb9e40a13049?trx_id=3366082500000166&merchant_id=33660&bill_no=1612772509"
-		}
-	}
-	{
-		"status": "000",
-		"data": {
-			"response": "Transmisi Info Detil Pembelian",
-			"trx_id": "3366082500000174",
-			"merchant_id": "33660",
-			"merchant": "VoGame Indonesia",
-			"bill_no": "1612782267",
-			"bill_items": [{
-				"product": "Apple",
-				"amount": "689400",
-				"qty": "1",
-				"payment_plan": "1",
-				"tenor": "00",
-				"merchant_id": "33660"
-			}],
-			"response_code": "00",
-			"response_desc": "Sukses",
-			"redirect_url": "https:\/\/dev.faspay.co.id\/pws\/100003\/0830000010100000\/77a20553d5511bf18bf609099b24bf68d4be4c66?trx_id=3366082500000174&merchant_id=33660&bill_no=1612782267"
-		}
-	}
 	*/
-
-	/* Parse payment code / va number / etc ----------------------------- NOT USED
-	$content = (object) json_decode($result['response']['content']);
-	if (!empty($content->data->redirect_url)) {
-		$payment_url = $content->data->redirect_url;
-		$result = $vendor->ParsePaymentPage(
-				'va',
-				$payment_url
-			);
-		$content = (object) json_decode($result['response']['content']);
-		$va_number = $content->data->va_number;
-		print_r($va_number);
-		// 3366080100000042
-		// 3366082500000166
-		// 3366082500000174
-	} ----------------------------- NOT USED
-	*/
-
 } catch (\Throwable $e) {
 	echo 'Payment failed: ' . $e->getCode();
 }
