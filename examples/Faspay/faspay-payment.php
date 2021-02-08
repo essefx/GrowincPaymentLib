@@ -83,7 +83,7 @@ $transaction->setCountrycode('ID');
 	"pg_name": "UNICount-Rupiah"
 }],
 */
-$transaction->setPaymentMethod('825');
+$transaction->setPaymentMethod('812');
 
 $vendor = new \Growinc\Payment\Vendors\Faspay($init);
 
@@ -115,6 +115,40 @@ try {
 		}
 	}
 	*/
+
+
+
+	// Call ParsePG, Redirect to OVO ------------ used on OVO only
+	$payment_channel = '812';
+	if ($payment_channel == '812') {
+		$content = (object) json_decode($result['response']['content']);
+		if (!empty($content->data->redirect_url)) {
+			$payment_url = $content->data->redirect_url;
+			$result = $vendor->ParsePaymentPage(
+					'ovo',
+					$payment_url,
+					'082298438769'
+				);
+			extract($result);
+			print_r($response);
+			// Success
+			/*
+			{
+				"status": "000",
+				"data": {
+					"payment_url": "https:\/\/dev.faspay.co.id\/pws\/100003\/0830000010100000\/468c236cea48601a3b0b4c512e830ae7215060aa?trx_id=3366081200000281&merchant_id=33660&bill_no=1612789528",
+					"number": "082298438769"
+				}
+			}
+			*/
+			$content = (object) json_decode($result['response']['content']);
+			$number = $content->data->number;
+			print_r($number);
+		}
+	}
+
+
+
 } catch (\Throwable $e) {
 	echo 'Payment failed: ' . $e->getCode();
 }

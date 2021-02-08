@@ -28,8 +28,8 @@ $callback_data = '
 		"payment_date": "2021-02-08 18:11:35",
 		"payment_status_code": "2",
 		"payment_status_desc": "Payment Sukses",
-		"bill_total": "6894",
-		"payment_total": "6894",
+		"bill_total": "689400",
+		"payment_total": "689400",
 		"payment_channel_uid": "825",
 		"payment_channel": "CIMB VA",
 		"signature": "ebebca6942f75a3c1fd72120c3ebbad384c973c0"

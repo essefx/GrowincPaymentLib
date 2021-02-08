@@ -40,7 +40,8 @@ class Faspay extends Requestor implements VendorInterface
 			$this->form['currency'] = $this->transaction->getCurrency();
 			//
 			$this->form['item'] = $this->transaction->getItem();
-			$this->form['amount'] = (float) $this->transaction->getAmount();
+			$this->form['amount'] =
+				(float) $this->transaction->getAmount() * 100;
 			$this->form['description'] = $this->transaction->getDescription();
 			//
 			$this->form['customer_name'] = $this->transaction->getCustomerName();
@@ -156,6 +157,64 @@ class Faspay extends Requestor implements VendorInterface
 						$res = [
 								'status' => $content->response_code,
 								'data' => (array) $content,
+							];
+					}
+					$result = [
+							'request' => (array) $this->request,
+							'response' => [
+									'content' => json_encode($res),
+									'status_code' => 200,
+								],
+						];
+				} else {
+					throw new \Exception("Parsed data is empty", 1);
+				}
+			}
+		} catch (\Throwable $e) {
+			throw new \Exception($this->ThrowError($e));
+		}
+		return $result ?? [];
+	}
+
+	public function ParsePaymentPage($channel_code, $payment_url, $param = '')
+	{
+		try {
+			$this->request['url'] = 'http://103.5.45.182:13579/parse/' .
+				'faspay' . '/' .
+				$channel_code . '/' .
+				base64_encode($payment_url) . '/' . $param;
+			// Go
+			$get = $this->DoRequest('GET', $this->request);
+			$response = (array) $get['response'];
+			extract($response);
+			if (!empty($status_code) && $status_code === 200) {
+				// Parse data
+				$content = (object) json_decode($content);
+				if (
+					isset($content) && !empty($content)
+				) {
+					if (
+						!empty($content->status)
+						&& $content->status == '000'
+					) {
+						// Success
+						/*
+						{
+							"status": "000",
+							"data": {
+								"payment_url": "https://dev.faspay.co.id/pws/100003/0830000010100000/a377f2971f1f2d666e14d611fef2ed7af21cdec0?trx_id=3366080100000018&merchant_id=33660&bill_no=1612769989",
+								"va_number": "3366080100000018"
+							}
+						}
+						*/
+						$res = [
+								'status' => '000',
+								'data' => (array) $content->data,
+							];
+					} else {
+						$res = [
+								'status' => $content->status,
+								'data' => (array) $content->data,
 							];
 					}
 					$result = [
@@ -312,6 +371,17 @@ class Faspay extends Requestor implements VendorInterface
 				));
 			if (!empty($request)) {
 				if (strcmp($request->signature, $signature) === 0) {
+					$request = (array) $request;
+					// Amount reformat
+					array_walk_recursive($request, function (&$v, $k) {
+						if (
+							$k == 'bill_total'
+							|| $k == 'payment_total'
+						) {
+							$v = $v / 100;
+						}
+					});
+					// Go
 					$res = [
 							'status' => '000',
 							'data' => (array) $request,
