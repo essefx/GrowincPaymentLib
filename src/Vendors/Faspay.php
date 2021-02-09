@@ -151,7 +151,7 @@ class Faspay extends Requestor implements VendorInterface
 					) {
 						$res = [
 								'status' => '000',
-								'data' => (array) array_merge((array) $content, ['_real_amount' => (float) $this->form['amount']]),
+								'data' => (array) array_merge((array) $content, ['_real_amount' => (float) $this->form['amount'] / 100]),
 							];
 					} else {
 						$res = [
