@@ -151,7 +151,7 @@ class Faspay extends Requestor implements VendorInterface
 					) {
 						$res = [
 								'status' => '000',
-								'data' => (array) $content,
+								'data' => (array) array_merge((array) $content, ['_real_amount' => (float) $this->form['amount']]),
 							];
 					} else {
 						$res = [
@@ -371,9 +371,10 @@ class Faspay extends Requestor implements VendorInterface
 				));
 			if (!empty($request)) {
 				if (strcmp($request->signature, $signature) === 0) {
-					$request = (array) $request;
+					$content = (array) $request;
 					// Amount reformat
-					array_walk_recursive($request, function (&$v, $k) {
+					/*
+					array_walk_recursive($content, function (&$v, $k) {
 						if (
 							$k == 'bill_total'
 							|| $k == 'payment_total'
@@ -381,13 +382,15 @@ class Faspay extends Requestor implements VendorInterface
 							$v = $v / 100;
 						}
 					});
+					*/
 					// Go
 					$res = [
 							'status' => '000',
-							'data' => (array) $request,
+							// 'data' => (array) $content,
+							'data' => (array) array_merge($content, ['_real_amount' => (float) ($content['bill_total'] / 100)]),
 						];
 					$result = [
-							'request' => (array) $request,
+							'request' => (array) $content,
 							'response' => [
 									'content' => json_encode($res),
 									'status_code' => 200,
