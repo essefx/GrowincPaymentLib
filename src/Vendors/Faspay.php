@@ -386,8 +386,8 @@ class Faspay extends Requestor implements VendorInterface
 					// Go
 					$res = [
 							'status' => '000',
-							// 'data' => (array) $content,
-							'data' => (array) array_merge($content, ['_real_amount' => (float) ($content['bill_total'] / 100)]),
+							'data' => (array) $content,
+							// 'data' => (array) array_merge($content, ['_real_amount' => (float) ($content['bill_total'] / 100)]),
 						];
 					$result = [
 							'request' => (array) $content,
