@@ -176,6 +176,67 @@ class Faspay extends Requestor implements VendorInterface
 		return $result ?? [];
 	}
 
+	public function ParseQR($payment_url)
+	{
+		try {
+			// Go
+			$this->request['form'] = $this->form;
+			$this->request['time'] = $this->transaction->getTime();
+			$this->request['url'] = $payment_url;
+			$this->request['data'] = [];
+			$this->request['headers'] = [];
+			$this->request['option'] = [
+					'as_json' => false,
+				];
+			$post = $this->DoRequest('POST', $this->request);
+			$response = (array) $post['response'];
+			extract($response);
+			if (!empty($status_code) && $status_code === 200) {
+				if (!empty($content)) {
+					// HTML Dom
+					$doc = new \DOMDocument();
+					libxml_use_internal_errors(true);
+					$doc->loadHTML($content);
+					libxml_clear_errors();
+					$xpath = new \DOMXpath($doc);
+					// Get all TR
+					$trs = $xpath->query('//tr');
+					foreach ($trs as $tr) {
+						$img = $xpath->query('//img[@class="qr-code"]/@src', $tr);
+					}
+					if (!empty($img->item(0)->nodeValue)) {
+						$qr_code = $img->item(0)->nodeValue;
+					}
+					// Return
+					if (!empty($qr_code)) {
+						// Show all options
+						$res = [
+								'status' => '000',
+								'data' => (array) [
+										'payment_url' => $payment_url,
+										'qr_code' => $qr_code,
+									],
+							];
+					} else {
+						throw new \Exception("QR code is empty", 1);
+					}
+					$result = [
+							'request' => (array) $this->request,
+							'response' => [
+									'content' => json_encode($res),
+									'status_code' => 200,
+								],
+						];
+				} else {
+					throw new \Exception("Parsed data is empty", 1);
+				}
+			}
+		} catch (\Throwable $e) {
+			throw new \Exception($this->ThrowError($e));
+		}
+		return $result ?? [];
+	}
+
 	public function ParsePaymentPage($channel_code, $payment_url, $param = '')
 	{
 		try {
