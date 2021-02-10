@@ -83,7 +83,7 @@ $transaction->setCountrycode('ID');
 	"pg_name": "UNICount-Rupiah"
 }],
 */
-$selected_payment_channel = '711';
+$selected_payment_channel = '812';
 $transaction->setPaymentMethod($selected_payment_channel);
 
 $vendor = new \Growinc\Payment\Vendors\Faspay($init);
@@ -161,13 +161,13 @@ try {
 				"status": "000",
 				"data": {
 					"payment_url": "https:\/\/dev.faspay.co.id\/pws\/100003\/0830000010100000\/468c236cea48601a3b0b4c512e830ae7215060aa?trx_id=3366081200000281&merchant_id=33660&bill_no=1612789528",
-					"va_number": "082298438769"
+					"phone_number": "082298438769"
 				}
 			}
 			*/
 			$content = (object) json_decode($result['response']['content']);
-			$va_number = $content->data->va_number;
-			print_r($va_number);
+			$phone_number = $content->data->phone_number;
+			print_r($phone_number);
 		}
 	}
 
