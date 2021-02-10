@@ -218,7 +218,13 @@ class Faspay extends Requestor implements VendorInterface
 									],
 							];
 					} else {
-						throw new \Exception("QR code is empty", 1);
+						$res = [
+								'status' => '000',
+								'data' => (array) [
+										'payment_url' => $payment_url,
+										'qr_code' => '',
+									],
+							];
 					}
 					$result = [
 							'request' => (array) $this->request,
