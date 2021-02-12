@@ -2,7 +2,7 @@
 
   error_reporting(E_ALL);
   ini_set('display_errors', 1);
- 
+
   require_once __DIR__ . '/../../vendor/autoload.php';
 
   // init ('merchant_code', 'merchant_key')
@@ -17,16 +17,16 @@
   $transaction->setCustomerEmail('lorem@ipsum.com');
   $transaction->setCustomerPhone('081293145954');
   $transaction->setPostalcode('12345');
-  
 
-    /* start optional*/ 
+
+    /* start optional*/
   $transaction->setCountryCode('IDN');
   // $transaction->setAmount(100000);
   $transaction->setCustomerCity('Jakarta');
-    /* end optional*/ 
+    /* end optional*/
   $transaction->setDescription('Product Gaming');
   $transaction->setCustomerAddress('Jl. Kemayoran');
-  
+
     /*	paymentType:
 
     --> bank_transfer
@@ -38,7 +38,7 @@
 
     --> ewallet
       shopeepay => ewallet,shopeepay
-      
+
     --> others
       alfamart => others,alfamart
       indomaret => others,indomaret
@@ -48,9 +48,10 @@
 
     */
 
-  $transaction->setPaymentMethod('bank_transfer,mandiri');
+//   $transaction->setPaymentMethod('bank_transfer,mandiri');
+  $transaction->setPaymentMethod('ewallet,shopeepay');
 
-  /* set Seller */ 
+  /* set Seller */
   $seller_detail = [
     "Id"		          => "your-seller-id",
     "Name"		        => "Your Seller Name",
@@ -67,23 +68,22 @@
         "CountryCode"	=> "ID"
       ],
   ];
-  
+
   $transaction->setSeller($seller_detail);
-  
+
 
   $item_detail = [
     ["id" => "a1", "price" => 10000, "quantity" => 1, "name" => "Banana", "brand" => "Banana Game", "category" => "Game","merchant_name" => "Game-store"] //only cc
   ];
   $transaction->setItem($item_detail);
-  
+
   $vendor = new \Growinc\Payment\Vendors\Ipay88($init);
 
   try {
-    
+
     $result = $vendor->SecurePayment($transaction); // return payment URL
     print_r($result);
 
   } catch (\Throwable $e) {
-    echo 'Payment failed: ' . $e->getCode();
+    echo 'Payment failed: ' . $e->getMessage();
   }
-  

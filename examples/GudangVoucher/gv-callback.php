@@ -43,5 +43,5 @@ try {
 	// print_r($vendor->getRequest());
 	// print_r($vendor->getResponse()); // Get  PSR7 object
 } catch (\Throwable $e) {
-	echo 'Payment failed: ' . $e->getCode();
+	echo 'Payment failed: ' . $e->getMessage();
 }

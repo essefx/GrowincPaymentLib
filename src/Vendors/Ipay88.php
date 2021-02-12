@@ -34,7 +34,7 @@ class Ipay88 extends Requestor implements VendorInterface
 	public function SecurePayment(Transaction $transaction)
 	{
 		try{
-	
+
 			$this->transaction = $transaction;
 			//
 			$this->form['order_id'] = $this->transaction->getOrderID();
@@ -42,10 +42,10 @@ class Ipay88 extends Requestor implements VendorInterface
 			$this->form['amount'] = $this->transaction->getAmount();
 			$this->form['description'] = $this->transaction->getDescription();
 			$this->form['currency'] = $this->transaction->getCurrency();
-			
-			/* Optional */ 
+
+			/* Optional */
 			$this->form['no_ref'] = $this->form['order_id'];
-			
+
 			//
 			$this->form['customer_name'] = $this->transaction->getCustomerName();
 			$this->form['customer_email'] = $this->transaction->getCustomerEmail();
@@ -54,9 +54,9 @@ class Ipay88 extends Requestor implements VendorInterface
 			$this->form['country_code'] = $this->transaction->getCountryCode();
 			$this->form['postal_code'] = $this->transaction->getPostalCode();
 			$this->form['city'] = $this->transaction->getCustomerCity();
-		
 
-			/** 
+
+			/**
 			* Billing Address
 			*/
 
@@ -71,7 +71,7 @@ class Ipay88 extends Requestor implements VendorInterface
 				'email' => $this->form['customer_email'],
 			];
 
-			/** 
+			/**
 			* Shipping Address
 			*/
 
@@ -85,41 +85,41 @@ class Ipay88 extends Requestor implements VendorInterface
 				'country_code' => $this->form['country_code'] ?? 'IDN',
 				'email' => $this->form['customer_email']
 			];
-				/** 
+				/**
 			* Sellers
 			*/
 			$this->form['sellers'] = $this->transaction->getSeller();
-				
+
 			$this->form['item_details'] = $this->transaction->getItem();
 			$this->form['customer_userid'] = $this->transaction->getCustomerUserid();
 			$paymentMethode = explode(',', $this->transaction->getPaymentMethod());
 			$this->form['payment_type'] =  $this->getPayId($paymentMethode);
 			$this->form['payment_url'] = $this->init->getPaymentURL();
 			$this->form['expiry_period'] = $this->transaction->getExpireAt(); // minutes
-			
+
 			//
 			$this->request['form'] = $this->form;
 			$this->request['time'] = $this->transaction->getTime();
 			$this->request['url'] = $this->form['payment_url'];
 
-			// set total amount 
+			// set total amount
 			$amountTotal = 0;
 			foreach($this->form['item_details'] as $price){
 				$amountTotal += (int) $price['price'] * (int) $price['quantity'] ;
 			}
 
-			// generate signature 
+			// generate signature
 			$signature = $this->init->getSecret().$this->init->getMID().$this->transaction->getOrderID().$amountTotal.$this->form['currency'];
       		$encode_signature = base64_encode(hex2bin(sha1($signature)));
-			
-			// request data  
+
+			// request data
 			$this->request['data'] = [
 		        'MerchantCode' 			=> $this->init->getMID(),
 		        'PaymentId' 			=> $this->form['payment_type']->id,
 		        'Currency' 				=> $this->form['currency'],
 		        'RefNo' 				=>  $this->transaction->getOrderID(),
-		        'Amount'				=> (int) $amountTotal, 
-		        'ProdDesc'				=> $this->form['description'], 
+		        'Amount'				=> (int) $amountTotal,
+		        'ProdDesc'				=> $this->form['description'],
 		        'UserName'				=> $this->form['customer_name'],
 		        'UserEmail'				=> $this->form['customer_email'],
 		        'UserContact'			=> $this->form['customer_phone'],
@@ -134,9 +134,9 @@ class Ipay88 extends Requestor implements VendorInterface
 				'BillingAddress' 		=> $this->form['billing_address'],
 				'Sellers' 				=> $this->form['sellers'],
 			];
-			
+
 			// print_r(json_encode($this->request['data']));exit();
-			/* HEADER */ 
+			/* HEADER */
 			$this->request['headers'] = [
 				'Content-Type' => 'application/json',
 				'Accept' => 'application/json',
@@ -147,12 +147,12 @@ class Ipay88 extends Requestor implements VendorInterface
 			$this->request['option'] = [
 				'as_json' => true,
 			];
-			
+
 			$post = $this->DoRequest('POST', $this->request);
-			
+
 			$response = (array) $post['response'];
 			extract($response);
-			
+
 			if (!empty($status_code) && $status_code === 200) {
 				$content = (object) json_decode($content);
 				if ($content->Status != "") {
@@ -179,7 +179,7 @@ class Ipay88 extends Requestor implements VendorInterface
 							'status' => '000',
 							'data' => (array) $content,
 						];
-						/**/ 
+						/**/
 						if ($content['data']['Status'] == 6 ) {
 							$status = 'pending';
 						}
@@ -198,7 +198,7 @@ class Ipay88 extends Requestor implements VendorInterface
 									// 'transaction_status' =>  $status,
 								],
 						];
-							
+
 					} else {
 						throw new \Exception($content->ErrDesc);
 					}
@@ -216,10 +216,10 @@ class Ipay88 extends Requestor implements VendorInterface
 	/**
 	 * @param string
 	 * @return $result ? []
-	 * */ 
+	 * */
 	public function getPayId($paymentId){
 		switch (strtolower($paymentId[0])) {
-			/* Bank Transfer */ 
+			/* Bank Transfer */
 			case 'bank_transfer':
 				switch (strtolower($paymentId[1])) {
 					case 'bca':
@@ -248,7 +248,7 @@ class Ipay88 extends Requestor implements VendorInterface
 					break;
 				}
 			break;
-			/* Others */ 
+			/* Others */
 			case 'others':
 				switch (strtolower($paymentId[1])) {
 					case 'alfamart':
@@ -266,7 +266,7 @@ class Ipay88 extends Requestor implements VendorInterface
 					case 'indodana':
 						$id = 70;
 						$name = 'indodana';
-					break;					
+					break;
 					case 'kredivo':
 						$id = 55;
 						$name = 'kredivo';
@@ -277,7 +277,7 @@ class Ipay88 extends Requestor implements VendorInterface
 					break;
 				}
 			break;
-			/* Internet Banking */ 
+			/* Internet Banking */
 			case 'internet_banking':
 				switch (strtolower($paymentId[1])) {
 					case 'bcakp':
@@ -302,7 +302,7 @@ class Ipay88 extends Requestor implements VendorInterface
 					break;
 				}
 			break;
-			/* Credit Card */ 
+			/* Credit Card */
 			case 'credit_card':
 				switch (strtolower($paymentId[1])) {
 					case 'bca':
@@ -350,7 +350,7 @@ class Ipay88 extends Requestor implements VendorInterface
 						$name = 'BCA';
 					break;
 				}
-			/* e-wallet */ 
+			/* e-wallet */
 			case 'ewallet':
 				switch (strtolower($paymentId[1])) {
 					case 'shopeepay':
@@ -367,7 +367,7 @@ class Ipay88 extends Requestor implements VendorInterface
 					break;
 				}
 			break;
-			
+
 		}
 		return (object) ['id' => $id, 'name' => $name];
 	}
@@ -386,7 +386,7 @@ class Ipay88 extends Requestor implements VendorInterface
 				"Currency"		: "IDR",
 				"Remark"		: "",
 				"TransId"		: "T0051206200",
-				"AuthCode"		: "",    
+				"AuthCode"		: "",
 				"Status"		: "6",
 				"ErrDesc"		: "",
 				"Signature"		: "lkvo2Xuy7BImSfMoTBznJSUOEC8=",
@@ -396,13 +396,13 @@ class Ipay88 extends Requestor implements VendorInterface
 		*/
 
 		try {
-			
+
 			SELF::Validate($request, ['RefNo', 'Status', 'Amount']);
 			$input = $this->init->getSecret().$this->init->getMID().$request->RefNo.$request->Amount.$request->Currency;
 			$signature = base64_encode(hex2bin(sha1($input)));
 
 			if (strcmp($signature, $request->Signature) === 0) {
-			
+
 				$content = [
 						'status' => '000',
 						'data' => (array) $request,
@@ -414,7 +414,7 @@ class Ipay88 extends Requestor implements VendorInterface
 				if ($content['data']['Status'] == 0) {
 				  	$status = 'fail';
 				}
-				
+
 				$result = [
 						'request' => (array) $request,
 						'response' => [
@@ -444,7 +444,73 @@ class Ipay88 extends Requestor implements VendorInterface
 
 	public function Inquiry(object $request)
 	{
-		
+		try {
+			SELF::Validate($request, [
+					'order_id',
+					'amount'
+				]);
+			// Go
+			$this->request['time'] = time();
+			$this->request['url'] = $this->init->getRequestURL() .
+				'/callback_virtual_accounts/' . $request->id;
+			$this->request['url'] = preg_replace('#/+#','/', $this->request['url']);
+			$this->request['data'] = [];
+			$this->request['headers'] = [
+					'Content-Type' => 'application/json',
+					'Accept' => 'application/json',
+					'Authorization' => 'Basic ' . base64_encode($this->init->getMID() . ':')
+				];
+			$get = $this->DoRequest('GET', $this->request);
+			$response = (array) $get['response'];
+			extract($response);
+			if (!empty($status_code) && $status_code === 200) {
+				$content = (object) json_decode($content);
+				if (
+					!isset($content->error_code)
+					&& !isset($content->message)
+				) {
+					// Success
+					/*
+					{
+						"status": "000",
+						"data": {
+							"is_closed": true,
+							"status": "ACTIVE",
+							"currency": "IDR",
+							"owner_id": "5f706881fefc961e3f708f02",
+							"external_id": "0008115320",
+							"bank_code": "BCA",
+							"merchant_code": "10766",
+							"name": "LOREM IPSUM",
+							"account_number": "107669999020779",
+							"expected_amount": 100000,
+							"expiration_date": "2020-12-16T12:22:00.000Z",
+							"is_single_use": false,
+							"id": "5fd9e479ed81dd402014403c"
+						}
+					}
+					*/
+					$res = [
+							'status' => '000',
+							'data' => (array) $content,
+						];
+					$result = [
+							'request' => (array) $request,
+							'response' => [
+									'content' => json_encode($res),
+									'status_code' => 200,
+								],
+						];
+				} else {
+					throw new \Exception($content->message);
+				}
+			} else {
+				throw new \Exception($content);
+			}
+		} catch (\Throwable $e) {
+			throw new \Exception($this->ThrowError($e));
+		}
+		return $result ?? [];
 	}
 
 	public function Cancel(object $request)

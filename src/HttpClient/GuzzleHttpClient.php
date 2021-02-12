@@ -94,7 +94,7 @@ class GuzzleHttpClient
 				SELF::_HandleAPIError($e);
 			}
 		}
-		return $return;
+		return $return ?? null;
 	}
 
 }

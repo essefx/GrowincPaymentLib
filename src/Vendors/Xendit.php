@@ -87,37 +87,37 @@ class Xendit extends Requestor implements VendorInterface
 			$this->form['customer_name'] = $this->transaction->getCustomerName();
 			$this->form['customer_email'] = $this->transaction->getCustomerEmail();
 			$this->form['customer_phone'] = $this->transaction->getCustomerPhone();
-			$this->form['customer_address'] = $this->transaction->getCustomerAddress();
-			$this->form['country_code'] = $this->transaction->getCountryCode();
-			//
-			$this->form['billing_address'] = [
-					'first_name' => $this->form['customer_name'],
-					'last_name' => '',
-					'email' => $this->form['customer_email'],
-					'phone' => $this->form['customer_phone'],
-					'address' => ' ',
-					'city' => ' ',
-					'postal_code' => ' ',
-					'country_code' => $this->form['country_code'],
-				];
-			$this->form['shipping_address'] = [
-					'first_name' => $this->form['customer_name'],
-					'last_name' => '',
-					'email' => $this->form['customer_email'],
-					'phone' => $this->form['customer_phone'],
-					'address' => ' ',
-					'city' => ' ',
-					'postal_code' => ' ',
-					'country_code' => $this->form['country_code'],
-				];
-			$this->form['customer_details'] = [
-					'first_name' => $this->form['customer_name'],
-					'last_name' => '',
-					'email' => $this->form['customer_email'],
-					'phone' => $this->form['customer_phone'],
-					'billing_address' => $this->form['billing_address'],
-					'shipping_address' => $this->form['shipping_address'],
-				];
+			// $this->form['customer_address'] = $this->transaction->getCustomerAddress();
+			// $this->form['country_code'] = $this->transaction->getCountryCode();
+			// //
+			// $this->form['billing_address'] = [
+			// 		'first_name' => $this->form['customer_name'],
+			// 		'last_name' => '',
+			// 		'email' => $this->form['customer_email'],
+			// 		'phone' => $this->form['customer_phone'],
+			// 		'address' => ' ',
+			// 		'city' => ' ',
+			// 		'postal_code' => ' ',
+			// 		'country_code' => $this->form['country_code'],
+			// 	];
+			// $this->form['shipping_address'] = [
+			// 		'first_name' => $this->form['customer_name'],
+			// 		'last_name' => '',
+			// 		'email' => $this->form['customer_email'],
+			// 		'phone' => $this->form['customer_phone'],
+			// 		'address' => ' ',
+			// 		'city' => ' ',
+			// 		'postal_code' => ' ',
+			// 		'country_code' => $this->form['country_code'],
+			// 	];
+			// $this->form['customer_details'] = [
+			// 		'first_name' => $this->form['customer_name'],
+			// 		'last_name' => '',
+			// 		'email' => $this->form['customer_email'],
+			// 		'phone' => $this->form['customer_phone'],
+			// 		'billing_address' => $this->form['billing_address'],
+			// 		'shipping_address' => $this->form['shipping_address'],
+			// 	];
 			//
 			$arr = explode(',', $this->transaction->getPaymentMethod());
 			$payment_method = strtolower(trim( $arr[0] ?? '' ));
@@ -134,10 +134,11 @@ class Xendit extends Requestor implements VendorInterface
 							'bank_code' => strtoupper($payment_channel),
 							'name' => $this->form['customer_name'],
 							'is_closed' => true, // When set to true, the virtual account will be closed and will only accept the amount specified in expected_amount
+							'expected_amount' => $this->form['amount'],
 							// 'expiration_date' => gmdate("Y-m-d\TH:i:s\Z", strtotime("now") + ($this->transaction->getExpireAt() * 60)),
 							'expiration_date' => $expire_date,
-							'expected_amount' => $this->form['amount'],
 							'is_single_use' => 'true',
+							// 'description' => '', // This field is only supported for BRI
 						];
 					break;
 				case 'credit_card':
@@ -152,6 +153,9 @@ class Xendit extends Requestor implements VendorInterface
 							'ewallet_type' => strtoupper($payment_channel),
 						];
 					switch (strtoupper($payment_channel)) {
+						case 'OVO':
+							// Nothing as modification here
+							break;
 						case 'DANA':
 							$this->request['data'] = array_merge($this->request['data'], [
 									'callback_url' => $this->init->getCallbackURL(),

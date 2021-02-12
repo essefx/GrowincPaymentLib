@@ -1,119 +1,125 @@
-<?php 
-
-// Api Key 1 = "9220fbdeb1d115a4f2e9b2636edc24cc";
-// Api Key 2 = "5b74d200096570de0280b9838c7af1ab";
-// Merchant Key = "c9c64d57f0c606ef06c297f96697cab4";
+<?php
 
 	error_reporting(E_ALL);
 	ini_set('display_errors', 1);
+	date_default_timezone_set('Asia/Jakarta');
 
 	require_once __DIR__ . '/../../vendor/autoload.php';
 
-	/* init('apikey1', 'apikey2') */ 
-	$init = new \Growinc\Payment\Init('000f1f4cb5118390cc2ec79af671d617','19c6f7a74281b16c2e70ba485dcf1750'); 
+	$private_key_1 = '000f1f4cb5118390cc2ec79af671d617';
+	$private_key_2 = '19c6f7a74281b16c2e70ba485dcf1750';
+	$init = new \Growinc\Payment\Init(
+			$private_key_1,
+			$private_key_2
+		);
 
-	/* merchant key */ 
-	$init->setMerchantKey('a85b54a715b31119a654928c400c8bb8');
-	$init->setBaseURI('https://secure-payment.winpay.id');
+	$merchant_key = 'a85b54a715b31119a654928c400c8bb8';
+	$init->setMerchantKey($merchant_key);
+
 	$init->setPaymentURL('https://secure-payment.winpay.id');
-
-	$init->setCallbackURL('https://vogame.dev/callbackUrl');
-	$init->setReturnURL('https://vogame.dev/returnUrl');
+	//
+	$init->setCallbackURL('https://a.g-dev.io/secure/callback/demo');
+	$init->setReturnURL('https://a.g-dev.io/secure/callback/demo');
 
 	$transaction = new \Growinc\Payment\Transaction();
-
-	/*set cust information */ 
-	$transaction->setCustomerName('LOREM');
+	$transaction->setCustomerName('LOREM IPSUM');
 	$transaction->setCustomerEmail('lorem@ipsum.com');
-	$transaction->setCustomerPhone('081212121234');
-
-	    /* start optional*/ 
-	$transaction->setCountryCode('IDN');
-	// $transaction->setAmount(100000);
-	$transaction->setCustomerCity('Jakarta');
-		/* end optional*/ 
+	$transaction->setCustomerPhone('088812345678');
+	//
+	$transaction->setItem('Game 01');
+	$transaction->setAmount(rand(5000,10000) * 100);
 	$transaction->setDescription('Product Game Baru');
-	$transaction->setCustomerAddress('Jl. Maju mundur kena');
 
-	/* set Detail items */ 
-	$item_detail = [
-		["name" => "game 01", "sku" => "02020225", "qty" => 2, "unitPrice" => 20000, "desc" => "game 01"],
-		["name" => "game 02", "sku" => "02020225", "qty" => 2, "unitPrice" => 12000, "desc" => "game 02"]
-	];
-	$transaction->setItem($item_detail);
+	/*
+	API Virtual Account
+	API ini digunakan untuk mendapatkan kode pembayaran / link pembayaran dari Payment Channel Virtual Account
+	-> va_channel_code :
+		BRIVA,
+		BNIVA,
+		MANDIRIVA, atau
+		PERMATAVA
 
- 	/*	paymentType:
+	API QRIS
+	API ini digunakan untuk mendapatkan kode QR.
+	QR Code Dinamis hanya berlaku 3 x 24 jam sejak dibuat
+	QR Code Dinamis hanya dapat digunakan sekali transaksi
+	QR Code Statis bersifat open nominal, customer dapat input nominal berapapun
+	-> qris_code :
+		QRISPAY
 
-		--> bank_transfer
-		BCA VA			=> bank_transfer,bca
-		BNI VA			=> bank_transfer,bni
-		BRI					=> bank_transfer,bri
-		MANDIRI VA	=> bank_transfer,mandiri
-		PERMATA VA	=> bank_transfer,permata
+	API Payment Code
+	API ini digunakan untuk mendapatkan kode pembayaran / link pembayaran dari Payment Channel Direct
+	-> channel_code :
+		INDOMARET,
+		ALFAMART, atau
+		FASTPAY
 
-	  	--> cstore
-	    INDOMARET		=> cstore,indomaret
-	    ALFAMART		=> cstore,alfamart
-		FASTPAY			=> cstore,fastpay 
-
-		--> pulsa
-	    Indosat Dompetku	=> pulsa,indosat ( redirect )
-	    Telkomsel Cash		=> pulsa,telkomsel
-		XL Tunai			=> pulsa,xl
-
-		--> payment_code
-	    ATM 137 Bank		=> payment_code,ATM137
-	    ATM BCA				=> payment_code,BCAPC
-		BebasBayar			=> payment_code,BEBASBAYAR ( redirect )
-		BCA Klik Pay		=> payment_code,BCAKP ( redirect )
-		CIMB Clicks			=> payment_code,CIMBC ( redirect )
-		Danamon Online Banking	=> payment_code,DANAMON ( redirect )
-		Debit Online BTN	=> payment_code,BTNONLINE ( redirect )
-		E-Pay BRI			=> payment_code,BRIEP ( redirect )
-		FinPay Code			=> payment_code,FINPAY 
-		Kartu Kredit		=> payment_code,KKWP ( redirect )
-		Mandiri ECash		=> payment_code,MANDIRIEC ( redirect )
-		Mandiri Pay Code	=> payment_code,MANDIRIPC
-		Mandiri Click		=> payment_code,MANDIRICP ( redirect )
-		IB Muamalat			=> payment_code,MUAMALAT ( redirect )
-	
+	API Redirect Channel
+	API ini digunakan untuk mendapatkan kode pembayaran / link pembayaran dari Payment Channel Redirect
+	-> redirect_channel_code :
+		BEBASBAYAR,
+		DANAMON,
+		BCAKP,
+		CIMBC,
+		BTNONLINE,
+		BRIEP,
+		MUAMALAT,
+		KKWP,
+		MANDIRICP,
+		MANDIRIEC
 	*/
+	// $transaction->setPaymentMethod('va,BRIVA');
+	$transaction->setPaymentMethod('va,BNIVA');
+	// $transaction->setPaymentMethod('va,MANDIRIVA');
+	// $transaction->setPaymentMethod('va,PERMATAVA');
+	// $transaction->setPaymentMethod('qr,QRISPAY');
+	// $transaction->setPaymentMethod('cstore,INDOMARET'); // --- NA
+	// $transaction->setPaymentMethod('cstore,ALFAMART');
+	// $transaction->setPaymentMethod('cstore,FASTPAY');
+	// $transaction->setPaymentMethod('redirect,BEBASBAYAR');
+	// $transaction->setPaymentMethod('redirect,DANAMON');
+	// $transaction->setPaymentMethod('redirect,BCAKP');
+	// $transaction->setPaymentMethod('redirect,CIMBC');
+	// $transaction->setPaymentMethod('redirect,BTNONLINE');
+	// $transaction->setPaymentMethod('redirect,BRIEP');
+	// $transaction->setPaymentMethod('redirect,MUAMALAT');
+	// $transaction->setPaymentMethod('redirect,KKWP');
+	// $transaction->setPaymentMethod('redirect,MANDIRICP');
+	// $transaction->setPaymentMethod('redirect,MANDIRIEC');
 
-
-	// 00	Success
-	// 01	Access Denied! not authorized
-	// 04	Data not found
-	// 05	General Error
-	// 99	Parameter not valid
-
-	/*** set payment method ***/ 
-	// $transaction->setPaymentMethod('bank_transfer,mandiri');
-	/*** e-wallet ***/
-	$transaction->setPaymentMethod('qris,qris');
-	/*** pulsa ***/
-	// $transaction->setPaymentMethod('pulsa,telkomsel');
-	/*** payment_code ***/
-	// $transaction->setPaymentMethod('payment_code,finpay');
-	
-	
-	/* call vendor */ 
 	$vendor = new \Growinc\Payment\Vendors\Winpay($init);
 
-	// $result = $vendor->SecurePayment($transaction);
-	// print_r($result);exit();
-	
 	try {
-		$result = $vendor->SecurePayment($transaction); // return payment URL
-		
-		// $result = $vendor->RedirectPayment($transaction); // redirect to vendor URL
+		$result = $vendor->SecurePayment($transaction);
 		extract($result);
-		print_r($result);
+		print_r($response);
+		// Success
+		/*
+		{
+			"status": "000",
+			"data": {
+				"rc": "00",
+				"rd": "Transaksi Anda sedang dalam proses, Anda akan melakukan pembayaran menggunakan Alfamart, Silakan melakukan pembayaran sejumlah IDR 594.000-. Order ID Anda adalah 303707140. RAHASIA Dilarang menyebarkan ke ORANG Tdk DIKENAL",
+				"request_time": "2021-02-10 18:26:24.434000",
+				"data": {
+					"reff_id": "303707140",
+					"payment_code": "303707140",
+					"order_id": "0012956384",
+					"request_key": "",
+					"url_listener": "https:\/\/a.g-dev.io\/secure\/callback\/demo",
+					"payment_method": "Alfamart",
+					"payment_method_code": "ALFAMART",
+					"fee_admin": 0,
+					"total_amount": 594000,
+					"spi_status_url": "https:\/\/secure-payment.winpay.id\/guidance\/index\/alfamart?payid=79b51b82c20b0eec4586a01835cd6f52"
+				},
+				"response_time": "2021-02-10 18:26:25.950823"
+			}
+		}
+		*/
 		//
 		// print_r($vendor->getRequest());
 		// print_r($vendor->getResponse()); // Get  PSR7 object
 	} catch (\Throwable $e) {
 		echo 'Payment failed: ' . $e->getMessage();
 	}
-  
-
-?>

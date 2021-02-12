@@ -390,7 +390,7 @@ class Faspay extends Requestor implements VendorInterface
 							'data' => (array) $content,
 						];
 					$result = [
-							'request' => (array) $this->request['data'],
+							'request' => (array) $this->request,
 							'response' => [
 									'content' => json_encode($res),
 									'status_code' => 200,
@@ -542,7 +542,7 @@ class Faspay extends Requestor implements VendorInterface
 							'data' => (array) $content,
 						];
 					$result = [
-							'request' => (array) $this->request['data'],
+							'request' => (array) $this->request,
 							'response' => [
 									'content' => json_encode($res),
 									'status_code' => 200,

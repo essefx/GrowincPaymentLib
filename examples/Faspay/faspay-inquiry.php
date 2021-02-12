@@ -12,7 +12,7 @@ Password: p@ssw0rd
 */
 $init = new \Growinc\Payment\Init(
 		'VoGame Indonesia : 33660', // Name & MID
-		'bot33660 : p@ssw0rd' // ID & Pass
+		'bot33660 : p@ssw0rd' // UserID & Pass
 	);
 // Dev URL
 $init->setRequestURL('https://dev.faspay.co.id/cvr/100004/10'); // Payment Inquiry
@@ -23,8 +23,8 @@ $vendor = new \Growinc\Payment\Vendors\Faspay($init);
 
 try {
 	$result = $vendor->Inquiry((object) [
-			'order_id' => '1612772509',
-			'trx_id' => '3366082500000166', // Faspay transaction ID
+			'order_id' => '1613139613',
+			'trx_id' => '3366081200000455', // Faspay transaction ID
 		]);
 	extract($result);
 	print_r($response);
@@ -66,5 +66,5 @@ try {
 	}
 	*/
 } catch (\Throwable $e) {
-	echo 'Payment failed: ' . $e->getCode();
+	echo 'Payment failed: ' . $e->getMessage();
 }

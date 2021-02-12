@@ -51,13 +51,13 @@ class GudangVoucher extends Requestor implements VendorInterface
 			//
 			$this->form['item'] = $this->transaction->getItem();
 			$this->form['amount'] = (float) $this->transaction->getAmount();
-			$this->form['description'] = $this->transaction->getDescription();
+			// $this->form['description'] = $this->transaction->getDescription();
 			//
-			$this->form['customer_name'] = $this->transaction->getCustomerName();
+			// $this->form['customer_name'] = $this->transaction->getCustomerName();
 			$this->form['customer_email'] = $this->transaction->getCustomerEmail();
-			$this->form['customer_phone'] = $this->transaction->getCustomerPhone();
-			$this->form['customer_address'] = $this->transaction->getCustomerAddress();
-			$this->form['country_code'] = $this->transaction->getCountryCode();
+			// $this->form['customer_phone'] = $this->transaction->getCustomerPhone();
+			// $this->form['customer_address'] = $this->transaction->getCustomerAddress();
+			// $this->form['country_code'] = $this->transaction->getCountryCode();
 			//
 			$arr = explode(',', $this->transaction->getPaymentMethod());
 			$payment_method = strtolower(trim( $arr[0] ?? '' ));
@@ -65,15 +65,15 @@ class GudangVoucher extends Requestor implements VendorInterface
 			//
 			$payment_url = $this->init->getPaymentURL() . '?'
 				. 'merchantid=' . $this->init->getMID()
-				. '&amount=' . (float) $this->transaction->getAmount()
-				. '&product=' . $this->transaction->getItem()
-				. '&custom=' . $this->transaction->getOrderID()
-				. '&email=' . $this->transaction->getCustomerEmail()
+				. '&amount=' . (float) $this->form['amount']
+				. '&product=' . $this->form['item']
+				. '&custom=' . $this->form['order_id']
+				. '&email=' . $this->form['customer_email']
 				. '&signature=' . md5(
 							$this->init->getMID() .
-							$this->transaction->getAmount() .
+							$this->form['amount'] .
 							$this->init->getSecret() .
-							$this->transaction->getOrderID()
+							$this->form['order_id']
 						)
 				. '&custom_redirect=' . $this->init->getCallbackURL();
 			// Go
