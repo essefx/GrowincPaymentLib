@@ -11,17 +11,19 @@ User id: bot33660
 Password: p@ssw0rd
 */
 $init = new \Growinc\Payment\Init(
+		// 'VoGame Indonesia : 33660', // Name & MID
+		// 'bot33660 : p@ssw0rd' // UserID & Pass
 		'VoGame Indonesia : 33660', // Name & MID
-		'bot33660 : p@ssw0rd' // UserID & Pass
+		'bot33660 : dtehsbsB' // UserID & Pass
 	);
 // Dev URL
-$init->setRequestURL('https://dev.faspay.co.id/cvr/100001/10'); // Payment Channel Inquiry
+// $init->setRequestURL('https://dev.faspay.co.id/cvr/100001/10'); // Payment Channel Inquiry
 // Live URL
-// $init->setRequestURL('https://web.faspay.co.id/cvr/100001/10'); // Payment Channel Inquiry
+$init->setRequestURL('https://web.faspay.co.id/cvr/100001/10'); // Payment Channel Inquiry
 
 $vendor = new \Growinc\Payment\Vendors\Faspay($init);
 
-try {
+// try {
 	$result = $vendor->InquiryPaymentChannel();
 	extract($result);
 	print_r($response);
@@ -84,6 +86,6 @@ try {
 	//
 	// print_r($vendor->getRequest());
 	// print_r($vendor->getResponse()); // Get  PSR7 object
-} catch (\Throwable $e) {
-	echo 'Inquiry payment channel failed: ' . $e->getMessage();
-}
+// } catch (\Throwable $e) {
+// 	echo 'Inquiry payment channel failed: ' . $e->getMessage();
+// }

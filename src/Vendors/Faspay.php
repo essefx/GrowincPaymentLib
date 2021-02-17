@@ -306,14 +306,17 @@ class Faspay extends Requestor implements VendorInterface
 		try {
 			// Go
 			$this->request['time'] = time();
-			$this->request['url'] = preg_replace('#/+#','/', $this->init->getRequestURL());
+			$this->request['url'] = $this->init->getRequestURL();
+			$this->request['signature'] =
+					explode(' : ', $this->init->getSecret())[0] .
+					explode(' : ', $this->init->getSecret())[1]
+				;
 			$this->request['data'] = [
 					'request' => 'Request List of Payment Gateway',
 					'merchant_id' => explode(' : ', $this->init->getMID())[1],
 					'merchant' => explode(' : ', $this->init->getMID())[0],
 					'signature' => sha1(md5(
-							explode(' : ', $this->init->getSecret())[0] .
-							explode(' : ', $this->init->getSecret())[1]
+							$this->request['signature']
 						)),
 				];
 			$this->request['headers'] = [

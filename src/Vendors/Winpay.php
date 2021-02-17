@@ -386,7 +386,10 @@ class Winpay extends Requestor implements VendorInterface
 		}
 		*/
 		try {
-			SELF::Validate($request, ['no_reff', 'id_transaksi']);
+			SELF::Validate($request, [
+					'no_reff',
+					'id_transaksi'
+				]);
 			$input = $request->no_reff . $request->id_transaksi;
 			$get = $this->init->getSecret() . $this->init->getMID();
 			// print_r($get);exit();

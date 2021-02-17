@@ -1,10 +1,18 @@
 <?php
+
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
+date_default_timezone_set('Asia/Jakarta');
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-$init = new \Growinc\Payment\Init('000f1f4cb5118390cc2ec79af671d617','19c6f7a74281b16c2e70ba485dcf1750');
+$private_key_1 = '000f1f4cb5118390cc2ec79af671d617';
+$private_key_2 = '19c6f7a74281b16c2e70ba485dcf1750';
+$init = new \Growinc\Payment\Init(
+		$private_key_1,
+		$private_key_2
+	);
+
 $vendor = new \Growinc\Payment\Vendors\Winpay($init);
 
 try {

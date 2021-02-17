@@ -75,11 +75,12 @@ class GudangVoucher extends Requestor implements VendorInterface
 							$this->init->getSecret() .
 							$this->form['order_id']
 						)
-				. '&custom_redirect=' . $this->init->getCallbackURL();
+				. '&custom_redirect=' . urlencode($this->init->getCallbackURL());
 			// Go
 			$this->request['form'] = $this->form;
 			$this->request['time'] = $this->transaction->getTime();
 			$this->request['url'] = $payment_url;
+			$this->request['data'] = [];
 			$this->request['headers'] = [];
 			$this->request['option'] = [
 					'as_json' => false,
@@ -110,14 +111,15 @@ class GudangVoucher extends Requestor implements VendorInterface
 							);
 						$expired_at = trim(explode('sebelum', $arr_p[2])[1]);
 					}
-					// Second segment
+					// Second segment // Get GV payment URL
 					$as = $xpath->query('//div[@id="headingQR"]/h4/a/@href');
 					foreach($as as $a) {
       				$gv_payment_url = $a->value;
+						break; // Only first attempt
 					}
-					// Third segment
+					// Third segment // Get GV VA numbers
 					$arr_bank = [];
-					$tables = $xpath->query('//table');
+					$tables = $xpath->query('//table[@class="table mb-0"]');
 					for ($i=0; $i<count($tables); $i++) {
 						$bank_name = trim(
 							$xpath->query('./tr[1]/td[1]', $tables[$i])->item(0)->textContent
@@ -164,9 +166,86 @@ class GudangVoucher extends Requestor implements VendorInterface
 							);
 						// }
 					}
+
+					// QRIS navigation // Get QRIS URL path
+					if ($payment_method == 'qris'
+						|| $payment_channel == 'qris'
+						|| (empty($payment_method) && empty($payment_channel))
+					) {
+						$qris_payment_url = $payment_url . '&QRIS=1';
+						// Go
+						$this->request['form'] = $this->form;
+						$this->request['time'] = $this->transaction->getTime();
+						$this->request['url'] = $qris_payment_url;
+						$this->request['data'] = [];
+						$this->request['headers'] = [];
+						$this->request['option'] = [
+								'as_json' => false,
+							];
+						$post = $this->DoRequest('POST', $this->request);
+						$response = (array) $post['response'];
+						extract($response);
+						if (!empty($status_code) && $status_code === 200) {
+							if (!empty($content)) {
+								// HTML Dom
+								$doc = new \DOMDocument();
+								libxml_use_internal_errors(true);
+								$doc->loadHTML($content);
+								libxml_clear_errors();
+								$xpath = new \DOMXpath($doc);
+								// First segment
+								$qris_url = '';
+								$imgs = $xpath->query('//img[@width="75%"]/@src');
+								foreach($imgs as $img) {
+									$qris_url = $img->textContent;
+								}
+							}
+						}
+					}
+
 					// Return
 					if (empty($payment_method) && empty($payment_channel)) {
 						// Show all options
+						// Success
+						/* All option shown
+						{
+							"status": "000",
+							"data": {
+								"order_id": "0013551902",
+								"amount": 985100,
+								"all_pay_codes": [{
+									"amount": 989500,
+									"bank_code": "bca",
+									"fee": 4400,
+									"pay_code": "7700610100479340"
+								}, {
+									"amount": 986600,
+									"bank_code": "permata",
+									"fee": 1500,
+									"pay_code": "8992010100479340"
+								}, {
+									"amount": 987100,
+									"bank_code": "bni",
+									"fee": 2000,
+									"pay_code": "8558010100479340"
+								}, {
+									"amount": 986100,
+									"bank_code": "cimb_niaga",
+									"fee": 1000,
+									"pay_code": "3049010100479340"
+								}, {
+									"amount": 986600,
+									"bank_code": "atm_bersama",
+									"fee": 1500,
+									"pay_code": "500501010100479340"
+								}],
+								"qris_payment_url": "https:\/\/www.gudangvoucher.com\/merchant\/cetak.php?type=3&number=MDAwMjAxMDEwMjEyMjY3MzAwMjFDT00uR1VEQU5HVk9VQ0hFUi5XV1cwMTE4OTM2MDA5MTYzMDAyNDc3NTkwMDIxNUdWMjIwMDAwMjQ3NzU5MDAzMDNVQkU1MTQ1MDAxNUlELk9SLkdQTlFSLldXVzAyMTVJRDIwMjEwNjI5ODYwNDEwMzAzVUJFNTIwNDU5NDU1MzAzMzYwNTQwNjk4NTEwMDU4MDJJRDU5MDRWUEFZNjAxNUpBS0FSVEEgU0VMQVRBTjYxMDUxMjI0MDYyMzMwMTA4MDA0NzkzNDAwNTE3MjEwMjE3MTU1MTQyZldESDQ2MzA0RUM4RQ==",
+								"gv_wallet_payment_url": "https:\/\/www.gudangvoucher.com\/payment.php?merchantid=878&amount=985100&product=Apple&custom=0013551902&email=lorem@ipsum.com&custom_redirect=https:\/\/a.g-dev.io\/secure\/callback\/demo",
+								"payment_url": "https:\/\/www.gudangvoucher.com\/pg\/v3\/payment.php?merchantid=878&amount=985100&product=Apple&custom=0013551902&email=lorem@ipsum.com&signature=836cc67c193cf9269a66daffc62cd332&custom_redirect=https%3A%2F%2Fa.g-dev.io%2Fsecure%2Fcallback%2Fdemo",
+								"expired_at": "2021-02-17 19:51:42"
+							}
+						}
+						*/
 						$res = [
 								'status' => '000',
 								'data' => (array) [
@@ -175,30 +254,79 @@ class GudangVoucher extends Requestor implements VendorInterface
 										//
 										'all_pay_codes' => $arr_bank,
 										//
-										'gv_payment_url' => $gv_payment_url,
+										'qris_payment_url' => $qris_url ?? '',
+										'gv_wallet_payment_url' => $gv_payment_url,
 										'payment_url' => $payment_url,
 										'expired_at' => date('Y-m-d H:i:s', strtotime($expired_at)),
 									],
 							];
 					} else {
 						// Only filtered channel
-						$res = [
-								'status' => '000',
-								'data' => (array) [
-										'order_id' => $order_id,
-										'amount' => (float) $amount,
-										//
-										'bank_code' => $payment_channel,
-										'fee' => (float) $fee,
-										'pay_code' => $pay_code,
-										//
-										'all_pay_codes' => $arr_bank,
-										//
-										'gv_wallet_payment_url' => $gv_payment_url,
-										'payment_url' => $payment_url,
-										'expired_at' => date('Y-m-d H:i:s', strtotime($expired_at)),
-									],
-							];
+						if ($payment_method == 'qris'
+							|| $payment_channel == 'qris'
+						) {
+							// Success
+							/*  QRIS example
+								{
+								"status": "000",
+								"data": {
+									"order_id": "0013551743",
+									"amount": 967900,
+									"qris_url": "https:\/\/www.gudangvoucher.com\/merchant\/cetak.php?type=3&number=MDAwMjAxMDEwMjEyMjY3MzAwMjFDT00uR1VEQU5HVk9VQ0hFUi5XV1cwMTE4OTM2MDA5MTYzMDAyNDc3NTkwMDIxNUdWMjIwMDAwMjQ3NzU5MDAzMDNVQkU1MTQ1MDAxNUlELk9SLkdQTlFSLldXVzAyMTVJRDIwMjEwNjI5ODYwNDEwMzAzVUJFNTIwNDU5NDU1MzAzMzYwNTQwNjk2NzkwMDU4MDJJRDU5MDRWUEFZNjAxNUpBS0FSVEEgU0VMQVRBTjYxMDUxMjI0MDYyMzMwMTA4MDA0NzkzMzYwNTE3MjEwMjE3MTU0OTAya2o2R1k2MzA0QzMyOQ==",
+									"payment_url": "https:\/\/www.gudangvoucher.com\/pg\/v3\/payment.php?merchantid=878&amount=967900&product=Apple&custom=0013551743&email=lorem@ipsum.com&signature=5d91913ed502a88aee523e59e60f5d8f&custom_redirect=https%3A%2F%2Fa.g-dev.io%2Fsecure%2Fcallback%2Fdemo",
+									"expired_at": "2021-02-17 19:49:02"
+								}
+							}
+							*/
+							$res = [
+									'status' => '000',
+									'data' => (array) [
+											'order_id' => $order_id,
+											'amount' => (float) $amount,
+											//
+											'qris_url' => $qris_url,
+											//
+											// 'all_pay_codes' => $arr_bank,
+											//
+											// 'gv_wallet_payment_url' => $gv_payment_url,
+											'payment_url' => $payment_url,
+											'expired_at' => date('Y-m-d H:i:s', strtotime($expired_at)),
+										],
+								];
+						} else {
+							// Success
+							/*  VA example
+							{
+								"status": "000",
+								"data": {
+									"order_id": "0013551800",
+									"amount": 818700,
+									"bank_code": "atm_bersama",
+									"fee": 1500,
+									"pay_code": "500501010100479338",
+									"payment_url": "https:\/\/www.gudangvoucher.com\/pg\/v3\/payment.php?merchantid=878&amount=817200&product=Apple&custom=0013551800&email=lorem@ipsum.com&signature=e4b895c6b7529374e457fcae4d109f6a&custom_redirect=https%3A%2F%2Fa.g-dev.io%2Fsecure%2Fcallback%2Fdemo",
+									"expired_at": "2021-02-17 19:50:01"
+								}
+							}
+							*/
+							$res = [
+									'status' => '000',
+									'data' => (array) [
+											'order_id' => $order_id,
+											'amount' => (float) $amount,
+											//
+											'bank_code' => $payment_channel,
+											'fee' => (float) $fee,
+											'pay_code' => $pay_code,
+											//
+											// 'all_pay_codes' => $arr_bank,
+											//
+											// 'gv_wallet_payment_url' => $gv_payment_url,
+											'payment_url' => $payment_url,
+											'expired_at' => date('Y-m-d H:i:s', strtotime($expired_at)),
+										],
+								];
+						}
 					}
 					$result = [
 							'request' => (array) $this->request,
