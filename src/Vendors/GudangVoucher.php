@@ -96,6 +96,16 @@ class GudangVoucher extends Requestor implements VendorInterface
 					$doc->loadHTML($content);
 					libxml_clear_errors();
 					$xpath = new \DOMXpath($doc);
+
+					// Find error
+					$alert_message = '';
+					$alerts = $xpath->query('//div[@class="col-md-12"]/div/span[@class="text-muted"]');
+					foreach($alerts as $alert) {
+						$alert_message = trim(strip_tags($alert->textContent));
+						throw new \Exception($alert_message, 1);
+						break; // Get first only
+					}
+
 					// First segment
 					$arr_p = [];
 					$ps = $xpath->query('//p[@class="mb-1"]');
@@ -239,7 +249,7 @@ class GudangVoucher extends Requestor implements VendorInterface
 									"fee": 1500,
 									"pay_code": "500501010100479340"
 								}],
-								"qris_payment_url": "https:\/\/www.gudangvoucher.com\/merchant\/cetak.php?type=3&number=MDAwMjAxMDEwMjEyMjY3MzAwMjFDT00uR1VEQU5HVk9VQ0hFUi5XV1cwMTE4OTM2MDA5MTYzMDAyNDc3NTkwMDIxNUdWMjIwMDAwMjQ3NzU5MDAzMDNVQkU1MTQ1MDAxNUlELk9SLkdQTlFSLldXVzAyMTVJRDIwMjEwNjI5ODYwNDEwMzAzVUJFNTIwNDU5NDU1MzAzMzYwNTQwNjk4NTEwMDU4MDJJRDU5MDRWUEFZNjAxNUpBS0FSVEEgU0VMQVRBTjYxMDUxMjI0MDYyMzMwMTA4MDA0NzkzNDAwNTE3MjEwMjE3MTU1MTQyZldESDQ2MzA0RUM4RQ==",
+								"qris_url": "https:\/\/www.gudangvoucher.com\/merchant\/cetak.php?type=3&number=MDAwMjAxMDEwMjEyMjY3MzAwMjFDT00uR1VEQU5HVk9VQ0hFUi5XV1cwMTE4OTM2MDA5MTYzMDAyNDc3NTkwMDIxNUdWMjIwMDAwMjQ3NzU5MDAzMDNVQkU1MTQ1MDAxNUlELk9SLkdQTlFSLldXVzAyMTVJRDIwMjEwNjI5ODYwNDEwMzAzVUJFNTIwNDU5NDU1MzAzMzYwNTQwNjk4NTEwMDU4MDJJRDU5MDRWUEFZNjAxNUpBS0FSVEEgU0VMQVRBTjYxMDUxMjI0MDYyMzMwMTA4MDA0NzkzNDAwNTE3MjEwMjE3MTU1MTQyZldESDQ2MzA0RUM4RQ==",
 								"gv_wallet_payment_url": "https:\/\/www.gudangvoucher.com\/payment.php?merchantid=878&amount=985100&product=Apple&custom=0013551902&email=lorem@ipsum.com&custom_redirect=https:\/\/a.g-dev.io\/secure\/callback\/demo",
 								"payment_url": "https:\/\/www.gudangvoucher.com\/pg\/v3\/payment.php?merchantid=878&amount=985100&product=Apple&custom=0013551902&email=lorem@ipsum.com&signature=836cc67c193cf9269a66daffc62cd332&custom_redirect=https%3A%2F%2Fa.g-dev.io%2Fsecure%2Fcallback%2Fdemo",
 								"expired_at": "2021-02-17 19:51:42"
@@ -254,7 +264,7 @@ class GudangVoucher extends Requestor implements VendorInterface
 										//
 										'all_pay_codes' => $arr_bank,
 										//
-										'qris_payment_url' => $qris_url ?? '',
+										'qris_url' => $qris_url ?? '',
 										'gv_wallet_payment_url' => $gv_payment_url,
 										'payment_url' => $payment_url,
 										'expired_at' => date('Y-m-d H:i:s', strtotime($expired_at)),
