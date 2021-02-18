@@ -42,6 +42,71 @@ class GudangVoucher extends Requestor implements VendorInterface
 
 	public function SecurePayment(\Growinc\Payment\Transaction $transaction)
 	{
+
+
+/*
+$content = '
+<div id="collapseAlfa" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingAlfa">
+	<div class="panel-body">
+		<div class="card-body">
+			<div class="row justify-content-between">
+				<div class="col-auto col-md-12">
+					<div class="media flex-column flex-sm-row">
+						<div class="media-body my-auto">
+							<div class="row" style="margin-top: -25px;">
+								<div class="col-auto">
+									<small class="text-muted">Nomor Tagihan Alfamart</small>
+									<p class="mb-0">
+										<b>0047-9378</b>
+										<button title="" class="btn btn-info btn-sm btn-tooltip" type="button" id="copy1" data-clipboard-text="00479378" data-original-title="Copy">
+											<i class="fa fa-files-o" aria-hidden="true"></i>
+										</button>
+									</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div> <br />
+				<div class="col-auto col-md-12">
+					<small class="text-muted">Fee sebesar 2.500</small>
+					<p class="mb-0"><b>Yang dibayar sebesar 12.500</b> &nbsp;
+						<button title="" class="btn btn-info btn-sm btn-tooltip" type="button" id="copy1" data-clipboard-text="12500" data-original-title="Copy">
+							<i class="fa fa-files-o" aria-hidden="true"></i>
+						</button>
+					</p>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>';
+*/
+
+/*
+					// HTML Dom
+					$doc = new \DOMDocument();
+					libxml_use_internal_errors(true);
+					$doc->loadHTML($content);
+					libxml_clear_errors();
+					$xpath = new \DOMXpath($doc);
+
+					// Get Alfamart
+					$arr_alfa = [];
+					$divs = $xpath->query('//div[@id="collapseAlfa"]');
+print_r($divs);
+					foreach($divs as $div) {
+						$arr_alfa = [
+								'no_tagihan' => trim(strip_tags($div->textContent)),
+								'no_tagihan' => '',
+								'no_tagihan' => '',
+							];
+						break; // Get first only
+					}
+
+print_r($arr_alfa);
+
+exit();
+*/
+
 		try {
 			$this->transaction = $transaction;
 			//
@@ -101,10 +166,28 @@ class GudangVoucher extends Requestor implements VendorInterface
 					$alert_message = '';
 					$alerts = $xpath->query('//div[@class="col-md-12"]/div/span[@class="text-muted"]');
 					foreach($alerts as $alert) {
-						$alert_message = trim(strip_tags($alert->textContent));
+						// $alert_message = trim(strip_tags($alert->textContent));
+						$alert_message = trim($alert->textContent);
 						throw new \Exception($alert_message, 1);
 						break; // Get first only
 					}
+
+/*
+					// Get Alfamart
+					$arr_alfa = [];
+					$divs = $xpath->query('//div[@id="collapseAlfa"]/span[@class="text-muted"]');
+					print_r($divs);
+					foreach($divs as $div) {
+						$arr_alfa = [
+								'no_tagihan' => trim(strip_tags($div->textContent)),
+								'no_tagihan' => '',
+								'no_tagihan' => '',
+							];
+						break; // Get first only
+					}
+print_r($arr_alfa);
+exit();
+*/
 
 					// First segment
 					$arr_p = [];
