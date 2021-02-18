@@ -44,6 +44,7 @@ $transaction->setDescription('Pembelian Elektronik');
 // $transaction->setPaymentMethod('bank_transfer,cimb_niaga');
 // $transaction->setPaymentMethod('bank_transfer,atm_bersama');
 // $transaction->setPaymentMethod('qris');
+// $transaction->setPaymentMethod('cstore,alfamart');
 $transaction->setPaymentMethod(''); // use blank to show all option at once
 
 $vendor = new \Growinc\Payment\Vendors\GudangVoucher($init);
@@ -55,14 +56,28 @@ try {
 	print_r($response);
 	// Success
 	/*  QRIS example
-		{
+	{
 		"status": "000",
 		"data": {
-			"order_id": "0013551743",
-			"amount": 967900,
-			"qris_url": "https:\/\/www.gudangvoucher.com\/merchant\/cetak.php?type=3&number=MDAwMjAxMDEwMjEyMjY3MzAwMjFDT00uR1VEQU5HVk9VQ0hFUi5XV1cwMTE4OTM2MDA5MTYzMDAyNDc3NTkwMDIxNUdWMjIwMDAwMjQ3NzU5MDAzMDNVQkU1MTQ1MDAxNUlELk9SLkdQTlFSLldXVzAyMTVJRDIwMjEwNjI5ODYwNDEwMzAzVUJFNTIwNDU5NDU1MzAzMzYwNTQwNjk2NzkwMDU4MDJJRDU5MDRWUEFZNjAxNUpBS0FSVEEgU0VMQVRBTjYxMDUxMjI0MDYyMzMwMTA4MDA0NzkzMzYwNTE3MjEwMjE3MTU0OTAya2o2R1k2MzA0QzMyOQ==",
-			"payment_url": "https:\/\/www.gudangvoucher.com\/pg\/v3\/payment.php?merchantid=878&amount=967900&product=Apple&custom=0013551743&email=lorem@ipsum.com&signature=5d91913ed502a88aee523e59e60f5d8f&custom_redirect=https%3A%2F%2Fa.g-dev.io%2Fsecure%2Fcallback%2Fdemo",
-			"expired_at": "2021-02-17 19:49:02"
+			"order_id": "0013619238",
+			"qris_url": "https:\/\/www.gudangvoucher.com\/merchant\/cetak.php?type=3&number=MDAwMjAxMDEwMjEyMjY3MzAwMjFDT00uR1VEQU5HVk9VQ0hFUi5XV1cwMTE4OTM2MDA5MTYzMDAyNDc3NTkwMDIxNUdWMjIwMDAwMjQ3NzU5MDAzMDNVQkU1MTQ1MDAxNUlELk9SLkdQTlFSLldXVzAyMTVJRDIwMjEwNjI5ODYwNDEwMzAzVUJFNTIwNDU5NDU1MzAzMzYwNTQwNTEwMDAwNTgwMklENTkwNFZQQVk2MDE1SkFLQVJUQSBTRUxBVEFONjEwNTEyMjQwNjIzMzAxMDgwMDQ4MDEwMDA1MTcyMTAyMTgxMDMzNTdlV3RNZDYzMDQwRTlC",
+			"amount": 10000,
+			"payment_url": "https:\/\/www.gudangvoucher.com\/pg\/v3\/payment.php?merchantid=878&amount=10000&product=Apple&custom=0013619238&email=lorem@ipsum.com&signature=70cfd8b65d60dac322f4e99900f3ca9e&custom_redirect=https%3A%2F%2Fa.g-dev.io%2Fsecure%2Fcallback%2Fdemo",
+			"expired_at": "2021-02-18 14:33:57"
+		}
+	}
+	*/
+	/*  Alfamart example
+	{
+		"status": "000",
+		"data": {
+			"order_id": "0013619293",
+			"cstore": "alfamart",
+			"fee": 2500,
+			"amount": 12500,
+			"pay_code": "00480105",
+			"payment_url": "https:\/\/www.gudangvoucher.com\/pg\/v3\/payment.php?merchantid=878&amount=10000&product=Apple&custom=0013619293&email=lorem@ipsum.com&signature=6ddc1ecaf8cf93afc07649107b12d3d2&custom_redirect=https%3A%2F%2Fa.g-dev.io%2Fsecure%2Fcallback%2Fdemo",
+			"expired_at": "2021-02-18 14:34:52"
 		}
 	}
 	*/
@@ -70,13 +85,13 @@ try {
 	{
 		"status": "000",
 		"data": {
-			"order_id": "0013551800",
-			"amount": 818700,
-			"bank_code": "atm_bersama",
-			"fee": 1500,
-			"pay_code": "500501010100479338",
-			"payment_url": "https:\/\/www.gudangvoucher.com\/pg\/v3\/payment.php?merchantid=878&amount=817200&product=Apple&custom=0013551800&email=lorem@ipsum.com&signature=e4b895c6b7529374e457fcae4d109f6a&custom_redirect=https%3A%2F%2Fa.g-dev.io%2Fsecure%2Fcallback%2Fdemo",
-			"expired_at": "2021-02-17 19:50:01"
+			"order_id": "0013619123",
+			"bank_code": "cimb_niaga",
+			"fee": 1000,
+			"amount": 11000,
+			"pay_code": "3049010100480089",
+			"payment_url": "https:\/\/www.gudangvoucher.com\/pg\/v3\/payment.php?merchantid=878&amount=10000&product=Apple&custom=0013619123&email=lorem@ipsum.com&signature=d2bf279d8fffce30a365d9e64aa35203&custom_redirect=https%3A%2F%2Fa.g-dev.io%2Fsecure%2Fcallback%2Fdemo",
+			"expired_at": "2021-02-18 14:32:02"
 		}
 	}
 	*/
@@ -84,38 +99,44 @@ try {
 	{
 		"status": "000",
 		"data": {
-			"order_id": "0013551902",
-			"amount": 985100,
-			"all_pay_codes": [{
-				"amount": 989500,
+			"order_id": "0013619064",
+			"amount": 10000,
+			"bank_pay_codes": [{
 				"bank_code": "bca",
 				"fee": 4400,
-				"pay_code": "7700610100479340"
+				"amount": 14400,
+				"pay_code": "7700610100480083"
 			}, {
-				"amount": 986600,
 				"bank_code": "permata",
 				"fee": 1500,
-				"pay_code": "8992010100479340"
+				"amount": 11500,
+				"pay_code": "8992010100480083"
 			}, {
-				"amount": 987100,
 				"bank_code": "bni",
 				"fee": 2000,
-				"pay_code": "8558010100479340"
+				"amount": 12000,
+				"pay_code": "8558010100480083"
 			}, {
-				"amount": 986100,
 				"bank_code": "cimb_niaga",
 				"fee": 1000,
-				"pay_code": "3049010100479340"
+				"amount": 11000,
+				"pay_code": "3049010100480083"
 			}, {
-				"amount": 986600,
 				"bank_code": "atm_bersama",
 				"fee": 1500,
-				"pay_code": "500501010100479340"
+				"amount": 11500,
+				"pay_code": "500501010100480083"
 			}],
-			"qris_url": "https:\/\/www.gudangvoucher.com\/merchant\/cetak.php?type=3&number=MDAwMjAxMDEwMjEyMjY3MzAwMjFDT00uR1VEQU5HVk9VQ0hFUi5XV1cwMTE4OTM2MDA5MTYzMDAyNDc3NTkwMDIxNUdWMjIwMDAwMjQ3NzU5MDAzMDNVQkU1MTQ1MDAxNUlELk9SLkdQTlFSLldXVzAyMTVJRDIwMjEwNjI5ODYwNDEwMzAzVUJFNTIwNDU5NDU1MzAzMzYwNTQwNjk4NTEwMDU4MDJJRDU5MDRWUEFZNjAxNUpBS0FSVEEgU0VMQVRBTjYxMDUxMjI0MDYyMzMwMTA4MDA0NzkzNDAwNTE3MjEwMjE3MTU1MTQyZldESDQ2MzA0RUM4RQ==",
-			"gv_wallet_payment_url": "https:\/\/www.gudangvoucher.com\/payment.php?merchantid=878&amount=985100&product=Apple&custom=0013551902&email=lorem@ipsum.com&custom_redirect=https:\/\/a.g-dev.io\/secure\/callback\/demo",
-			"payment_url": "https:\/\/www.gudangvoucher.com\/pg\/v3\/payment.php?merchantid=878&amount=985100&product=Apple&custom=0013551902&email=lorem@ipsum.com&signature=836cc67c193cf9269a66daffc62cd332&custom_redirect=https%3A%2F%2Fa.g-dev.io%2Fsecure%2Fcallback%2Fdemo",
-			"expired_at": "2021-02-17 19:51:42"
+			"cstore_pay_codes": {
+				"cstore_code": "alfamart",
+				"fee": "4400",
+				"amount": "12500",
+				"pay_code": "00480083"
+			},
+			"qris_url": "https:\/\/www.gudangvoucher.com\/merchant\/cetak.php?type=3&number=MDAwMjAxMDEwMjEyMjY3MzAwMjFDT00uR1VEQU5HVk9VQ0hFUi5XV1cwMTE4OTM2MDA5MTYzMDAyNDc3NTkwMDIxNUdWMjIwMDAwMjQ3NzU5MDAzMDNVQkU1MTQ1MDAxNUlELk9SLkdQTlFSLldXVzAyMTVJRDIwMjEwNjI5ODYwNDEwMzAzVUJFNTIwNDU5NDU1MzAzMzYwNTQwNTEwMDAwNTgwMklENTkwNFZQQVk2MDE1SkFLQVJUQSBTRUxBVEFONjEwNTEyMjQwNjIzMzAxMDgwMDQ4MDA4MzA1MTcyMTAyMTgxMDMxMDMzaUxaVDYzMDRERDA1",
+			"gv_wallet_payment_url": "https:\/\/www.gudangvoucher.com\/payment.php?merchantid=878&amount=10000&product=Apple&custom=0013619064&email=lorem@ipsum.com&custom_redirect=https:\/\/a.g-dev.io\/secure\/callback\/demo",
+			"payment_url": "https:\/\/www.gudangvoucher.com\/pg\/v3\/payment.php?merchantid=878&amount=10000&product=Apple&custom=0013619064&email=lorem@ipsum.com&signature=7d9b584ee8e5498f9df9b03f38eda9ad&custom_redirect=https%3A%2F%2Fa.g-dev.io%2Fsecure%2Fcallback%2Fdemo",
+			"expired_at": "2021-02-18 14:31:03"
 		}
 	}
 	*/

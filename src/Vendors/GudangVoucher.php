@@ -42,71 +42,6 @@ class GudangVoucher extends Requestor implements VendorInterface
 
 	public function SecurePayment(\Growinc\Payment\Transaction $transaction)
 	{
-
-
-/*
-$content = '
-<div id="collapseAlfa" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingAlfa">
-	<div class="panel-body">
-		<div class="card-body">
-			<div class="row justify-content-between">
-				<div class="col-auto col-md-12">
-					<div class="media flex-column flex-sm-row">
-						<div class="media-body my-auto">
-							<div class="row" style="margin-top: -25px;">
-								<div class="col-auto">
-									<small class="text-muted">Nomor Tagihan Alfamart</small>
-									<p class="mb-0">
-										<b>0047-9378</b>
-										<button title="" class="btn btn-info btn-sm btn-tooltip" type="button" id="copy1" data-clipboard-text="00479378" data-original-title="Copy">
-											<i class="fa fa-files-o" aria-hidden="true"></i>
-										</button>
-									</p>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div> <br />
-				<div class="col-auto col-md-12">
-					<small class="text-muted">Fee sebesar 2.500</small>
-					<p class="mb-0"><b>Yang dibayar sebesar 12.500</b> &nbsp;
-						<button title="" class="btn btn-info btn-sm btn-tooltip" type="button" id="copy1" data-clipboard-text="12500" data-original-title="Copy">
-							<i class="fa fa-files-o" aria-hidden="true"></i>
-						</button>
-					</p>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>';
-*/
-
-/*
-					// HTML Dom
-					$doc = new \DOMDocument();
-					libxml_use_internal_errors(true);
-					$doc->loadHTML($content);
-					libxml_clear_errors();
-					$xpath = new \DOMXpath($doc);
-
-					// Get Alfamart
-					$arr_alfa = [];
-					$divs = $xpath->query('//div[@id="collapseAlfa"]');
-print_r($divs);
-					foreach($divs as $div) {
-						$arr_alfa = [
-								'no_tagihan' => trim(strip_tags($div->textContent)),
-								'no_tagihan' => '',
-								'no_tagihan' => '',
-							];
-						break; // Get first only
-					}
-
-print_r($arr_alfa);
-
-exit();
-*/
-
 		try {
 			$this->transaction = $transaction;
 			//
@@ -171,23 +106,6 @@ exit();
 						break; // Get first only
 					}
 
-/*
-					// Get Alfamart
-					$arr_alfa = [];
-					$divs = $xpath->query('//div[@id="collapseAlfa"]/span[@class="text-muted"]');
-					print_r($divs);
-					foreach($divs as $div) {
-						$arr_alfa = [
-								'no_tagihan' => trim(strip_tags($div->textContent)),
-								'no_tagihan' => '',
-								'no_tagihan' => '',
-							];
-						break; // Get first only
-					}
-print_r($arr_alfa);
-exit();
-*/
-
 					// First segment
 					$arr_p = [];
 					$ps = $xpath->query('//p[@class="mb-1"]');
@@ -196,12 +114,12 @@ exit();
 					}
 					if (count($arr_p)) {
 						$order_id = trim(explode(':', $arr_p[0])[1]);
-						$amount = str_replace('.', '',
+						$order_amount = str_replace('.', '',
 								trim(explode('Rp.',
 									$arr_p[1]
 								)[1])
 							);
-						$expired_at = trim(explode('sebelum', $arr_p[2])[1]);
+						$order_expired_at = trim(explode('sebelum', $arr_p[2])[1]);
 					}
 					// Second segment // Get GV payment URL
 					$as = $xpath->query('//div[@id="headingQR"]/h4/a/@href');
@@ -222,17 +140,17 @@ exit();
 						$bank_name = strtolower($bank_name);
 						if ($payment_method == 'bank_transfer') {
 							if ($bank_name == $payment_channel) {
-								$fee = trim(
+								$bank_fee = trim(
 									preg_replace("/[^0-9]/", "",
 										$xpath->query('./tr[1]/td[2]', $tables[$i])->item(0)->textContent
 									)
 								);
-								$pay_code = trim(
+								$bank_pay_code = trim(
 									preg_replace("/[^0-9]/", "",
 										$xpath->query('./tr[2]/td[1]', $tables[$i])->item(0)->textContent
 									)
 								);
-								$amount = trim(
+								$bank_amount = trim(
 									preg_replace("/[^0-9]/", "",
 											$xpath->query('./tr[2]/td[2]', $tables[$i])->item(0)->textContent
 									)
@@ -240,15 +158,15 @@ exit();
 							}
 						}
 						// if (empty($payment_method) && empty($payment_channel)) {
-							$arr_bank[$i]['amount'] = (float) trim(
-								preg_replace("/[^0-9]/", "",
-										$xpath->query('./tr[2]/td[2]', $tables[$i])->item(0)->textContent
-								)
-							);
 							$arr_bank[$i]['bank_code'] = $bank_name;
 							$arr_bank[$i]['fee'] = (float) trim(
 								preg_replace("/[^0-9]/", "",
 									$xpath->query('./tr[1]/td[2]', $tables[$i])->item(0)->textContent
+								)
+							);
+							$arr_bank[$i]['amount'] = (float) trim(
+								preg_replace("/[^0-9]/", "",
+										$xpath->query('./tr[2]/td[2]', $tables[$i])->item(0)->textContent
 								)
 							);
 							$arr_bank[$i]['pay_code'] = trim(
@@ -257,6 +175,34 @@ exit();
 								)
 							);
 						// }
+					}
+
+					// Get Alfamart
+					$arr_alfa = [];
+					$divs = $xpath->query('//div[@id="collapseAlfa"]');
+					for ($i=0; $i<count($divs); $i++) {
+						$alfa_pay_code = trim(
+							preg_replace("/[^0-9]/", "",
+								$xpath->query('//p[@class="mb-0"]/b', $divs[$i])->item(0)->textContent
+							)
+						);
+						$alfa_fee = trim(
+							preg_replace("/[^0-9]/", "",
+								$xpath->query('//div[@class="panel-body"]//div[@class="card-body"]//div[@class="row justify-content-between"]//div[@class="col-auto col-md-12"]//small[@class="text-muted"]', $divs[$i])->item(1)->textContent
+							)
+						);
+						$alfa_amount = trim(
+							preg_replace("/[^0-9]/", "",
+								$xpath->query('//p[@class="mb-0"]/b', $divs[$i])->item(1)->textContent
+							)
+						);
+						$arr_alfa = [
+								'cstore_code' => 'alfamart',
+								'fee' => (float) $alfa_fee,
+								'amount' => (float) $alfa_amount,
+								'pay_code' => $alfa_pay_code,
+							];
+						break; // Get first only
 					}
 
 					// QRIS navigation // Get QRIS URL path
@@ -303,38 +249,44 @@ exit();
 						{
 							"status": "000",
 							"data": {
-								"order_id": "0013551902",
-								"amount": 985100,
-								"all_pay_codes": [{
-									"amount": 989500,
+								"order_id": "0013619064",
+								"amount": 10000,
+								"bank_pay_codes": [{
 									"bank_code": "bca",
 									"fee": 4400,
-									"pay_code": "7700610100479340"
+									"amount": 14400,
+									"pay_code": "7700610100480083"
 								}, {
-									"amount": 986600,
 									"bank_code": "permata",
 									"fee": 1500,
-									"pay_code": "8992010100479340"
+									"amount": 11500,
+									"pay_code": "8992010100480083"
 								}, {
-									"amount": 987100,
 									"bank_code": "bni",
 									"fee": 2000,
-									"pay_code": "8558010100479340"
+									"amount": 12000,
+									"pay_code": "8558010100480083"
 								}, {
-									"amount": 986100,
 									"bank_code": "cimb_niaga",
 									"fee": 1000,
-									"pay_code": "3049010100479340"
+									"amount": 11000,
+									"pay_code": "3049010100480083"
 								}, {
-									"amount": 986600,
 									"bank_code": "atm_bersama",
 									"fee": 1500,
-									"pay_code": "500501010100479340"
+									"amount": 11500,
+									"pay_code": "500501010100480083"
 								}],
-								"qris_url": "https:\/\/www.gudangvoucher.com\/merchant\/cetak.php?type=3&number=MDAwMjAxMDEwMjEyMjY3MzAwMjFDT00uR1VEQU5HVk9VQ0hFUi5XV1cwMTE4OTM2MDA5MTYzMDAyNDc3NTkwMDIxNUdWMjIwMDAwMjQ3NzU5MDAzMDNVQkU1MTQ1MDAxNUlELk9SLkdQTlFSLldXVzAyMTVJRDIwMjEwNjI5ODYwNDEwMzAzVUJFNTIwNDU5NDU1MzAzMzYwNTQwNjk4NTEwMDU4MDJJRDU5MDRWUEFZNjAxNUpBS0FSVEEgU0VMQVRBTjYxMDUxMjI0MDYyMzMwMTA4MDA0NzkzNDAwNTE3MjEwMjE3MTU1MTQyZldESDQ2MzA0RUM4RQ==",
-								"gv_wallet_payment_url": "https:\/\/www.gudangvoucher.com\/payment.php?merchantid=878&amount=985100&product=Apple&custom=0013551902&email=lorem@ipsum.com&custom_redirect=https:\/\/a.g-dev.io\/secure\/callback\/demo",
-								"payment_url": "https:\/\/www.gudangvoucher.com\/pg\/v3\/payment.php?merchantid=878&amount=985100&product=Apple&custom=0013551902&email=lorem@ipsum.com&signature=836cc67c193cf9269a66daffc62cd332&custom_redirect=https%3A%2F%2Fa.g-dev.io%2Fsecure%2Fcallback%2Fdemo",
-								"expired_at": "2021-02-17 19:51:42"
+								"cstore_pay_codes": {
+									"cstore_code": "alfamart",
+									"fee": 2500,
+									"amount": 12500,
+									"pay_code": "00480083"
+								},
+								"qris_url": "https:\/\/www.gudangvoucher.com\/merchant\/cetak.php?type=3&number=MDAwMjAxMDEwMjEyMjY3MzAwMjFDT00uR1VEQU5HVk9VQ0hFUi5XV1cwMTE4OTM2MDA5MTYzMDAyNDc3NTkwMDIxNUdWMjIwMDAwMjQ3NzU5MDAzMDNVQkU1MTQ1MDAxNUlELk9SLkdQTlFSLldXVzAyMTVJRDIwMjEwNjI5ODYwNDEwMzAzVUJFNTIwNDU5NDU1MzAzMzYwNTQwNTEwMDAwNTgwMklENTkwNFZQQVk2MDE1SkFLQVJUQSBTRUxBVEFONjEwNTEyMjQwNjIzMzAxMDgwMDQ4MDA4MzA1MTcyMTAyMTgxMDMxMDMzaUxaVDYzMDRERDA1",
+								"gv_wallet_payment_url": "https:\/\/www.gudangvoucher.com\/payment.php?merchantid=878&amount=10000&product=Apple&custom=0013619064&email=lorem@ipsum.com&custom_redirect=https:\/\/a.g-dev.io\/secure\/callback\/demo",
+								"payment_url": "https:\/\/www.gudangvoucher.com\/pg\/v3\/payment.php?merchantid=878&amount=10000&product=Apple&custom=0013619064&email=lorem@ipsum.com&signature=7d9b584ee8e5498f9df9b03f38eda9ad&custom_redirect=https%3A%2F%2Fa.g-dev.io%2Fsecure%2Fcallback%2Fdemo",
+								"expired_at": "2021-02-18 14:31:03"
 							}
 						}
 						*/
@@ -342,31 +294,30 @@ exit();
 								'status' => '000',
 								'data' => (array) [
 										'order_id' => $order_id,
-										'amount' => (float) $amount,
+										'amount' => (float) $order_amount,
 										//
-										'all_pay_codes' => $arr_bank,
+										'bank_pay_codes' => $arr_bank,
+										'cstore_pay_codes' => $arr_alfa,
 										//
 										'qris_url' => $qris_url ?? '',
-										'gv_wallet_payment_url' => $gv_payment_url,
-										'payment_url' => $payment_url,
-										'expired_at' => date('Y-m-d H:i:s', strtotime($expired_at)),
+										'gv_wallet_payment_url' => $gv_payment_url ?? '',
+										'payment_url' => $payment_url ?? '',
+										'expired_at' => date('Y-m-d H:i:s', strtotime($order_expired_at)),
 									],
 							];
 					} else {
 						// Only filtered channel
-						if ($payment_method == 'qris'
-							|| $payment_channel == 'qris'
-						) {
+						if ($payment_method == 'qris' || $payment_channel == 'qris') {
 							// Success
 							/*  QRIS example
-								{
+							{
 								"status": "000",
 								"data": {
-									"order_id": "0013551743",
-									"amount": 967900,
-									"qris_url": "https:\/\/www.gudangvoucher.com\/merchant\/cetak.php?type=3&number=MDAwMjAxMDEwMjEyMjY3MzAwMjFDT00uR1VEQU5HVk9VQ0hFUi5XV1cwMTE4OTM2MDA5MTYzMDAyNDc3NTkwMDIxNUdWMjIwMDAwMjQ3NzU5MDAzMDNVQkU1MTQ1MDAxNUlELk9SLkdQTlFSLldXVzAyMTVJRDIwMjEwNjI5ODYwNDEwMzAzVUJFNTIwNDU5NDU1MzAzMzYwNTQwNjk2NzkwMDU4MDJJRDU5MDRWUEFZNjAxNUpBS0FSVEEgU0VMQVRBTjYxMDUxMjI0MDYyMzMwMTA4MDA0NzkzMzYwNTE3MjEwMjE3MTU0OTAya2o2R1k2MzA0QzMyOQ==",
-									"payment_url": "https:\/\/www.gudangvoucher.com\/pg\/v3\/payment.php?merchantid=878&amount=967900&product=Apple&custom=0013551743&email=lorem@ipsum.com&signature=5d91913ed502a88aee523e59e60f5d8f&custom_redirect=https%3A%2F%2Fa.g-dev.io%2Fsecure%2Fcallback%2Fdemo",
-									"expired_at": "2021-02-17 19:49:02"
+									"order_id": "0013619238",
+									"qris_url": "https:\/\/www.gudangvoucher.com\/merchant\/cetak.php?type=3&number=MDAwMjAxMDEwMjEyMjY3MzAwMjFDT00uR1VEQU5HVk9VQ0hFUi5XV1cwMTE4OTM2MDA5MTYzMDAyNDc3NTkwMDIxNUdWMjIwMDAwMjQ3NzU5MDAzMDNVQkU1MTQ1MDAxNUlELk9SLkdQTlFSLldXVzAyMTVJRDIwMjEwNjI5ODYwNDEwMzAzVUJFNTIwNDU5NDU1MzAzMzYwNTQwNTEwMDAwNTgwMklENTkwNFZQQVk2MDE1SkFLQVJUQSBTRUxBVEFONjEwNTEyMjQwNjIzMzAxMDgwMDQ4MDEwMDA1MTcyMTAyMTgxMDMzNTdlV3RNZDYzMDQwRTlC",
+									"amount": 10000,
+									"payment_url": "https:\/\/www.gudangvoucher.com\/pg\/v3\/payment.php?merchantid=878&amount=10000&product=Apple&custom=0013619238&email=lorem@ipsum.com&signature=70cfd8b65d60dac322f4e99900f3ca9e&custom_redirect=https%3A%2F%2Fa.g-dev.io%2Fsecure%2Fcallback%2Fdemo",
+									"expired_at": "2021-02-18 14:33:57"
 								}
 							}
 							*/
@@ -374,15 +325,42 @@ exit();
 									'status' => '000',
 									'data' => (array) [
 											'order_id' => $order_id,
-											'amount' => (float) $amount,
 											//
 											'qris_url' => $qris_url,
+											'amount' => (float) $order_amount,
 											//
-											// 'all_pay_codes' => $arr_bank,
-											//
-											// 'gv_wallet_payment_url' => $gv_payment_url,
 											'payment_url' => $payment_url,
-											'expired_at' => date('Y-m-d H:i:s', strtotime($expired_at)),
+											'expired_at' => date('Y-m-d H:i:s', strtotime($order_expired_at)),
+										],
+								];
+						} elseif ($payment_method == 'cstore' && $payment_channel == 'alfamart') {
+							// Success
+							/*  Alfamart example
+							{
+								"status": "000",
+								"data": {
+									"order_id": "0013619293",
+									"cstore": "alfamart",
+									"fee": 2500,
+									"amount": 12500,
+									"pay_code": "00480105",
+									"payment_url": "https:\/\/www.gudangvoucher.com\/pg\/v3\/payment.php?merchantid=878&amount=10000&product=Apple&custom=0013619293&email=lorem@ipsum.com&signature=6ddc1ecaf8cf93afc07649107b12d3d2&custom_redirect=https%3A%2F%2Fa.g-dev.io%2Fsecure%2Fcallback%2Fdemo",
+									"expired_at": "2021-02-18 14:34:52"
+								}
+							}
+							*/
+							$res = [
+									'status' => '000',
+									'data' => (array) [
+											'order_id' => $order_id,
+											//
+											'cstore' => $payment_channel,
+											'fee' => (float) $arr_alfa['fee'],
+											'amount' => (float) $arr_alfa['amount'],
+											'pay_code' => $arr_alfa['pay_code'],
+											//
+											'payment_url' => $payment_url,
+											'expired_at' => date('Y-m-d H:i:s', strtotime($order_expired_at)),
 										],
 								];
 						} else {
@@ -391,13 +369,13 @@ exit();
 							{
 								"status": "000",
 								"data": {
-									"order_id": "0013551800",
-									"amount": 818700,
-									"bank_code": "atm_bersama",
-									"fee": 1500,
-									"pay_code": "500501010100479338",
-									"payment_url": "https:\/\/www.gudangvoucher.com\/pg\/v3\/payment.php?merchantid=878&amount=817200&product=Apple&custom=0013551800&email=lorem@ipsum.com&signature=e4b895c6b7529374e457fcae4d109f6a&custom_redirect=https%3A%2F%2Fa.g-dev.io%2Fsecure%2Fcallback%2Fdemo",
-									"expired_at": "2021-02-17 19:50:01"
+									"order_id": "0013619123",
+									"bank_code": "cimb_niaga",
+									"fee": 1000,
+									"amount": 11000,
+									"pay_code": "3049010100480089",
+									"payment_url": "https:\/\/www.gudangvoucher.com\/pg\/v3\/payment.php?merchantid=878&amount=10000&product=Apple&custom=0013619123&email=lorem@ipsum.com&signature=d2bf279d8fffce30a365d9e64aa35203&custom_redirect=https%3A%2F%2Fa.g-dev.io%2Fsecure%2Fcallback%2Fdemo",
+									"expired_at": "2021-02-18 14:32:02"
 								}
 							}
 							*/
@@ -405,17 +383,14 @@ exit();
 									'status' => '000',
 									'data' => (array) [
 											'order_id' => $order_id,
-											'amount' => (float) $amount,
 											//
 											'bank_code' => $payment_channel,
-											'fee' => (float) $fee,
-											'pay_code' => $pay_code,
+											'fee' => (float) $bank_fee,
+											'amount' => (float) $bank_amount,
+											'pay_code' => $bank_pay_code,
 											//
-											// 'all_pay_codes' => $arr_bank,
-											//
-											// 'gv_wallet_payment_url' => $gv_payment_url,
 											'payment_url' => $payment_url,
-											'expired_at' => date('Y-m-d H:i:s', strtotime($expired_at)),
+											'expired_at' => date('Y-m-d H:i:s', strtotime($order_expired_at)),
 										],
 								];
 						}
