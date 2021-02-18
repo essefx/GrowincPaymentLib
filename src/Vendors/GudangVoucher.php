@@ -166,10 +166,13 @@ exit();
 					$alert_message = '';
 					$alerts = $xpath->query('//div[@class="col-md-12"]/div/span[@class="text-muted"]');
 					foreach($alerts as $alert) {
+						print_r($alert);
+						/*
 						// $alert_message = trim(strip_tags($alert->textContent));
 						$alert_message = trim($alert->textContent);
 						throw new \Exception($alert_message, 1);
 						break; // Get first only
+						*/
 					}
 
 /*
