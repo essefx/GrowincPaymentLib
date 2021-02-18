@@ -23,7 +23,7 @@ $transaction->setCustomerPhone('088812345678');
 //
 $transaction->setItem('Apple');
 // $transaction->setAmount(rand(5000,10000) * 100);
-$transaction->setAmount(1000);
+$transaction->setAmount(10000);
 $transaction->setDescription('Pembelian Elektronik');
 //
 // Payment Method Supported:
