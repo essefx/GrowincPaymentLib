@@ -6,17 +6,22 @@ date_default_timezone_set('Asia/Jakarta');
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-$private_key_1 = '000f1f4cb5118390cc2ec79af671d617';
-$private_key_2 = '19c6f7a74281b16c2e70ba485dcf1750';
+// $private_key_1 = '000f1f4cb5118390cc2ec79af671d617';
+// $private_key_2 = '19c6f7a74281b16c2e70ba485dcf1750';
+// $merchant_key = 'a85b54a715b31119a654928c400c8bb8';
+$private_key_1 = '49f39e2d576fb76a041c2c0aa5423cc9';
+$private_key_2 = '4dd070051527f2ec185c1df3b97a42ca';
+$merchant_key = '1666cc26bcbcdb9c371a00d6c1dc1c56';
+
 $init = new \Growinc\Payment\Init(
 		$private_key_1,
 		$private_key_2
 	);
 
-$merchant_key = 'a85b54a715b31119a654928c400c8bb8';
 $init->setMerchantKey($merchant_key);
 
-$init->setPaymentURL('https://secure-payment.winpay.id');
+$init->setPaymentURL('https://secure-payment.winpay.id'); // Production URL
+// $init->setPaymentURL('https://sandbox-payment.winpay.id'); // Development URL
 //
 $init->setCallbackURL('https://a.g-dev.io/secure/callback/demo');
 $init->setReturnURL('https://a.g-dev.io/secure/callback/demo');
@@ -76,11 +81,11 @@ QR Code Statis bersifat open nominal, customer dapat input nominal berapapun
 // $transaction->setPaymentMethod('redirect,BCAKP');
 // $transaction->setPaymentMethod('redirect,CIMBC');
 // $transaction->setPaymentMethod('redirect,BTNONLINE');
-$transaction->setPaymentMethod('cstore,ALFAMART');
+// $transaction->setPaymentMethod('cstore,ALFAMART');
 // $transaction->setPaymentMethod('cstore,FASTPAY');
 // $transaction->setPaymentMethod('bt,MANDIRIPC');
 // $transaction->setPaymentMethod('bt,BCAPC');
-// $transaction->setPaymentMethod('va,BNIVA');
+$transaction->setPaymentMethod('va,BNIVA');
 // $transaction->setPaymentMethod('va,BRIVA');
 // $transaction->setPaymentMethod('va,PERMATAVA');
 // $transaction->setPaymentMethod('va,MANDIRIVA');
@@ -94,6 +99,30 @@ try {
 	print_r($response);
 	// Success
 	/*
+	// VA
+	{
+		"status": "000",
+		"data": {
+			"rc": "00",
+			"rd": "Transaksi Anda sedang dalam proses, Silakan transfer ke akun virtual BNI Anda dengan no akun : 9887888450065292, sebesar Rp. 961.300-. (Batas waktu max : 2021-03-17 19:45)   Terimakasih",
+			"request_time": "2021-03-17 17:45:52.290912",
+			"data": {
+				"reff_id": "311635533",
+				"payment_code": "9887888450065292",
+				"order_id": "0015977951",
+				"request_key": "",
+				"url_listener": "https:\/\/a.g-dev.io\/secure\/callback\/demo",
+				"payment_method": "BNI VIRTUAL ACCOUNT",
+				"payment_method_code": "BNIVA",
+				"fee_admin": 0,
+				"total_amount": 961300,
+				"spi_status_url": "https:\/\/secure-payment.winpay.id\/guidance\/index\/bniva?payid=ddbcf886fd339eb4a5727fc874fa953f"
+			},
+			"response_time": "2021-03-17 17:45:54.947816"
+		}
+	}
+
+	// Alfamart
 	{
 		"status": "000",
 		"data": {
