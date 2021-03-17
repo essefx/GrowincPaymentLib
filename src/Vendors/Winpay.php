@@ -372,6 +372,160 @@ class Winpay extends Requestor implements VendorInterface
 		return $result ?? [];
 	}
 
+	public function InquiryPaymentChannel()
+	{
+		try {
+			// Go
+			$this->request['time'] = time();
+			$this->request['url'] = $this->init->getRequestURL();
+			$this->request['headers'] = [
+					'Content-Type' => 'application/x-www-form-urlencoded',
+					'Authorization' => 'Basic ' . base64_encode(
+							$this->init->getMID() . ':' . $this->init->getSecret()
+						),
+				];
+			$this->request['data'] = [];
+			$this->request['option'] = [
+					'as_json' => false,
+				];
+			$post = $this->DoRequest('POST', $this->request);
+			$response = (array) $post['response'];
+			extract($response);
+			if (!empty($status_code) && $status_code === 200) {
+				$content = (object) json_decode($content);
+				if (
+					!empty($content->rc)
+					&& $content->rc == '00'
+				) {
+					// Success
+					/*
+					{
+						"rc": "00",
+						"rd": "Success",
+						"request_time": "2021-02-25 15:32:07.235263",
+						"data": {
+							"token": "000f1f4cb5118390cc2ec79af671d61719c6f7a74281b16c2e70ba485dcf1750",
+							"products": {
+								"clickpay": [{
+									"payment_code": "BCAKP",
+									"payment_name": "BCA Klik Pay",
+									"payment_description": "Bayar dengan BCA Klik Pay",
+									"payment_logo": "https:\/\/secure-payment.winpay.id\/img\/spi-bca-klikpay.png",
+									"payment_url": "https:\/\/secure-payment.winpay.id\/api\/BCAKP",
+									"payment_url_v2": "https:\/\/secure-payment.winpay.id\/apiv2\/BCAKP",
+									"is_direct": false
+								}, {
+									"payment_code": "CIMBC",
+									"payment_name": "CIMB Clicks",
+									"payment_description": "Bayar dengan CIMB Clicks",
+									"payment_logo": "https:\/\/secure-payment.speedcash.co.id\/img\/spi-cimb-clicks.png",
+									"payment_url": "https:\/\/secure-payment.winpay.id\/api\/CIMBC",
+									"payment_url_v2": "https:\/\/secure-payment.winpay.id\/apiv2\/CIMBC",
+									"is_direct": false
+								}, {
+									"payment_code": "BTNONLINE",
+									"payment_name": "Debit Online BTN",
+									"payment_description": "Bayar dengan Debit Online BTN",
+									"payment_logo": "https:\/\/secure-payment.plasamall.com\/img\/spi-btnonline.png",
+									"payment_url": "https:\/\/secure-payment.winpay.id\/api\/BTNONLINE",
+									"payment_url_v2": "https:\/\/secure-payment.winpay.id\/apiv2\/BTNONLINE",
+									"is_direct": false
+								}],
+								"modern store": [{
+									"payment_code": "ALFAMART",
+									"payment_name": "Alfamart",
+									"payment_description": "Bayar di gerai Alfamart",
+									"payment_logo": "https:\/\/secure-payment.winpay.id\/img\/spi-alfamart.png",
+									"payment_url": "https:\/\/secure-payment.winpay.id\/api\/ALFAMART",
+									"payment_url_v2": "https:\/\/secure-payment.winpay.id\/apiv2\/ALFAMART",
+									"is_direct": true
+								}, {
+									"payment_code": "FASTPAY",
+									"payment_name": "Fastpay",
+									"payment_description": "Bayar di Outlet Fastpay",
+									"payment_logo": "https:\/\/secure-payment.winpay.id\/img\/spi-fastpay.png",
+									"payment_url": "https:\/\/secure-payment.winpay.id\/api\/FASTPAY",
+									"payment_url_v2": "https:\/\/secure-payment.winpay.id\/apiv2\/FASTPAY",
+									"is_direct": true
+								}],
+								"bank transfer": [{
+									"payment_code": "MANDIRIPC",
+									"payment_name": "Mandiri Pay Code",
+									"payment_description": "Bayar dengan Mandiri Payment Code",
+									"payment_logo": "https:\/\/secure-payment.winpay.id\/img\/spi-mandiri.png",
+									"payment_url": "https:\/\/secure-payment.winpay.id\/api\/MANDIRIPC",
+									"payment_url_v2": "https:\/\/secure-payment.winpay.id\/apiv2\/MANDIRIPC",
+									"is_direct": true
+								}, {
+									"payment_code": "BCAPC",
+									"payment_name": "ATM BCA",
+									"payment_description": "Bayar di ATM BCA",
+									"payment_logo": "https:\/\/secure-payment.winpay.id\/img\/spi-atm-bca.png",
+									"payment_url": "https:\/\/secure-payment.winpay.id\/api\/BCAPC",
+									"payment_url_v2": "https:\/\/secure-payment.winpay.id\/apiv2\/BCAPC",
+									"is_direct": true
+								}],
+								"virtual account": [{
+									"payment_code": "BNIVA",
+									"payment_name": "BNI VIRTUAL ACCOUNT",
+									"payment_description": "Bayar dengan BNI VIRTUAL ACCOUNT",
+									"payment_logo": "https:\/\/secure-payment.winpay.id\/img\/spi-bni-va.png",
+									"payment_url": "https:\/\/secure-payment.winpay.id\/api\/BNIVA",
+									"payment_url_v2": "https:\/\/secure-payment.winpay.id\/apiv2\/BNIVA",
+									"is_direct": true
+								}, {
+									"payment_code": "BRIVA",
+									"payment_name": "BRI VIRTUAL ACCOUNT",
+									"payment_description": "Bayar dengan BRI VIRTUAL ACCOUNT",
+									"payment_logo": "https:\/\/secure-payment.winpay.id\/img\/spi-bri-va.png",
+									"payment_url": "https:\/\/secure-payment.winpay.id\/api\/BRIVA",
+									"payment_url_v2": "https:\/\/secure-payment.winpay.id\/apiv2\/BRIVA",
+									"is_direct": true
+								}, {
+									"payment_code": "PERMATAVA",
+									"payment_name": "PERMATA VIRTUAL ACCOUNT",
+									"payment_description": "Bayar dengan PERMATA VIRTUAL ACCOUNT",
+									"payment_logo": "https:\/\/secure-payment.winpay.id\/img\/spi-permata-va.png",
+									"payment_url": "https:\/\/secure-payment.winpay.id\/api\/PERMATAVA",
+									"payment_url_v2": "https:\/\/secure-payment.winpay.id\/apiv2\/PERMATAVA",
+									"is_direct": true
+								}, {
+									"payment_code": "MANDIRIVA",
+									"payment_name": "MANDIRI VIRTUAL ACCOUNT",
+									"payment_description": "Bayar dengan MANDIRI VIRTUAL ACCOUNT",
+									"payment_logo": "https:\/\/secure-payment.winpay.id\/img\/spi-mandiriva.png",
+									"payment_url": "https:\/\/secure-payment.winpay.id\/api\/MANDIRIVA",
+									"payment_url_v2": "https:\/\/secure-payment.winpay.id\/apiv2\/MANDIRIVA",
+									"is_direct": true
+								}]
+							}
+						},
+						"response_time": "2021-02-25 15:32:07.444127"
+					}
+					*/
+					$res = [
+							'status' => '000',
+							'data' => (array) $content,
+						];
+					$result = [
+							'request' => (array) $this->request,
+							'response' => [
+									'content' => json_encode($res),
+									'status_code' => 200,
+								],
+						];
+				} else {
+					throw new \Exception($content->rd);
+				}
+			} else {
+				throw new \Exception($content);
+			}
+		} catch (\Throwable $e) {
+			throw new \Exception($this->ThrowError($e));
+		}
+		return $result ?? [];
+	}
+
 	public function Callback(object $request)
 	{
 		// Example incoming data
@@ -386,77 +540,70 @@ class Winpay extends Requestor implements VendorInterface
 		}
 		*/
 		try {
-			SELF::Validate($request, [
-					'no_reff',
-					'id_transaksi'
-				]);
-			$input = $request->no_reff . $request->id_transaksi;
-			$get = $this->init->getSecret() . $this->init->getMID();
-			// print_r($get);exit();
-			$transID = $request->id_transaksi;
-			// $spi_signature = strtoupper(sha1( $spi_token . '|' . $merchant_key . '|' . $spi_merchant_transaction_reff . '|' . $spi_amount . '|0|0' ));
-			// print_r($signature);exit();
-
-			if (strcmp($transID, $request->id_transaksi) === 0) {
-				$content = [
-					'status' => '000',
-					'data' => (array) $request,
-				];
-
-				/*
-				00	Success
-				01	Access Denied! not authorized
-				04	Data not found
-				05	General Error
-				99	Parameter not valid
-
-				incoming data
-				{
-				   "rc":"00",
-				   "rd":"Transaksi Anda sedang dalam proses, Segera lakukan pembayaran menggunakan Mandiri Va sejumlah IDR Rp. 64.000- sebelum jam 2020-12-14 13:48, Order ID Anda adalah 888981000000649. RAHASIA Dilarang menyebarkan ke ORANG Tdk DIKENAL   Terimakasih",
-				   "request_time":"2020-12-14 11:48:27.480316",
-				   "data":{
-				      "reff_id":"4940517",
-				      "payment_code":"888981000000649",
-				      "order_id":"0007921310",
-				      "request_key":"",
-				      "url_listener":"https:\/\/ibank.growinc.dev\/oanwef4851ashrb\/pg\/dk\/redapi_form",
-				      "payment_method":"MANDIRI VIRTUAL ACCOUNT",
-				      "payment_method_code":"MANDIRIVA",
-				      "fee_admin":0,
-				      "total_amount":64000,
-				      "spi_status_url":"https:\/\/sandbox-payment.winpay.id\/guidance\/index\/mandiriva?payid=175ed66633c7bbb150dd046543e940aa"
-				   },
-				   "response_time":"2020-12-14 11:48:28.666029"
+			if (!empty($request)) {
+				SELF::Validate($request, [
+						'id_transaksi',
+						'no_reff',
+						'response_code',
+					]);
+				switch ($request->response_code) {
+					case '00':
+						$response_message = 'Success';
+						break;
+					case '01':
+						$response_message = 'Access denied';
+						break;
+					case '04':
+						$response_message = 'Data not found ';
+						break;
+					case '05':
+						$response_message = 'General error';
+						break;
+					case '99':
+						$response_message = 'Parameter not valid';
+						break;
 				}
-
-			*/
-				if ($content['data']['response_code'] == 00) {
-					$status = 'success';
-				} else if ($content['data']['response_code'] == 01) {
-					$status = 'access denied !';
-				} else if ($content['data']['response_code'] == 04) {
-					$status = 'data not found ';
-				} else if ($content['data']['response_code'] == 05) {
-					$status = 'General Error ';
-				} else if ($content['data']['response_code'] == 99) {
-					$status = 'Parameter not valid';
+				//
+				if (
+					$request->response_code == '00'
+				) {
+					/*
+					incoming data
+					{
+						"rc":"00",
+						"rd":"Transaksi Anda sedang dalam proses, Segera lakukan pembayaran menggunakan Mandiri Va sejumlah IDR Rp. 64.000- sebelum jam 2020-12-14 13:48, Order ID Anda adalah 888981000000649. RAHASIA Dilarang menyebarkan ke ORANG Tdk DIKENAL   Terimakasih",
+						"request_time":"2020-12-14 11:48:27.480316",
+						"data":{
+							"reff_id":"4940517",
+							"payment_code":"888981000000649",
+							"order_id":"0007921310",
+							"request_key":"",
+							"url_listener":"https:\/\/ibank.growinc.dev\/oanwef4851ashrb\/pg\/dk\/redapi_form",
+							"payment_method":"MANDIRI VIRTUAL ACCOUNT",
+							"payment_method_code":"MANDIRIVA",
+							"fee_admin":0,
+							"total_amount":64000,
+							"spi_status_url":"https:\/\/sandbox-payment.winpay.id\/guidance\/index\/mandiriva?payid=175ed66633c7bbb150dd046543e940aa"
+						},
+						"response_time":"2020-12-14 11:48:28.666029"
+					}
+					*/
+					$res = [
+							'status' => '000',
+							'data' => (array) $request,
+						];
+					$result = [
+							'request' => (array) $request,
+							'response' => [
+									'content' => json_encode($res),
+									'status_code' => 200,
+								],
+						];
+				} else {
+					throw new \Exception('Callback check failed');
 				}
-
-				$result = [
-					'request' => (array) $request,
-					'response' => [
-						'content' => json_encode($content),
-						'status_code' => 200,
-						'bank_code' => $this->_getBankValue($content['data']['method_code']),
-						// 'amount' => $content['data']['Amount'],
-						'transaction_id' => $content['data']['id_transaksi'], // vendor transaction_id
-						'order_id' => $content['data']['no_reff'], // PGA order_id
-						'transaction_status' => $status,
-					],
-				];
 			} else {
-				throw new \Exception('Signature check failed');
+				throw new \Exception('Callback is empty');
 			}
 		} catch (\Throwable $e) {
 			throw new \Exception($this->ThrowError($e));
@@ -471,6 +618,60 @@ class Winpay extends Requestor implements VendorInterface
 
 	public function Inquiry(object $request)
 	{
+		try {
+			if (!empty($request)) {
+				SELF::Validate($request, [
+						'order_id',
+					]);
+				// Go
+				$this->request['time'] = time();
+				$this->request['url'] = $this->init->getRequestURL() .
+					'/check-wpi-transaction';
+				$this->request['headers'] = [
+						'Content-Type' => 'application/x-www-form-urlencoded',
+					];
+				$this->request['data'] = [
+						'id_transaction_inquiry' => $request->order_id
+					];
+				$this->request['option'] = [
+						'as_json' => false,
+					];
+				$post = $this->DoRequest('GET',  $this->request);
+				$response = (array) $post['response'];
+				extract($response);
+				if (!empty($status_code) && $status_code === 200) {
+					$content = (object) json_decode($content);
+					if (
+						!empty($content->response_code)
+						&& $content->response_code == '00'
+					) {
+						// Success
+						/*
+						*/
+						$res = [
+								'status' => '000',
+								'data' => (array) $content,
+							];
+						$result = [
+								'request' => (array) $this->request,
+								'response' => [
+										'content' => json_encode($res),
+										'status_code' => 200,
+									],
+							];
+					} else {
+						throw new \Exception($content->rd);
+					}
+				} else {
+					throw new \Exception($content);
+				}
+			} else {
+				throw new \Exception('Request is empty');
+			}
+		} catch (\Throwable $e) {
+			throw new \Exception($this->ThrowError($e));
+		}
+		return $result ?? [];
 	}
 
 	public function Cancel(object $request)

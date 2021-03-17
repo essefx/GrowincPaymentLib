@@ -11,8 +11,10 @@ User id: bot33660
 Password: p@ssw0rd
 */
 $init = new \Growinc\Payment\Init(
-		'VoGame Indonesia : 33660', // Name & MID
-		'bot33660 : p@ssw0rd' // UserID & Pass
+		// 'VoGame Indonesia : 33660', // Name & MID
+		// 'bot33660 : p@ssw0rd' // UserID & Pass
+		'PT Growinc Teknologi Indonesia : 33495', // Name & MID
+		'bot33495 : p@ssw0rd' // UserID & Pass
 	);
 
 $vendor = new \Growinc\Payment\Vendors\Faspay($init);

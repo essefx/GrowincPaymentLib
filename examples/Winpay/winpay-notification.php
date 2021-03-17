@@ -28,7 +28,6 @@ try {
 		  "method_code": "MANDIRIVA",
 		  "keterangan": "Transaksi anda berhasil"
 		}';
-
 		// QRIS
 		/*
 		$raw_data = '{
@@ -54,11 +53,9 @@ try {
 		*/
 	}
 	$request = (object) json_decode($raw_data);
-
 	$result = $vendor->Callback($request);
-
 	extract($result);
-	print_r($result);
+	print_r($response);
 } catch (\Throwable $e) {
 	echo 'Callback failed: ' . $e->getMessage();
 }

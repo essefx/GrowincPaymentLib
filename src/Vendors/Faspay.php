@@ -56,7 +56,7 @@ class Faspay extends Requestor implements VendorInterface
 			// Go
 			$this->request['form'] = $this->form;
 			$this->request['time'] = $this->transaction->getTime();
-			$this->request['url'] = $this->init->getPaymentURL();
+			$this->request['url'] = preg_replace('#/+#','/', $this->init->getPaymentURL() . '/cvr/300011/10');
 			$this->request['data'] = [
 					'request' => 'Post Data Transaction',
 					'merchant_id' => explode(' : ', $this->init->getMID())[1],
@@ -306,7 +306,7 @@ class Faspay extends Requestor implements VendorInterface
 		try {
 			// Go
 			$this->request['time'] = time();
-			$this->request['url'] = $this->init->getRequestURL();
+			$this->request['url'] = preg_replace('#/+#','/', $this->init->getRequestURL() . '/cvr/100001/10');
 			$this->request['signature'] =
 					explode(' : ', $this->init->getSecret())[0] .
 					explode(' : ', $this->init->getSecret())[1]
@@ -433,13 +433,18 @@ class Faspay extends Requestor implements VendorInterface
 		}
 		*/
 		try {
-			$signature = sha1(md5(
-					explode(' : ', $this->init->getSecret())[0] .
-					explode(' : ', $this->init->getSecret())[1] .
-					$request->bill_no .
-					$request->payment_status_code
-				));
 			if (!empty($request)) {
+				SELF::Validate($request, [
+						'bill_no',
+						'payment_status_code',
+						'signature',
+					]);
+				$signature = sha1(md5(
+						explode(' : ', $this->init->getSecret())[0] .
+						explode(' : ', $this->init->getSecret())[1] .
+						$request->bill_no .
+						$request->payment_status_code
+					));
 				if (strcmp($request->signature, $signature) === 0) {
 					$content = (array) $request;
 					// Amount reformat
@@ -486,76 +491,80 @@ class Faspay extends Requestor implements VendorInterface
 	public function Inquiry(object $request)
 	{
 		try {
-			SELF::Validate($request, [
-					'order_id',
-					'trx_id',
-				]);
-			// Go
-			$this->request['time'] = time();
-			$this->request['url'] = preg_replace('#/+#','/', $this->init->getRequestURL());
-			$this->request['data'] = [
-					'request' => 'Inquiry Status Payment',
-					'trx_id' => $request->trx_id,
-					'merchant_id' => explode(' : ', $this->init->getMID())[1],
-					'bill_no' => $request->order_id,
-					'signature' => sha1(md5(
-							explode(' : ', $this->init->getSecret())[0] .
-							explode(' : ', $this->init->getSecret())[1] .
-							$request->order_id
-						)),
-				];
-			$this->request['headers'] = [
-					'Accept' => 'application/json',
-					'Content-Type' => 'application/json',
-				];
-			$this->request['option'] = [
-					'as_json' => true,
-				];
-			$post = $this->DoRequest('POST', $this->request);
-			$response = (array) $post['response'];
-			extract($response);
-			if (!empty($status_code) && $status_code === 200) {
-				$content = (object) json_decode($content);
-				if (
-					!empty($content->response_code)
-					&& $content->response_code == '00'
-				) {
-					// Success
-					/*
-					{
-						"status": "000",
-						"data": {
-							"response": "Inquiry Status Payment",
-							"trx_id": "3366082500000034",
-							"merchant_id": "33660",
-							"merchant": "VoGame Indonesia",
-							"bill_no": "1612767691",
-							"payment_reff": "",
-							"payment_date": "",
-							"payment_status_desc": "Belum diproses",
-							"payment_status_code": "0",
-							"payment_total": "",
-							"response_code": "00",
-							"response_desc": "Sukses"
+			if (!empty($request)) {
+				SELF::Validate($request, [
+						'order_id',
+						'trx_id',
+					]);
+				// Go
+				$this->request['time'] = time();
+				$this->request['url'] = preg_replace('#/+#','/', $this->init->getRequestURL() . '/cvr/100004/10');
+				$this->request['data'] = [
+						'request' => 'Inquiry Status Payment',
+						'trx_id' => $request->trx_id,
+						'merchant_id' => explode(' : ', $this->init->getMID())[1],
+						'bill_no' => $request->order_id,
+						'signature' => sha1(md5(
+								explode(' : ', $this->init->getSecret())[0] .
+								explode(' : ', $this->init->getSecret())[1] .
+								$request->order_id
+							)),
+					];
+				$this->request['headers'] = [
+						'Accept' => 'application/json',
+						'Content-Type' => 'application/json',
+					];
+				$this->request['option'] = [
+						'as_json' => true,
+					];
+				$post = $this->DoRequest('POST', $this->request);
+				$response = (array) $post['response'];
+				extract($response);
+				if (!empty($status_code) && $status_code === 200) {
+					$content = (object) json_decode($content);
+					if (
+						!empty($content->response_code)
+						&& $content->response_code == '00'
+					) {
+						// Success
+						/*
+						{
+							"status": "000",
+							"data": {
+								"response": "Inquiry Status Payment",
+								"trx_id": "3366082500000034",
+								"merchant_id": "33660",
+								"merchant": "VoGame Indonesia",
+								"bill_no": "1612767691",
+								"payment_reff": "",
+								"payment_date": "",
+								"payment_status_desc": "Belum diproses",
+								"payment_status_code": "0",
+								"payment_total": "",
+								"response_code": "00",
+								"response_desc": "Sukses"
+							}
 						}
+						*/
+						$res = [
+								'status' => '000',
+								'data' => (array) $content,
+							];
+						$result = [
+								'request' => (array) $this->request,
+								'response' => [
+										'content' => json_encode($res),
+										'status_code' => 200,
+									],
+							];
+					} else {
+						throw new \Exception($content->response_error->response_desc);
 					}
-					*/
-					$res = [
-							'status' => '000',
-							'data' => (array) $content,
-						];
-					$result = [
-							'request' => (array) $this->request,
-							'response' => [
-									'content' => json_encode($res),
-									'status_code' => 200,
-								],
-						];
 				} else {
-					throw new \Exception($content->response_error->response_desc);
+					throw new \Exception($content);
 				}
 			} else {
-				throw new \Exception($content);
+				throw new \Exception('Request is empty');
 			}
 		} catch (\Throwable $e) {
 			throw new \Exception($this->ThrowError($e));
