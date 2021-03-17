@@ -19,9 +19,9 @@ $init = new \Growinc\Payment\Init(
 		'bot33495 : p@ssw0rd' // UserID & Pass
 	);
 // Dev URL
-$init->setPaymentURL('https://dev.faspay.co.id/cvr/300011/10'); // Post Data Transaction
+$init->setPaymentURL('https://dev.faspay.co.id/'); // Post Data Transaction
 // Live URL
-// $init->setPaymentURL('https://web.faspay.co.id/cvr/300011/10'); // Post Data Transaction
+// $init->setPaymentURL('https://web.faspay.co.id/'); // Post Data Transaction
 
 $order_id = time();
 $invoice_no = 'INV' . $order_id;
@@ -40,6 +40,11 @@ $transaction->setCustomerEmail('human@warrior.com');
 $transaction->setCustomerPhone('081812345678');
 $transaction->setCustomerAddress('Jakarta Selatan');
 $transaction->setCountrycode('ID');
+
+
+$transaction->setOrderID('202103172604591615966399');
+$transaction->setInvoiceNo('inv_202103172604591615966399');
+$transaction->setAmount(10400000);
 
 // Payment Method Supported:
 /*

@@ -19,9 +19,9 @@ $init = new \Growinc\Payment\Init(
 		'bot33495 : p@ssw0rd' // UserID & Pass
 	);
 // Dev URL
-$init->setRequestURL('https://dev.faspay.co.id/cvr/100001/10'); // Payment Channel Inquiry
+$init->setRequestURL('https://dev.faspay.co.id/'); // Payment Channel Inquiry
 // Live URL
-// $init->setRequestURL('https://web.faspay.co.id/cvr/100001/10'); // Payment Channel Inquiry
+// $init->setRequestURL('https://web.faspay.co.id/'); // Payment Channel Inquiry
 
 $vendor = new \Growinc\Payment\Vendors\Faspay($init);
 
