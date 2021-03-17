@@ -155,7 +155,7 @@ class Faspay extends Requestor implements VendorInterface
 							];
 					} else {
 						$res = [
-								'status' => $content->data->response_error->response_code,
+								'status' => $content->response_error->response_code,
 								'data' => (array) $content,
 							];
 					}
@@ -395,7 +395,7 @@ class Faspay extends Requestor implements VendorInterface
 				} else {
 					// throw new \Exception($content->response_error->response_desc);
 					$res = [
-							'status' => $content->data->response_error->response_code,
+							'status' => $content->response_error->response_code,
 							'data' => (array) $content,
 						];
 				}
@@ -557,7 +557,7 @@ class Faspay extends Requestor implements VendorInterface
 					} else {
 						// throw new \Exception($content->response_error->response_desc);
 						$res = [
-								'status' => $content->data->response_error->response_code,
+								'status' => $content->response_error->response_code,
 								'data' => (array) $content,
 							];
 					}
