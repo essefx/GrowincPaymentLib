@@ -56,7 +56,7 @@ class Faspay extends Requestor implements VendorInterface
 			// Go
 			$this->request['form'] = $this->form;
 			$this->request['time'] = $this->transaction->getTime();
-			$this->request['url'] = preg_replace('#/+#','/', $this->init->getPaymentURL() . '/cvr/300011/10');
+			$this->request['url'] = $this->init->getPaymentURL() . 'cvr/300011/10';
 			$this->request['data'] = [
 					'request' => 'Post Data Transaction',
 					'merchant_id' => explode(' : ', $this->init->getMID())[1],
@@ -306,7 +306,7 @@ class Faspay extends Requestor implements VendorInterface
 		try {
 			// Go
 			$this->request['time'] = time();
-			$this->request['url'] = preg_replace('#/+#','/', $this->init->getRequestURL() . '/cvr/100001/10');
+			$this->request['url'] = $this->init->getRequestURL() . 'cvr/100001/10';
 			$this->request['signature'] =
 					explode(' : ', $this->init->getSecret())[0] .
 					explode(' : ', $this->init->getSecret())[1]
@@ -502,7 +502,7 @@ class Faspay extends Requestor implements VendorInterface
 					]);
 				// Go
 				$this->request['time'] = time();
-				$this->request['url'] = preg_replace('#/+#','/', $this->init->getRequestURL() . '/cvr/100004/10');
+				$this->request['url'] = $this->init->getRequestURL() . 'cvr/100004/10';
 				$this->request['data'] = [
 						'request' => 'Inquiry Status Payment',
 						'trx_id' => $request->trx_id,
