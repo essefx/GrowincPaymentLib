@@ -155,7 +155,7 @@ class Faspay extends Requestor implements VendorInterface
 							];
 					} else {
 						$res = [
-								'status' => $content->response_code,
+								'status' => $content->data->response_error->response_code,
 								'data' => (array) $content,
 							];
 					}
@@ -392,16 +392,20 @@ class Faspay extends Requestor implements VendorInterface
 							'status' => '000',
 							'data' => (array) $content,
 						];
-					$result = [
-							'request' => (array) $this->request,
-							'response' => [
-									'content' => json_encode($res),
-									'status_code' => 200,
-								],
-						];
 				} else {
-					throw new \Exception($content->response_error->response_desc);
+					// throw new \Exception($content->response_error->response_desc);
+					$res = [
+							'status' => $content->data->response_error->response_code,
+							'data' => (array) $content,
+						];
 				}
+				$result = [
+						'request' => (array) $this->request,
+						'response' => [
+								'content' => json_encode($res),
+								'status_code' => 200,
+							],
+					];
 			} else {
 				throw new \Exception($content);
 			}
@@ -550,16 +554,20 @@ class Faspay extends Requestor implements VendorInterface
 								'status' => '000',
 								'data' => (array) $content,
 							];
-						$result = [
-								'request' => (array) $this->request,
-								'response' => [
-										'content' => json_encode($res),
-										'status_code' => 200,
-									],
-							];
 					} else {
-						throw new \Exception($content->response_error->response_desc);
+						// throw new \Exception($content->response_error->response_desc);
+						$res = [
+								'status' => $content->data->response_error->response_code,
+								'data' => (array) $content,
+							];
 					}
+					$result = [
+							'request' => (array) $this->request,
+							'response' => [
+									'content' => json_encode($res),
+									'status_code' => 200,
+								],
+						];
 				} else {
 					throw new \Exception($content);
 				}
