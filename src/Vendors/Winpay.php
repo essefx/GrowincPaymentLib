@@ -361,7 +361,7 @@ class Winpay extends Requestor implements VendorInterface
 							],
 						];
 				} else {
-					throw new \Exception($content->rd);
+					throw new \Exception($content->rd ?? $content);
 				}
 			} else {
 				throw new \Exception($content);
