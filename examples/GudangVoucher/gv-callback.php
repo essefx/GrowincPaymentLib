@@ -11,7 +11,7 @@ $init = new \Growinc\Payment\Init(
 
 $vendor = new \Growinc\Payment\Vendors\GudangVoucher($init);
 
-$callback_data = '{"data":"<trans_doc><merchant_id>70</merchant_id><merchant>Demo BMT</merchant><reference>GV35519829368965</reference><amount currency="IDR" nominal="150000"/><purpose>10 FaceBook Credit </purpose><custom>FBorder23May12-123456</custom><status>FAIL</status>"}';
+$callback_data = '{"data":"<trans_doc><merchant_id>878<\/merchant_id><merchant>VPAY<\/merchant><reference>8782021031818150440<\/reference><voucher_code>202103182554031616065898<\/voucher_code><amount currency=\"IDR\" nominal=\"14400\"\/><purpose>Tr Mr Dummy<\/purpose><custom>202103182554031616065898<\/custom><status>SUCCESS<\/status><\/trans_doc>"}';
 
 try {
 	$result = $vendor->Callback((object) json_decode($callback_data));

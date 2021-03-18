@@ -284,9 +284,9 @@ class Winpay extends Requestor implements VendorInterface
 			// Go
 			$this->request['form'] = $this->form;
 			$this->request['time'] = $this->transaction->getTime();
-			$this->request['url'] = preg_replace('#/+#','/',
-					$this->init->getPaymentURL() . '/apiv2/' . $payment_channel
-				);
+			$this->request['url'] = //preg_replace('#/+#','/',
+					$this->init->getPaymentURL() . '/apiv2/' . $payment_channel;
+				//);
 			$this->request['headers'] = [
 					'Content-Type' => 'application/x-www-form-urlencoded',
 				];

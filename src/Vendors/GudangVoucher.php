@@ -427,6 +427,13 @@ class GudangVoucher extends Requestor implements VendorInterface
 					);
 				if (count($xml->xpath('//trans_doc'))) {
 					$content = $xml->xpath('//trans_doc')[0];
+					$amount = $content->xpath('//amount')[0];
+					$amount = [
+							'currency' => (string) (isset($amount['currency']) ? $amount['currency'] : 'IDR'),
+							'nominal' => (float) (isset($amount['nominal']) ? $amount['nominal'] : 0),
+						];
+					$content = (array) $content;
+					$content = array_merge((array) $content, $amount);
 					// XML content
 					/*
 					SimpleXMLElement Object
@@ -453,7 +460,7 @@ class GudangVoucher extends Requestor implements VendorInterface
 					*/
 					$res = [
 							'status' => '000',
-							'data' => (array) $content,
+							'data' => $content,
 						];
 					$result = [
 							'request' => (array) $request,
