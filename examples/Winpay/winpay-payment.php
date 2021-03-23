@@ -85,11 +85,11 @@ QR Code Statis bersifat open nominal, customer dapat input nominal berapapun
 // $transaction->setPaymentMethod('cstore,FASTPAY');
 // $transaction->setPaymentMethod('bt,MANDIRIPC');
 // $transaction->setPaymentMethod('bt,BCAPC');
-$transaction->setPaymentMethod('va,BNIVA');
+// $transaction->setPaymentMethod('va,BNIVA');
 // $transaction->setPaymentMethod('va,BRIVA');
 // $transaction->setPaymentMethod('va,PERMATAVA');
 // $transaction->setPaymentMethod('va,MANDIRIVA');
-// $transaction->setPaymentMethod('qr,QRISPAY');
+$transaction->setPaymentMethod('qr,QRISPAY');
 
 $vendor = new \Growinc\Payment\Vendors\Winpay($init);
 

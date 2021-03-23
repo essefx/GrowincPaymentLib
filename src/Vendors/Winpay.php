@@ -174,9 +174,15 @@ class Winpay extends Requestor implements VendorInterface
 			$response = (array) $get['response'];
 			extract($response);
 			$response = json_decode($response['content']);
-			if (!empty($response->rc) && $response->rc === '00') {
+			if (
+				!empty($response->rc)
+				&& $response->rc === '00'
+			) {
 				$content = $response;
-				if (!empty($content->rc) && $content->rc == '00') {
+				if (
+					!empty($content->rc)
+					&& $content->rc == '00'
+				) {
 					$result = $content->data;
 				}
 			}
@@ -230,7 +236,7 @@ class Winpay extends Requestor implements VendorInterface
 				));
 			//
 			$token = $this->GetToken([]);
-			$this->form['token'] = $token;
+			$this->form['token'] = $token->token;
 			$data = [
 					'cms' => "WINPAY API",
 					'spi_callback' => $this->init->getCallbackURL(),
