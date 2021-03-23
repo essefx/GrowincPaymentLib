@@ -160,14 +160,15 @@ class Winpay extends Requestor implements VendorInterface
 	{
 		try {
 			$this->request['headers'] = [
-					'Content-Type' => 'application/json',
-					'Accept' => 'application/json',
-					'Authorization' => 'Basic ' . base64_encode($args['api_key1'] . ':' . $args['api_key2']),
+					'Content-Type' => 'application/x-www-form-urlencoded',
+					// 'Content-Type' => 'application/json',
+					// 'Accept' => 'application/json',
+					'Authorization' => 'Basic ' . base64_encode($this->init->getMID() . ':' . $this->init->getSecret()),
 				];
-			$this->request['url'] = $args['token_url'];
+			$this->request['url'] = $this->init->getPaymentURL() . '/token';
 			$this->request['data'] = [
-					'api_key1' => $args['api_key1'],
-					'api_key2' => $args['api_key2']
+					'api_key1' => $this->init->getMID(),
+					'api_key2' => $this->init->getSecret()
 				];
 			$get = $this->DoRequest('GET', $this->request);
 			$response = (array) $get['response'];
@@ -228,11 +229,7 @@ class Winpay extends Requestor implements VendorInterface
 					'|0|0'
 				));
 			//
-			$token = $this->GetToken([
-					'api_key1' => $this->init->getMID(),
-					'api_key2' => $this->init->getSecret(),
-					'token_url' => $this->init->getPaymentURL() . '/token',
-				]);
+			$token = $this->GetToken([]);
 			$this->form['token'] = $token;
 			$data = [
 					'cms' => "WINPAY API",
@@ -361,7 +358,7 @@ class Winpay extends Requestor implements VendorInterface
 							],
 						];
 				} else {
-					throw new \Exception($content->rd ?? $content);
+					throw new \Exception($content->rd);
 				}
 			} else {
 				throw new \Exception($content);
@@ -565,7 +562,8 @@ class Winpay extends Requestor implements VendorInterface
 				}
 				//
 				if (
-					$request->response_code == '00'
+					!empty($content->rc)
+					&& $content->rc == '00'
 				) {
 					/*
 					incoming data
@@ -621,29 +619,35 @@ class Winpay extends Requestor implements VendorInterface
 		try {
 			if (!empty($request)) {
 				SELF::Validate($request, [
-						'order_id',
+						'is_qris',
 					]);
 				// Go
 				$this->request['time'] = time();
 				$this->request['url'] = $this->init->getRequestURL() .
-					'/check-wpi-transaction';
+					($request->is_qris == 'no' ?
+						'/check-wpi-transaction' :
+						'/check-qris-transaction');
 				$this->request['headers'] = [
 						'Content-Type' => 'application/x-www-form-urlencoded',
+						'Authorization' => 'Basic ' . base64_encode($this->init->getMID() . ':' . $this->init->getSecret()),
 					];
 				$this->request['data'] = [
-						'id_transaction_inquiry' => $request->order_id
+						'order_id' => $request->order_id ?? '',
+						// 'id_transaction' => $request->id_transaction ?? '',
+						// 'id_transaction_inquiry' => $request->id_transaction_inquiry ?? '',
+						// 'id_transaction_payment' => $request->id_transaction_payment ?? '',
 					];
 				$this->request['option'] = [
 						'as_json' => false,
 					];
-				$post = $this->DoRequest('GET',  $this->request);
-				$response = (array) $post['response'];
+				$get = $this->DoRequest('GET',  $this->request);
+				$response = (array) $get['response'];
 				extract($response);
 				if (!empty($status_code) && $status_code === 200) {
 					$content = (object) json_decode($content);
 					if (
-						!empty($content->response_code)
-						&& $content->response_code == '00'
+						!empty($content->rc)
+						&& $content->rc == '00'
 					) {
 						// Success
 						/*

@@ -27,8 +27,11 @@ $vendor = new \Growinc\Payment\Vendors\Winpay($init);
 
 try {
 	$result = $vendor->Inquiry((object) [
-			'order_id' => '0014244938',
-			'id_transaction' => '', // Optional
+			'order_id' => '0016491255', // Pick one of 4
+			// 'id_transaction' => '312968772', // Pick one of 4
+			// 'id_transaction_inquiry' => '312968772', // Pick one of 4
+			// 'id_transaction_payment' => '312968772', // Pick one of 4
+			'is_qris' => 'no',
 		]);
 	extract($result);
 	print_r($response);
