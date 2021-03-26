@@ -139,7 +139,6 @@ class Faspay extends Requestor implements VendorInterface
 					'as_json' => true,
 				];
 			$post = $this->DoRequest('POST', $this->request);
-			print_r($post);
 			$response = (array) $post['response'];
 			extract($response);
 			if (!empty($status_code) && $status_code === 200) {
