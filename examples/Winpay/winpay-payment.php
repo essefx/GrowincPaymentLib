@@ -144,6 +144,29 @@ try {
 			"response_time": "2021-02-25 16:22:20.102106"
 		}
 	}
+
+	// QRIS
+	{
+		"status": "000",
+		"data": {
+			"rc": "00",
+			"rd": "QR Image is successfully generated",
+			"request_time": "2021-04-08 21:56:39.868315",
+			"data": {
+				"spi_status_url": "https:\/\/secure-payment.winpay.id\/guidance\/index\/qrispay?payid=c65b87430fbba2bf54ca574cb59eebb6",
+				"payment_method": "Pembayaran QRIS",
+				"payment_method_code": "QRISPAY",
+				"fee_admin": 0,
+				"total_amount": 888600,
+				"order_id": "0017893800",
+				"spi_hash": "c65b87430fbba2bf54ca574cb59eebb6",
+				"tips": 88860,
+				"nominal_mdr": 6220.2,
+				"image_qr": "https:\/\/secure-payment.winpay.id\/scqr\/get_image_qr?payid=c65b87430fbba2bf54ca574cb59eebb6"
+			},
+			"response_time": "2021-04-08 21:56:40.640724"
+		}
+	}
 	*/
 	//
 	// print_r($vendor->getRequest());

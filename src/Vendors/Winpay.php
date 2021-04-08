@@ -267,9 +267,18 @@ class Winpay extends Requestor implements VendorInterface
 			switch ($payment_channel) {
 				case 'QRISPAY':
 					$data = $data + [
-							'spi_qr_type' => 'static',
-							'spi_qr_fee_type' => 'percent',
-							'spi_qr_fee' => '10',
+							'spi_qr_type' => 'dynamic',
+							// Tipe QR yang digunakan, WAJIB diisi dengan tipe 'dynamic' atau 'static'.
+							'spi_qr_fee_type' => 'open',
+							// Tipe Fee/Tips yang digunakan, WAJIB diisi jika menggunakan tipe QR 'dynamic'.
+							// Diisi dengan tipe 'open', 'fix' atau 'percent'.
+							// Jika dikosongi maka dianggap no fee atau tidak menggunakan fee.
+							'spi_qr_fee' => '0',
+							// Nominal dari fee tergantung dari tipenya.
+							// Jika tipenya open boleh tidak digunakan atau diisi 0 saja.
+							// Jika tipenya fix diisi nominal integer lebih dari 0.
+							// Jika tipenya percent diisi float antara 0 sampai 100,
+							// untuk pemisahan pecahan menggunakan tanda titik, misalnya : 0.5
 						];
 					break;
 				default:
