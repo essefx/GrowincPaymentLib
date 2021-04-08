@@ -13,15 +13,15 @@ Password: p@ssw0rd
 $init = new \Growinc\Payment\Init(
 		// 'VoGame Indonesia : 33660', // Name & MID
 		// 'bot33660 : p@ssw0rd' // UserID & Pass
-		// 'VoGame Indonesia : 33660', // Name & MID
-		// 'bot33660 : p@dtehsbsB' // UserID & Pass
-		'PT Growinc Teknologi Indonesia : 33495', // Name & MID
-		'bot33495 : p@ssw0rd' // UserID & Pass
+		'VoGame Indonesia : 33660', // Name & MID
+		'bot33660 : dtehsbsB' // UserID & Pass
+		// 'PT Growinc Teknologi Indonesia : 33495', // Name & MID
+		// 'bot33495 : p@ssw0rd' // UserID & Pass
 	);
 // Dev URL
-$init->setPaymentURL('https://dev.faspay.co.id/'); // Post Data Transaction
+// $init->setPaymentURL('https://dev.faspay.co.id/'); // Post Data Transaction
 // Live URL
-// $init->setPaymentURL('https://web.faspay.co.id/'); // Post Data Transaction
+$init->setPaymentURL('https://web.faspay.co.id/'); // Post Data Transaction
 
 $order_id = time();
 $invoice_no = 'INV' . $order_id;
@@ -92,8 +92,10 @@ $transaction->setAmount(10400000);
 	"pg_name": "UNICount-Rupiah"
 }],
 */
+// $selected_payment_channel = '801';
 // $selected_payment_channel = '812';
-$selected_payment_channel = '402';
+// $selected_payment_channel = '402';
+$selected_payment_channel = '711';
 $transaction->setPaymentMethod($selected_payment_channel);
 
 $vendor = new \Growinc\Payment\Vendors\Faspay($init);
