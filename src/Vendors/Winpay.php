@@ -341,6 +341,25 @@ class Winpay extends Requestor implements VendorInterface
 						},
 						"response_time": "2021-02-10 17:52:13.485668"
 					}
+					// Alfamart
+					{
+						"rc": "00",
+						"rd": "Transaksi Anda sedang dalam proses, Anda akan melakukan pembayaran menggunakan Alfamart, Silakan melakukan pembayaran sejumlah IDR 877.400-. Order ID Anda adalah 306474118. RAHASIA Dilarang menyebarkan ke ORANG Tdk DIKENAL",
+						"request_time": "2021-02-25 16:22:18.633754",
+						"data": {
+							"reff_id": "306474118",
+							"payment_code": "306474118",
+							"order_id": "0014244938",
+							"request_key": "",
+							"url_listener": "https:\/\/a.g-dev.io\/secure\/callback\/demo",
+							"payment_method": "Alfamart",
+							"payment_method_code": "ALFAMART",
+							"fee_admin": 0,
+							"total_amount": 877400,
+							"spi_status_url": "https:\/\/secure-payment.winpay.id\/guidance\/index\/alfamart?payid=14f4a4b9013b18c57acc84971a8a34ac"
+						},
+						"response_time": "2021-02-25 16:22:20.102106"
+					}
 					// QRIS
 					{
 						"rc": "00",
