@@ -204,11 +204,14 @@ class Faspay extends Requestor implements VendorInterface
 					$xpath = new \DOMXpath($doc);
 					// Get all TR
 					$trs = $xpath->query('//tr');
+					$qr_code = '';
 					foreach ($trs as $tr) {
 						$img = $xpath->query('//img[@class="qr-code"]/@src', $tr);
 					}
-					if (!empty($img->item(0)->nodeValue)) {
-						$qr_code = $img->item(0)->nodeValue;
+					if (!empty($img)) {
+						if (!empty($img->item(0)->nodeValue)) {
+							$qr_code = $img->item(0)->nodeValue;
+						}
 					}
 					// Return
 					if (!empty($qr_code)) {

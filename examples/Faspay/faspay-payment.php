@@ -32,7 +32,7 @@ $transaction->setInvoiceNo($invoice_no);
 $transaction->setCurrency('IDR');
 //
 $transaction->setItem('Apple');
-$transaction->setAmount(rand(5000,10000) * 100);
+$transaction->setAmount(rand(5000,10000) * 10);
 $transaction->setDescription('PAYMENT FOR ' . $invoice_no);
 //
 $transaction->setCustomerName('Human Warrior');
@@ -40,11 +40,6 @@ $transaction->setCustomerEmail('human@warrior.com');
 $transaction->setCustomerPhone('081812345678');
 $transaction->setCustomerAddress('Jakarta Selatan');
 $transaction->setCountrycode('ID');
-
-
-$transaction->setOrderID('202103172604591615966399');
-$transaction->setInvoiceNo('inv_202103172604591615966399');
-$transaction->setAmount(10400000);
 
 // Payment Method Supported:
 /*

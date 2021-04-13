@@ -40,6 +40,16 @@ trait Helper
 
 	/**
 	 *
+	 * Check if is JSON
+	 *
+	 */
+	public static function is_JSON($string)
+	{
+		return is_string($string) && is_array(json_decode($string, true)) ? true : false;
+	}
+
+	/**
+	 *
 	 * Lazy ob to arr
 	 *
 	 */
