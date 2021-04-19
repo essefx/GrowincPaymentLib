@@ -32,12 +32,13 @@ $transaction->setInvoiceNo($invoice_no);
 $transaction->setCurrency('IDR');
 //
 $transaction->setItem('Apple');
-$transaction->setAmount(rand(5000,10000) * 10);
+$transaction->setAmount(7001);
+// $transaction->setAmount(rand(5000,10000) * 1);
 $transaction->setDescription('PAYMENT FOR ' . $invoice_no);
 //
 $transaction->setCustomerName('Human Warrior');
 $transaction->setCustomerEmail('human@warrior.com');
-$transaction->setCustomerPhone('081812345678');
+$transaction->setCustomerPhone('082298438769');
 $transaction->setCustomerAddress('Jakarta Selatan');
 $transaction->setCountrycode('ID');
 
@@ -158,7 +159,7 @@ try {
 			$result = $vendor->ParsePaymentPage(
 					'ovo',
 					$payment_url,
-					'082298438769'
+					$transaction->getCustomerPhone()
 				);
 			extract($result);
 			print_r($response);

@@ -42,10 +42,10 @@ class TransactionExtends
 		$this->seller = $seller_detail;
 	}
 
-	public function getSeller(): ?array
-	{
-		return $this->seller;
-	}
+	// public function getSeller(): ?array
+	// {
+	// 	return $this->seller;
+	// }
 
 	public function setIsPaymentNotif(string $is_paymen_notif): void
 	{

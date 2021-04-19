@@ -9,7 +9,7 @@ $init->setPaymentURL('https://sandbox-api.espay.id/rest/digitalpay/pushtopay');
 $transaction = new \Growinc\Payment\Transaction();
 
 // $transaction->setRuuid('123A-DEF4-1214');
-// $transaction->setTime('2020-11-07 11:17:45'); // 
+// $transaction->setTime('2020-11-07 11:17:45'); //
 // $transaction->setCommcode('SGWGROWINC');
 // $transaction->setOrderID('21315');
 // $transaction->setAmount('20000.00');
@@ -30,15 +30,15 @@ $transaction->setCustomerPhone('081298983535');
 $transaction->setCountrycode('IDN');
 
 $item_detail = [
-    [
-        "id" => "mi-b2",
-        "price" => 90000,
-        "quantity" => '2',
-        "name" => "Poco M3",
-        "brand" => "Xiaomi",
-        "category" => "Smartphone",
-        "merchant_name" => "Grand Line Store"
-    ]
+	[
+		"id" => "mi-b2",
+		"price" => 90000,
+		"quantity" => '2',
+		"name" => "Poco M3",
+		"brand" => "Xiaomi",
+		"category" => "Smartphone",
+		"merchant_name" => "Grand Line Store"
+	]
 ];
 
 $transaction->setItem($item_detail);
@@ -47,9 +47,9 @@ $transaction->setItem($item_detail);
 $vendor = new \Growinc\Payment\Vendors\Espay($init);
 
 try {
-    $result = $vendor->SecurePaymentWallet($transaction);
-    extract($result);
-    print_r($result);
+	$result = $vendor->SecurePaymentWallet($transaction);
+	extract($result);
+	print_r($result);
 } catch (\Throwable $e) {
-    echo 'Payment failed: ' . $e->getMessage() . ':' .  $e->getCode();
+	echo 'Payment failed: ' . $e->getMessage() . ':' .  $e->getCode();
 }

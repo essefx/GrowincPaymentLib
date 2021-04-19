@@ -33,403 +33,279 @@ class Ipay88 extends Requestor implements VendorInterface
 
 	public function SecurePayment(Transaction $transaction)
 	{
-		try{
+		try {
 
 			$this->transaction = $transaction;
 			//
 			$this->form['order_id'] = $this->transaction->getOrderID();
 			$this->form['invoice_no'] = $this->transaction->getInvoiceNo();
-			$this->form['amount'] = $this->transaction->getAmount();
-			$this->form['description'] = $this->transaction->getDescription();
 			$this->form['currency'] = $this->transaction->getCurrency();
-
-			/* Optional */
-			$this->form['no_ref'] = $this->form['order_id'];
-
+			//
+			$this->form['item'] = $this->transaction->getItem();
+			$this->form['amount'] = (float) $this->transaction->getAmount() * 100;
+			$this->form['description'] = $this->transaction->getDescription();
+			//
+			$this->form['item_detail'] = [
+					[
+						'id' => $this->form['invoice_no'],
+						'price' => $this->form['amount'],
+						'quantity' => 1,
+						'name' => $this->form['item'],
+						'brand' => '',
+						'category' => '',
+						'merchant_name' => '',
+					]
+				]; // only cc
 			//
 			$this->form['customer_name'] = $this->transaction->getCustomerName();
 			$this->form['customer_email'] = $this->transaction->getCustomerEmail();
 			$this->form['customer_phone'] = $this->transaction->getCustomerPhone();
 			$this->form['customer_address'] = $this->transaction->getCustomerAddress();
-			$this->form['country_code'] = $this->transaction->getCountryCode();
-			$this->form['postal_code'] = $this->transaction->getPostalCode();
-			$this->form['city'] = $this->transaction->getCustomerCity();
-
-
-			/**
-			* Billing Address
-			*/
-
-			$this->form['billing_address'] = [
-				'first_name' => $this->form['customer_name'],
-				'last_name' => 'IPSUM',
-				'address' => $this->form['customer_address'],
-				'city' => $this->form['city'] ?? 'Jakarta',
-				'postal_code' => $this->form['postal_code'],
-				'phone' => $this->form['customer_phone'],
-				'country_code' => $this->form['country_code'] ?? 'IDN',
-				'email' => $this->form['customer_email'],
-			];
-
-			/**
-			* Shipping Address
-			*/
-
-			$this->form['shipping_address'] = [
-				'first_name' => $this->form['customer_name'],
-				'last_name' => 'IPSUM',
-				'address' => $this->form['customer_address'],
-				'city' => $this->form['city'] ?? 'Jakarta',
-				'postal_code' => $this->form['postal_code'],
-				'phone' => $this->form['customer_phone'],
-				'country_code' => $this->form['country_code'] ?? 'IDN',
-				'email' => $this->form['customer_email']
-			];
-				/**
-			* Sellers
-			*/
-			$this->form['sellers'] = $this->transaction->getSeller();
-
-			$this->form['item_details'] = $this->transaction->getItem();
-			$this->form['customer_userid'] = $this->transaction->getCustomerUserid();
-			$paymentMethode = explode(',', $this->transaction->getPaymentMethod());
-			$this->form['payment_type'] =  $this->getPayId($paymentMethode);
-			$this->form['payment_url'] = $this->init->getPaymentURL();
-			$this->form['expiry_period'] = $this->transaction->getExpireAt(); // minutes
-
+			$this->form['customer_postal_code'] = $this->transaction->getPostalCode();
+			$this->form['customer_city'] = $this->transaction->getCustomerCity();
+			$this->form['customer_country_code'] = $this->transaction->getCountryCode();
 			//
+			$this->form['billing_address'] = [
+					'first_name' => $this->form['customer_name'],
+					'last_name' => '',
+					'email' => $this->form['customer_email'],
+					'phone' => $this->form['customer_phone'],
+					'address' => $this->form['customer_address'],
+					'postal_code' => $this->form['customer_postal_code'],
+					'city' => $this->form['customer_city'] ?? 'Jakarta',
+					'country_code' => $this->form['customer_country_code'] ?? 'IDN',
+				];
+			$this->form['shipping_address'] = [
+					'first_name' => $this->form['customer_name'],
+					'last_name' => '',
+					'email' => $this->form['customer_email'],
+					'phone' => $this->form['customer_phone'],
+					'address' => $this->form['customer_address'],
+					'postal_code' => $this->form['customer_postal_code'],
+					'city' => $this->form['customer_city'] ?? 'Jakarta',
+					'country_code' => $this->form['customer_country_code'] ?? 'IDN',
+				];
+			$this->form['seller_detail']  =[
+					'Id' => '',
+					'Name' => '',
+					'Url' => '',
+					'SellerIdNumber' => '',
+					'Email' => '',
+					'Address' => [
+							'FirstName' => '',
+							'LastName' => '',
+							'Address' => '',
+							'City' => '',
+							'PostalCode' => '',
+							'Phone' => '',
+							'CountryCode' => "ID",
+						],
+				];
+			//
+			$this->form['item_details'] = $this->form['item_detail'];
+			$this->form['payment_method'] = $this->transaction->getPaymentMethod();
+			// $this->form['payment_url'] = $this->init->getPaymentURL() . '/ePayment/WebService/PaymentAPI/Checkout';
+			$this->form['payment_url'] =
+				filter_var(
+						$this->init->getPaymentURL() .
+						'/ePayment/WebService/PaymentAPI/Checkout',
+						// '/epayment/entry_v2.asp',
+						FILTER_SANITIZE_URL
+					);
+			$this->form['callback_url'] = $this->init->getCallbackURL();
+			$this->form['return_url'] = $this->init->getReturnURL();
+			// Signature
+			$signature =
+				$this->init->getSecret() .
+				$this->init->getMID() .
+				$this->form['order_id'] .
+				$this->form['amount'] .
+				$this->form['currency'];
+			$encode_signature = base64_encode(hex2bin(sha1($signature)));
+			// Data
+			$this->request['data'] = [
+					'MerchantCode' => $this->init->getMID(),
+					'PaymentId' => $this->form['payment_method'],
+					'Currency' => $this->form['currency'],
+					'RefNo' => $this->form['order_id'],
+					'Amount' => $this->form['amount'],
+					'ProdDesc' => $this->form['description'],
+					'UserName' => $this->form['customer_name'],
+					'UserEmail' => $this->form['customer_email'],
+					'UserContact' => $this->form['customer_phone'],
+					'Remark' => 'Transaction ' . $this->form['order_id'],
+					'Lang' => 'UTF-8',
+					'ResponseURL' => $this->form['return_url'],
+					'BackendURL' => $this->form['callback_url'],
+					'Signature' => $encode_signature,
+					'xfield1' => '',
+					// 'itemTransactions' => $this->form['item_details'],
+					// 'ShippingAddress' => $this->form['shipping_address'],
+					// 'BillingAddress' => $this->form['billing_address'],
+					// 'Sellers' => $this->form['seller_detail'],
+				];
+			// Go
 			$this->request['form'] = $this->form;
 			$this->request['time'] = $this->transaction->getTime();
 			$this->request['url'] = $this->form['payment_url'];
-
-			// set total amount
-			$amountTotal = 0;
-			foreach($this->form['item_details'] as $price){
-				$amountTotal += (int) $price['price'] * (int) $price['quantity'] ;
-			}
-
-			// generate signature
-			$signature = $this->init->getSecret().$this->init->getMID().$this->transaction->getOrderID().$amountTotal.$this->form['currency'];
-      		$encode_signature = base64_encode(hex2bin(sha1($signature)));
-
-			// request data
-			$this->request['data'] = [
-		        'MerchantCode' 			=> $this->init->getMID(),
-		        'PaymentId' 			=> $this->form['payment_type']->id,
-		        'Currency' 				=> $this->form['currency'],
-		        'RefNo' 				=>  $this->transaction->getOrderID(),
-		        'Amount'				=> (int) $amountTotal,
-		        'ProdDesc'				=> $this->form['description'],
-		        'UserName'				=> $this->form['customer_name'],
-		        'UserEmail'				=> $this->form['customer_email'],
-		        'UserContact'			=> $this->form['customer_phone'],
-		        'Remark'				=> 'Transaction ',
-				'Lang'					=> 'UTF-8',
-		        'ResponseURL'			=> $this->init->getResponseUrl(),
-		        'BackendURL'			=> $this->init->getBackendURL(),
-				'Signature' 			=> $encode_signature,
-				"xfield1"				=> "",
-				'itemTransactions'		 => $this->form['item_details'],
-				'ShippingAddress' 		=> $this->form['shipping_address'],
-				'BillingAddress' 		=> $this->form['billing_address'],
-				'Sellers' 				=> $this->form['sellers'],
-			];
-
-			// print_r(json_encode($this->request['data']));exit();
-			/* HEADER */
 			$this->request['headers'] = [
-				'Content-Type' => 'application/json',
-				'Accept' => 'application/json',
-				'Authorization' => '',
-				'Content-Length' => strlen(json_encode($this->request['data'])),
-			];
-
+					'Content-Type' => 'application/json',
+					'Accept' => 'application/json',
+					'Authorization' => '',
+					'Content-Length' => strlen(json_encode($this->request['data'])),
+				];
 			$this->request['option'] = [
-				'as_json' => true,
-			];
-
+					'as_json' => true,
+				];
 			$post = $this->DoRequest('POST', $this->request);
-
 			$response = (array) $post['response'];
 			extract($response);
-
 			if (!empty($status_code) && $status_code === 200) {
 				$content = (object) json_decode($content);
-				if ($content->Status != "") {
-					if (empty($content->ErrDesc) && $content->ErrDesc === "") {
-						/* ewallet
-							{
-							   "Status":"6",
-							   "ErrDesc":"",
-							   "MerchantCode":"ID01625",
-							   "PaymentId":"75",
-							   "Currency":"IDR",
-							   "RefNo":"0008276045",
-							   "Amount":"250000",
-							   "Remark":"Transaction ",
-							   "Signature":"kWvzVi4X\/LFBB\/5s3df+8hFVwto=",
-							   "xfield1":"",
-							   "TransId":"T0051309800",
-							   "AuthCode":"",
-							   "VirtualAccountAssigned":"https:\/\/api.uat.wallet.airpay.co.id\/v3\/merchant-host\/qr\/download?qr=Kd2lofpylhA6xaiZxeDfdeTeFYLPu1p1xMZaWagtTG",
-							   "CheckoutURL":"https:\/\/sandbox.ipay88.co.id\/epayment\/entryv3.asp?CheckoutID=72b89e6aeb89818296488ead3f963bcf799eca4cd6ae85906214c930d75abdb5&Signature=2IX6cemMjOUVPsiT9C55OwrlGX8%3d"
-							}
-						*/
-						$content = [
+				if (
+					empty($content->ErrDesc)
+					&& $content->ErrDesc === ""
+				) {
+					/*
+						Status pembayaran
+						"1" – Success.
+						"0" – Fail.
+						"6" – Pending (hanya tersedia untuk metode pembayaran ATM Transfer).
+					*/
+					if ($content->Status == 6) {
+						// $status = 'pending';
+					}
+					/*
+					// VA
+					{
+						"Status": "6",
+						"ErrDesc": "",
+						"MerchantCode": "ID01676",
+						"PaymentId": "9",
+						"Currency": "IDR",
+						"RefNo": "0018650259",
+						"Amount": "504800",
+						"Remark": "Transaction 0018650259",
+						"Signature": "44F568Dmfoa02uxQIGwmLDstvxE=",
+						"xfield1": "",
+						"TransId": "T0053241400",
+						"AuthCode": "",
+						"VirtualAccountAssigned": "7828705000002278",
+						"TransactionExpiryDate": "18-04-2021 16:04",
+						"CheckoutURL": "https://sandbox.ipay88.co.id/epayment/entryv3.asp?CheckoutID=89546bbe3d63694741e243b8e071e58b8c823dc07c632a0fa5f35b0c131c4575&Signature=8jk9e2l16oDyeqCgYak8PJ5rXIE%3d"
+					}
+					// Wallet
+					{
+						"Status": "6",
+						"ErrDesc": "",
+						"MerchantCode": "ID01676",
+						"PaymentId": "75",
+						"Currency": "IDR",
+						"RefNo": "0018651323",
+						"Amount": "744500",
+						"Remark": "Transaction 0018651323",
+						"Signature": "QuK\/ILMmyTYazxtcTKwdDIWAodY=",
+						"xfield1": "",
+						"TransId": "T0053242300",
+						"AuthCode": "",
+						"VirtualAccountAssigned": "https:\/\/api.uat.wallet.airpay.co.id\/v3\/merchant-host\/qr\/download?qr=fSAPBHKcP9SAw1sQnHuvA6HpRYNhThs2j6Ub644MoX",
+						"CheckoutURL": "https:\/\/sandbox.ipay88.co.id\/epayment\/entryv3.asp?CheckoutID=ecbea777ebb16f40d3f79cc6919539bc81a3f6b8e93d6b7c13f8f539596de90c&Signature=oiBhz7uyuFoff2JTCiO53JGwcI8%3d"
+					}
+					*/
+					$res = [
 							'status' => '000',
 							'data' => (array) $content,
 						];
-						/**/
-						if ($content['data']['Status'] == 6 ) {
-							$status = 'pending';
-						}
-						$result = [
-								'request' => (array) $this->request,
-								'response' => [
-									'content' => json_encode($content),
-									'status_code' =>  $content['data']['Status'] == 6 ? 200 : 302 ,
-									// 'va_number' => $content['data']['VirtualAccountAssigned'],
-									// 'bank_code' => $this->form['payment_type']->name,
-									// 'amount' => $content['data']['Amount'],
-									// 'transaction_id' => $content['data']['TransId'], // vendor transaction_id
-									// 'order_id' => $content['data']['RefNo'], // PGA order_id
-									// 'payment_type' => $paymentMethode[0], // Payment Method
-									// 'checkout' => $content['data']['CheckoutURL'], // Payment URL
-									// 'transaction_status' =>  $status,
-								],
+					$result = [
+							'request' => (array) $this->request,
+							'response' => [
+								'content' => json_encode($res),
+								'status_code' => 200,
+							],
 						];
-
-					} else {
-						throw new \Exception($content->ErrDesc);
-					}
+				} else {
+					throw new \Exception($content->ErrDesc);
 				}
 			} else {
 				throw new \Exception($content);
 			}
-
-		}	catch (\Throwable $e) {
-      throw new \Exception($this->ThrowError($e));
-    }
+		} catch (\Throwable $e) {
+			throw new \Exception($this->ThrowError($e));
+		}
 		return $result ?? [];
 	}
-
-	/**
-	 * @param string
-	 * @return $result ? []
-	 * */
-	public function getPayId($paymentId){
-		switch (strtolower($paymentId[0])) {
-			/* Bank Transfer */
-			case 'bank_transfer':
-				switch (strtolower($paymentId[1])) {
-					case 'bca':
-						$id = 30;
-						$name = 'BCA';
-					break;
-					case 'maybank':
-						$id = 9;
-						$name = 'Maybank';
-					break;
-					case 'mandiri':
-						$id = 17;
-						$name = 'Mandiri';
-					break;
-					case 'bni':
-						$id = 26;
-						$name = 'BNI';
-					break;
-					case 'permata':
-						$id = 31;
-						$name = 'Permata';
-					break;
-					default:
-						$id = 25;
-						$name = 'BCA';
-					break;
-				}
-			break;
-			/* Others */
-			case 'others':
-				switch (strtolower($paymentId[1])) {
-					case 'alfamart':
-						$id = 60;
-						$name = 'alfamart';
-					break;
-					case 'indomaret':
-						$id = 65;
-						$name = 'indomaret';
-					break;
-					case 'akulaku':
-						$id = 71;
-						$name = 'akulaku';
-					break;
-					case 'indodana':
-						$id = 70;
-						$name = 'indodana';
-					break;
-					case 'kredivo':
-						$id = 55;
-						$name = 'kredivo';
-					break;
-					default:
-						$id = 60;
-						$name = 'alfamart';
-					break;
-				}
-			break;
-			/* Internet Banking */
-			case 'internet_banking':
-				switch (strtolower($paymentId[1])) {
-					case 'bcakp':
-						$id = 8;
-						$name = 'BCA';
-					break;
-					case 'cimbkp':
-						$id = 11;
-						$name = 'CIMB';
-					break;
-					case 'muamalatkp':
-						$id = 14;
-						$name = 'Muamalat';
-					break;
-					case 'danamonkp':
-						$id = 23;
-						$name = 'Danamon';
-					break;
-					default:
-						$id = 8;
-						$name = 'BCA';
-					break;
-				}
-			break;
-			/* Credit Card */
-			case 'credit_card':
-				switch (strtolower($paymentId[1])) {
-					case 'bca':
-						$id = 52;
-						$name = 'cc_bca';
-					break;
-					case 'bri':
-						$id = 35;
-						$name = 'BRI';
-					break;
-					case 'cimb':
-						$id = 42;
-						$name = 'cimb';
-					break;
-					case 'cimb_auth':
-						$id = 56;
-						$name = 'cimb_authorization';
-					break;
-					case 'cimb_ipg':
-						$id = 34;
-						$name = 'cimb_ipg';
-					break;
-					case 'danamon':
-						$id = 45;
-						$name = 'danamon';
-					break;
-					case 'mandiri':
-						$id = 53;
-						$name = 'mandiri';
-					break;
-					case 'maybank':
-						$id = 43;
-						$name = 'maybank';
-					break;
-					case 'union_pay':
-						$id = 54;
-						$name = 'union_pay';
-					break;
-					case 'uob':
-						$id = 46;
-						$name = 'UOB';
-					break;
-					default:
-						$id = 8;
-						$name = 'BCA';
-					break;
-				}
-			/* e-wallet */
-			case 'ewallet':
-				switch (strtolower($paymentId[1])) {
-					case 'shopeepay':
-						$id = 75;
-						$name = 'shopeepay';
-					break;
-					case 'ovo':
-						$id = 63;
-						$name = 'ovo';
-					break;
-					default:
-						$id = 13;
-						$name = 'linkaja';
-					break;
-				}
-			break;
-
-		}
-		return (object) ['id' => $id, 'name' => $name];
-	}
-
-
 
 	public function Callback(object $request)
 	{
 		// Example incoming data
 		/*
 			{
-				"MerchantCode"	: "ID01625",
-				"PaymentId"		: "30",
-				"RefNo"		: "0007609625",
-				"Amount"		: "250000",
-				"Currency"		: "IDR",
-				"Remark"		: "",
-				"TransId"		: "T0051206200",
-				"AuthCode"		: "",
-				"Status"		: "6",
-				"ErrDesc"		: "",
-				"Signature"		: "lkvo2Xuy7BImSfMoTBznJSUOEC8=",
-				"CheckoutURL"	: "https://sandbox.ipay88.co.id/epayment/entry.asp?CheckoutID=5F822C024A102470C16A762C19EA29D7879A47B2EFF7C4151E309F00EDEADC6F&Signature=Nv2ub5JULwXf1X2x7B9CLe3z7K4%3d",
-				"xfield1"		: ""
+				"MerchantCode": "ID01625",
+				"PaymentId": "30",
+				"RefNo": "0007609625",
+				"Amount": "250000",
+				"Currency": "IDR",
+				"Remark": "",
+				"TransId": "T0051206200",
+				"AuthCode": "",
+				"Status": "6",
+				"ErrDesc": "",
+				"Signature": "lkvo2Xuy7BImSfMoTBznJSUOEC8=",
+				"CheckoutURL": "https://sandbox.ipay88.co.id/epayment/entry.asp?CheckoutID=5F822C024A102470C16A762C19EA29D7879A47B2EFF7C4151E309F00EDEADC6F&Signature=Nv2ub5JULwXf1X2x7B9CLe3z7K4%3d",
+				"xfield1": ""
+			}
+			{
+				"MerchantCode": "ID01676",
+				"PaymentId": "26",
+				"RefNo": "0018824953",
+				"Amount": "700000",
+				"Currency": "IDR",
+				"Remark": "Transaction 0018824953",
+				"TransId": "T0053259100",
+				"AuthCode": "8228024900002200",
+				"Status": "1",
+				"ErrDesc": "",
+				"Signature": "0h8XPhRJN\/ioARBGwoiGdy5DwP8=",
+				"VirtualAccountAssigned": "8228024900002200",
+				"TransactionExpiryDate": "20-04-2021 16:35",
+				"PaymentDate": "19-04-2021 16:36"
 			}
 		*/
-
 		try {
-
-			SELF::Validate($request, ['RefNo', 'Status', 'Amount']);
-			$input = $this->init->getSecret().$this->init->getMID().$request->RefNo.$request->Amount.$request->Currency;
-			$signature = base64_encode(hex2bin(sha1($input)));
-
-			if (strcmp($signature, $request->Signature) === 0) {
-
-				$content = [
-						'status' => '000',
-						'data' => (array) $request,
-				];
-
-				if ($content['data']['Status'] == 6) {
-						$status = 'pending';
+			if (!empty($request)) {
+				SELF::Validate($request, [
+						'PaymentId',
+						'RefNo',
+						'Amount',
+						'Currency',
+						'Status',
+					]);
+				$input =
+					$this->init->getSecret() .
+					$this->init->getMID() .
+					$request->PaymentId .
+					$request->RefNo .
+					$request->Amount .
+					$request->Currency .
+					$request->Status;
+				$signature = base64_encode(hex2bin(sha1($input)));
+				if (strcmp($signature, $request->Signature) === 0) {
+					$res = [
+							'status' => '000',
+							'data' => (array) $request,
+						];
+					$result = [
+							'request' => (array) $request,
+							'response' => [
+									'content' => json_encode($res),
+									'status_code' => 200,
+								],
+						];
+				} else {
+					throw new \Exception('Signature check failed');
 				}
-				if ($content['data']['Status'] == 0) {
-				  	$status = 'fail';
-				}
-
-				$result = [
-						'request' => (array) $request,
-						'response' => [
-								'content' => json_encode($content),
-								'status_code' => 200,
-								// 'va_number' => $va_number,
-								'bank_code' => $content['data']['PaymentId'],
-								'amount' => $content['data']['Amount'],
-								'transaction_id' => $content['data']['TransId'], // vendor transaction_id
-								'order_id' => $content['data']['RefNo'], // PGA order_id
-								'transaction_status' => $status,
-							],
-					];
 			} else {
-				throw new \Exception('Signature check failed');
+				throw new \Exception('Callback is empty');
 			}
 		} catch (\Throwable $e) {
 			throw new \Exception($this->ThrowError($e));
@@ -444,6 +320,7 @@ class Ipay88 extends Requestor implements VendorInterface
 
 	public function Inquiry(object $request)
 	{
+		/*  */
 		try {
 			SELF::Validate($request, [
 					'order_id',
@@ -451,58 +328,47 @@ class Ipay88 extends Requestor implements VendorInterface
 				]);
 			// Go
 			$this->request['time'] = time();
-			$this->request['url'] = $this->init->getRequestURL() .
-				'/callback_virtual_accounts/' . $request->id;
-			$this->request['url'] = preg_replace('#/+#','/', $this->request['url']);
+			$this->request['url'] =
+				$this->init->getRequestURL() .
+				'/epayment/enquiry.asp?' .
+				'MerchantCode=' . $this->init->getMID() .
+				'&RefNo=' . $request->order_id .
+				'&Amount=' . $request->amount;
 			$this->request['data'] = [];
-			$this->request['headers'] = [
-					'Content-Type' => 'application/json',
-					'Accept' => 'application/json',
-					'Authorization' => 'Basic ' . base64_encode($this->init->getMID() . ':')
-				];
-			$get = $this->DoRequest('GET', $this->request);
-			$response = (array) $get['response'];
+			$this->request['headers'] = [];
+			$post = $this->DoRequest('POST', $this->request);
+			$response = (array) $post['response'];
 			extract($response);
 			if (!empty($status_code) && $status_code === 200) {
-				$content = (object) json_decode($content);
+				$content = (string) $content;
 				if (
-					!isset($content->error_code)
-					&& !isset($content->message)
+					isset($content)
+					&& $content == '00'
 				) {
-					// Success
-					/*
-					{
-						"status": "000",
-						"data": {
-							"is_closed": true,
-							"status": "ACTIVE",
-							"currency": "IDR",
-							"owner_id": "5f706881fefc961e3f708f02",
-							"external_id": "0008115320",
-							"bank_code": "BCA",
-							"merchant_code": "10766",
-							"name": "LOREM IPSUM",
-							"account_number": "107669999020779",
-							"expected_amount": 100000,
-							"expiration_date": "2020-12-16T12:22:00.000Z",
-							"is_single_use": false,
-							"id": "5fd9e479ed81dd402014403c"
-						}
-					}
+					/* Statuses
+					00	= Pembayaran sukses.
+					Invalid parameters = Parameter yang dikirimkan merchant tidak tepat.
+					Record not found = Data tidak ditemukan.
+					Incorrect amount = Total yang tidak tepat (berbeda).
+					Payment fail = Pembayaran gagal.
+					Payment Pending = Pembayaran tertunda dan pelanggan harus membayar di mesin ATM.
+					Haven’t Paid (0) = Tagihan belum dibayar atau berhenti di laman pembayaran iPay88.
+					Haven’t Paid (1) = Tagihan belum dibayar atau berhenti di laman bank.
+					M88Admin = Status pembayaran diubah oleh iPay88 Admin (gagal).
 					*/
 					$res = [
-							'status' => '000',
-							'data' => (array) $content,
-						];
+						'status' => '000',
+						'data' => $content,
+					];
 					$result = [
-							'request' => (array) $request,
-							'response' => [
-									'content' => json_encode($res),
-									'status_code' => 200,
-								],
-						];
+						'request' => (array) $request,
+						'response' => [
+							'content' => json_encode($res),
+							'status_code' => 200,
+						],
+					];
 				} else {
-					throw new \Exception($content->message);
+					throw new \Exception($content);
 				}
 			} else {
 				throw new \Exception($content);
@@ -532,5 +398,4 @@ class Ipay88 extends Requestor implements VendorInterface
 	{
 		// Inapplicable
 	}
-
 }

@@ -50,25 +50,27 @@ class Duitku extends Requestor implements VendorInterface
 			$this->form['customer_email'] = $this->transaction->getCustomerEmail();
 			$this->form['customer_phone'] = $this->transaction->getCustomerPhone();
 			$this->form['customer_address'] = $this->transaction->getCustomerAddress();
-			$this->form['country_code'] = $this->transaction->getCountryCode();
+			$this->form['customer_postal_code'] = $this->transaction->getPostalCode();
+			$this->form['customer_city'] = $this->transaction->getCustomerCity();
+			$this->form['customer_country_code'] = $this->transaction->getCountryCode();
 			//
 			$this->form['billing_address'] = [
 					'firstName' => $this->form['customer_name'],
 					'lastName' => '',
 					'address' => $this->form['customer_address'],
-					'city' => '',
-					'postalCode' => '',
+					'city' => $this->form['customer_city'] ?? 'Jakarta',
+					'postalCode' => $this->form['customer_postal_code'],
 					'phone' => $this->form['customer_phone'],
-					'countryCode' => $this->form['country_code'],
+					'countryCode' => $this->form['customer_country_code'],
 				];
 			$this->form['shipping_address'] = [
 					'firstName' => $this->form['customer_name'],
 					'lastName' => '',
 					'address' => $this->form['customer_address'],
-					'city' => '',
-					'postalCode' => '',
+					'city' => $this->form['customer_city'] ?? 'Jakarta',
+					'postalCode' => $this->form['customer_postal_code'],
 					'phone' => $this->form['customer_phone'],
-					'countryCode' => $this->form['country_code'],
+					'countryCode' => $this->form['customer_country_code'],
 				];
 			$this->form['customer_details'] = [
 					'firstName' => $this->form['customer_name'],
@@ -170,7 +172,7 @@ class Duitku extends Requestor implements VendorInterface
 					// throw new \Exception($content->statusMessage);
 					// Other status
 					/*
-                     */
+					*/
 					$res = [
 							// 'status' => str_pad($content->statusCode, 3, '0', STR_PAD_LEFT),
 							'status' => $content->statusCode ?? '999', // Go for original status code

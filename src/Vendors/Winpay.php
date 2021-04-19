@@ -559,15 +559,41 @@ class Winpay extends Requestor implements VendorInterface
 
 	public function Callback(object $request)
 	{
-		// Example incoming data
 		/*
+		// Example incoming data
+		// VA
 		{
-			"id_transaksi": "5757636",
-			"no_reff": "7891092505",
+			"id_transaksi": "317416981",
+			"no_reff": "202104122561701618197389",
 			"response_code": "00",
-			"id_produk": "SCPIMNDRCP",
-			"method_code": "MANDIRICP",
-			"keterangan": "Transaksi anda berhasil"
+			"id_produk": "SCPIMNDRVA",
+			"method_code": "MANDIRIVA",
+			"keterangan": "888981000152380 14500 Mr Dummy",
+			"nominal": "14500.00",
+			"biaya_layanan": "2000.00",
+			"nominal_nett": "14500.00",
+			"method_name": "Mandiri VA"
+		}
+		// QRIS
+		{
+		  "id_transaksi": "4929984",
+		  "no_reff": "5e4ce7cf7901234569",
+		  "response_code": "00",
+		  "id_produk": "QRISPAY",
+		  "method_code": "QRISPAY",
+		  "keterangan": "Transaksi Anda berhasil",
+		  "nominal": 50352.47,
+		  "biaya_layanan": 252.00,
+		  "tips": 0,
+		  "nominal_nett": 50100.47,
+		  "method_name":"QR TRANSFER",
+		  "qris_data":
+			{
+				"brand_name":"SPEEDCASH",
+				"issuer_reff":"000004929983",
+				"buyer_reff":"Tester",
+				"sent_time":"2020-11-16T07:58:01.852Z"
+			}
 		}
 		*/
 		try {
@@ -596,30 +622,9 @@ class Winpay extends Requestor implements VendorInterface
 				}
 				//
 				if (
-					!empty($content->rc)
-					&& $content->rc == '00'
+					!empty($request->response_code)
+					&& $request->response_code == '00'
 				) {
-					/*
-					incoming data
-					{
-						"rc":"00",
-						"rd":"Transaksi Anda sedang dalam proses, Segera lakukan pembayaran menggunakan Mandiri Va sejumlah IDR Rp. 64.000- sebelum jam 2020-12-14 13:48, Order ID Anda adalah 888981000000649. RAHASIA Dilarang menyebarkan ke ORANG Tdk DIKENAL   Terimakasih",
-						"request_time":"2020-12-14 11:48:27.480316",
-						"data":{
-							"reff_id":"4940517",
-							"payment_code":"888981000000649",
-							"order_id":"0007921310",
-							"request_key":"",
-							"url_listener":"https:\/\/ibank.growinc.dev\/oanwef4851ashrb\/pg\/dk\/redapi_form",
-							"payment_method":"MANDIRI VIRTUAL ACCOUNT",
-							"payment_method_code":"MANDIRIVA",
-							"fee_admin":0,
-							"total_amount":64000,
-							"spi_status_url":"https:\/\/sandbox-payment.winpay.id\/guidance\/index\/mandiriva?payid=175ed66633c7bbb150dd046543e940aa"
-						},
-						"response_time":"2020-12-14 11:48:28.666029"
-					}
-					*/
 					$res = [
 							'status' => '000',
 							'data' => (array) $request,
