@@ -11,7 +11,7 @@ $transaction = new \Growinc\Payment\Transaction();
 $transaction->setCardNumber($_REQUEST['setCardNumber'] ?? '4111111111111111');
 $transaction->setCardExpMonth($_REQUEST['setCardExpMonth'] ?? '12');
 $transaction->setCardExpYear($_REQUEST['setCardExpYear'] ?? '2020');
-$transaction->setCardExpCvv($_REQUEST['setCardExpCvv'] ?? '984');
+$transaction->setCardCVV($_REQUEST['setCardCVV'] ?? '984');
 
 try {
 	$enccarddata = $vendor->EncryptCardData($transaction);

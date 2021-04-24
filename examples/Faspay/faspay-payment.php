@@ -89,9 +89,9 @@ $transaction->setCountrycode('ID');
 }],
 */
 // $selected_payment_channel = '801';
-// $selected_payment_channel = '812';
+$selected_payment_channel = '812';
 // $selected_payment_channel = '402';
-$selected_payment_channel = '711';
+// $selected_payment_channel = '711';
 $transaction->setPaymentMethod($selected_payment_channel);
 
 $vendor = new \Growinc\Payment\Vendors\Faspay($init);

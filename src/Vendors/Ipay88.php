@@ -65,6 +65,12 @@ class Ipay88 extends Requestor implements VendorInterface
 			$this->form['customer_city'] = $this->transaction->getCustomerCity();
 			$this->form['customer_country_code'] = $this->transaction->getCountryCode();
 			//
+			$this->form['cc_name'] = $this->transaction->getCardHolderName();
+			$this->form['cc_no'] = $this->transaction->getCardNumber();
+			$this->form['cc_cvv'] = $this->transaction->getCardCVV();
+			$this->form['cc_month'] = $this->transaction->getCardExpMonth();
+			$this->form['cc_year'] = $this->transaction->getCardExpYear();
+			//
 			$this->form['billing_address'] = [
 					'first_name' => $this->form['customer_name'],
 					'last_name' => '',
@@ -104,24 +110,20 @@ class Ipay88 extends Requestor implements VendorInterface
 			//
 			$this->form['item_details'] = $this->form['item_detail'];
 			$this->form['payment_method'] = $this->transaction->getPaymentMethod();
-			// $this->form['payment_url'] = $this->init->getPaymentURL() . '/ePayment/WebService/PaymentAPI/Checkout';
-			$this->form['payment_url'] =
-				filter_var(
-						$this->init->getPaymentURL() .
-						'/ePayment/WebService/PaymentAPI/Checkout',
-						// '/epayment/entry_v2.asp',
-						FILTER_SANITIZE_URL
-					);
-			$this->form['callback_url'] = $this->init->getCallbackURL();
-			$this->form['return_url'] = $this->init->getReturnURL();
 			// Signature
 			$signature =
 				$this->init->getSecret() .
 				$this->init->getMID() .
 				$this->form['order_id'] .
+				$this->form['cc_no'] .
+				$this->form['cc_month'] .
+				$this->form['cc_year'] .
+				$this->form['cc_cvv'] .
 				$this->form['amount'] .
 				$this->form['currency'];
 			$encode_signature = base64_encode(hex2bin(sha1($signature)));
+			$this->form['callback_url'] = $this->init->getCallbackURL();
+			$this->form['return_url'] = $this->init->getReturnURL();
 			// Data
 			$this->request['data'] = [
 					'MerchantCode' => $this->init->getMID(),
@@ -134,6 +136,11 @@ class Ipay88 extends Requestor implements VendorInterface
 					'UserEmail' => $this->form['customer_email'],
 					'UserContact' => $this->form['customer_phone'],
 					'Remark' => 'Transaction ' . $this->form['order_id'],
+					'CCHolderName' => $this->form['cc_name'],
+					'CCNo' => $this->form['cc_no'],
+					'CCCVV' => $this->form['cc_cvv'],
+					'CCMonth' => $this->form['cc_month'],
+					'CCYear' => $this->form['cc_year'],
 					'Lang' => 'UTF-8',
 					'ResponseURL' => $this->form['return_url'],
 					'BackendURL' => $this->form['callback_url'],
@@ -144,20 +151,53 @@ class Ipay88 extends Requestor implements VendorInterface
 					// 'BillingAddress' => $this->form['billing_address'],
 					// 'Sellers' => $this->form['seller_detail'],
 				];
+			switch ($this->form['payment_method']) {
+				case '63': // OVO
+					// Go
+					$this->form['payment_url'] =
+							filter_var(
+									$this->init->getPaymentURL() .
+									'/epayment/entry.asp',
+									FILTER_SANITIZE_URL
+						);
+					$this->request['url'] = 'http://103.5.45.182:13579/parse/' .
+						'ipay88' . '/' .
+						'ovo' . '/' .
+						base64_encode($this->form['payment_url']) . '/' .
+						base64_encode(json_encode($this->request['data']));
+					$this->request['headers'] = [
+							'Content-Type' => 'application/x-www-form-urlencoded',
+						];
+					$this->request['option'] = [
+							'as_json' => false,
+						];
+					break;
+				default: // Others
+					// Go
+					// $this->form['payment_url'] = $this->init->getPaymentURL() . '/ePayment/WebService/PaymentAPI/Checkout';
+					$this->form['payment_url'] =
+							filter_var(
+									$this->init->getPaymentURL() .
+									'/ePayment/WebService/PaymentAPI/Checkout',
+									// '/epayment/entry_v2.asp',
+									FILTER_SANITIZE_URL
+						);
+					$this->request['url'] = $this->form['payment_url'];
+					$this->request['headers'] = [
+							'Content-Type' => 'application/json',
+							'Accept' => 'application/json',
+							'Authorization' => '',
+							'Content-Length' => strlen(json_encode($this->request['data'])),
+						];
+					$this->request['option'] = [
+							'as_json' => true,
+						];
+					break;
+			}
 			// Go
 			$this->request['form'] = $this->form;
 			$this->request['time'] = $this->transaction->getTime();
-			$this->request['url'] = $this->form['payment_url'];
-			$this->request['headers'] = [
-					'Content-Type' => 'application/json',
-					'Accept' => 'application/json',
-					'Authorization' => '',
-					'Content-Length' => strlen(json_encode($this->request['data'])),
-				];
-			$this->request['option'] = [
-					'as_json' => true,
-				];
-			$post = $this->DoRequest('POST', $this->request);
+			$post = $this->DoRequest('GET', $this->request);
 			$response = (array) $post['response'];
 			extract($response);
 			if (!empty($status_code) && $status_code === 200) {

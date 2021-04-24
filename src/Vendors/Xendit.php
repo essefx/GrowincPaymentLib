@@ -576,4 +576,107 @@ class Xendit extends Requestor implements VendorInterface
 	{
 		// Inapplicable
 	}
+
+	public function EncryptCardData(\Growinc\Payment\Transaction $transaction)
+	{
+		if (isset($_POST['submit']) && !empty($_POST['submit'])) {
+			echo $_POST['encryptedCardInfo'];
+		} else {
+			$secret = $this->init->getSecret();
+			$card_number = $transaction->getCardNumber();
+			$card_exp_month = $transaction->getCardExpMonth();
+			$card_exp_year = $transaction->getCardExpYear();
+			$card_cvn = (string) $transaction->getCardCVV();
+			$amount = (float) 100; // $transaction->getAmount(); // Minimum amount just to verify card
+			$callback_url = $this->init->getCallbackURL();
+			$html = '<!DOCTYPE HTML>
+<html>
+<head>
+	<title>Secure Payment</title>
+	<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="https://js.xendit.co/v1/xendit.min.js"></script>
+	<script type="text/javascript">
+		$(function () {
+			var fileEnv = "production";
+			if (fileEnv !== "production") {
+				Xendit._useIntegrationURL(true);
+			}
+
+			Xendit.setPublishableKey("' . $secret . '");
+			var tokenData = getTokenData();
+			Xendit.card.createToken(tokenData, xenditResponseHandler);
+
+			function getTokenData () {
+				Xendit.card.validateCardNumber("' . $card_number . '");
+				Xendit.card.validateExpiry("' . $card_exp_month . '", "' . $card_exp_year . '");
+				Xendit.card.validateCvn("' . $card_cvn . '");
+				return {
+					amount: $("#form").find("#amount").val(),
+					card_number: $("#form").find("#card-number").val(),
+					card_exp_month: $("#form").find("#card-exp-month").val(),
+					card_exp_year: $("#form").find("#card-exp-year").val(),
+					card_cvn: $("#form").find("#card-cvn").val(),
+					currency: $("#form").find("#currency").val(),
+					billing_details: $("#form").find("#should-send-billing-details").prop("checked") ? getBillingDetails() : undefined,
+					customer: $("#form").find("#should-send-customer-details").prop("checked") ? getCustomerDetails() : undefined,
+					is_multiple_use: $("#form").find("#bundle-authentication").prop("checked") ? true : false,
+					should_authenticate: $("#form").find("#skip-authentication").prop("checked") ? false : true,
+					on_behalf_of: $("#form").find("#on-behalf-of").val(),
+				};
+			}
+			function xenditResponseHandler (err, creditCardToken) {
+				if (err) {
+					return displayError(err);
+				}
+				if (creditCardToken.status === "VERIFIED") {
+					$("#form").append($("<input type=\"hidden\" name=\"tokenData\" />").val(JSON.stringify(creditCardToken)));
+					$("#submit").click();
+				} else if (creditCardToken.status === "IN_REVIEW") {
+					window.open(creditCardToken.payer_authentication_url, "inline-frame");
+					$("#three-ds-container").show();
+				} else if (creditCardToken.status === "FAILED") {
+				}
+				displaySuccess(creditCardToken);
+			}
+			function displayError (err) {
+				$("#result").text(JSON.stringify(err, null, 4));
+			}
+			function displaySuccess (creditCardToken) {
+				$("#result").text(JSON.stringify(creditCardToken, null, 4));
+			}
+		});
+	</script>
+</head>
+<body>
+	<form action="' . $callback_url . '" method="post" name="form" id="form">
+		cardnumber: <input type="text" id="card-number" maxlength="16" placeholder="Credit Card Number" value="' . $card_number . '" /><br/> <!--name="card-number"-->
+		month: <input type="text" id="card-exp-month" maxlength="2" placeholder="MM" value="' . $card_exp_month . '" /><br/> <!--name="card-exp-month"-->
+		year: <input type="text" id="card-exp-year" maxlength="4" placeholder="YYYY" value="' . $card_exp_year . '" /><br/> <!--name="card-exp-year"-->
+		cvv: <input type="password" id="card-cvn" maxlength="3" autocomplete="off" placeholder="CVV2/CVC2" value="' . $card_cvn . '" /><br/> <!--name="card-cvn"-->
+		amount: <input type="text" id="amount" placeholder="Amount" value="' . $amount . '" /><br/> <!--name="amount"-->
+		currency: <input type="text" id="currency" value="IDR" /><br/> <!--name="currency"-->
+		<hr>
+		Billing Details <input type="text" id="billing-details" /> <!--name="billing-details"-->
+		<input type="checkbox" id="should-send-billing-details" /> Send billing details? <!--name="should-send-billing-details"--> <br />
+		Customer Details <input type="text" id="customer-details" /> <!--name="customer-details"-->
+		<input type="checkbox" id="should-send-customer-details" /> Send customer details? <!--name="should-send-customer-details"-->
+		<hr>
+		<input type="checkbox" checked="checked" id="bundle-authentication" /> Is multiple-use<br /> <!--name="bundle-authentication"-->
+		<input type="checkbox" checked="checked" id="skip-authentication" /> Skip authentication<br /> <!--name="skip-authentication"-->
+		On behalf of <input type="text" id="on-behalf-of" placeholder="" /> <!--name="on-behalf-of"-->
+		<hr>
+		<input type="submit" id="submit" value="Submit" /> <!--name="submit"-->
+	</form>
+	<div id="result">
+	</div>
+	<div id="three-ds-container" style="display: none;">
+		<iframe height="450" width="550" name="inline-frame" id="inline-frame"> </iframe>
+	</div>
+</body>
+</html>';
+			echo $html;
+		}
+	}
+
 }

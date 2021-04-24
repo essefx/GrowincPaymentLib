@@ -30,6 +30,7 @@ class Transaction extends TransactionExtends
 	//
 	protected $customer_userid; // internet banking login
 	// cc
+	protected $cc_card_holder_name;
 	protected $cc_card_number;
 	protected $cc_card_exp_month;
 	protected $cc_card_exp_year;
@@ -251,6 +252,16 @@ class Transaction extends TransactionExtends
 
 	// credit card start
 
+	public function setCardHolderName(string $cc_card_holder_name): void
+	{
+		$this->cc_card_holder_name = $cc_card_holder_name;
+	}
+
+	public function getCardHolderName(): ?string
+	{
+		return $this->cc_card_holder_name;
+	}
+
 	public function setCardNumber(string $cc_card_number): void
 	{
 		$this->cc_card_number = $cc_card_number;
@@ -261,32 +272,32 @@ class Transaction extends TransactionExtends
 		return $this->cc_card_number;
 	}
 
-	public function setCardExpMonth(int $cc_card_exp_month): void
+	public function setCardExpMonth(string $cc_card_exp_month): void
 	{
 		$this->cc_card_exp_month = $cc_card_exp_month;
 	}
 
-	public function getCardExpMonth(): ?int
+	public function getCardExpMonth(): ?string
 	{
 		return $this->cc_card_exp_month;
 	}
 
-	public function setCardExpYear(int $cc_card_exp_year): void
+	public function setCardExpYear(string $cc_card_exp_year): void
 	{
 		$this->cc_card_exp_year = $cc_card_exp_year;
 	}
 
-	public function getCardExpYear(): ?int
+	public function getCardExpYear(): ?string
 	{
 		return $this->cc_card_exp_year;
 	}
 
-	public function setCardExpCVV(int $cc_card_cvv): void
+	public function setCardCVV(string $cc_card_cvv): void
 	{
 		$this->cc_card_cvv = $cc_card_cvv;
 	}
 
-	public function getCardExpCVV(): ?int
+	public function getCardCVV(): ?string
 	{
 		return $this->cc_card_cvv;
 	}

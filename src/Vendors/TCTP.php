@@ -878,7 +878,7 @@ class TCTP extends Requestor implements VendorInterface
 					'setCardNumber' => $transaction->getCardNumber(),
 					'setCardExpMonth' => $transaction->getCardExpMonth(),
 					'setCardExpYear' => $transaction->getCardExpYear(),
-					'setCardExpCvv' => $transaction->getCardExpCVV(),
+					'setCardCvv' => $transaction->getCardCVV(),
 				];
 			// Go
 			$post = $this->DoRequest('POST', $this->request);
@@ -906,7 +906,7 @@ class TCTP extends Requestor implements VendorInterface
 cardnumber: <input type="text" data-encrypt="cardnumber" maxlength="16" placeholder="Credit Card Number" value="' . $transaction->getCardNumber() . '" /><br/>
 month: <input type="text" data-encrypt="month" maxlength="2" placeholder="MM" value="' . $transaction->getCardExpMonth() . '" /><br/>
 year: <input type="text" data-encrypt="year" maxlength="4" placeholder="YYYY" value="' . $transaction->getCardExpYear() . '" /><br/>
-cvv: <input type="password" data-encrypt="cvv" maxlength="4" autocomplete="off" placeholder="CVV2/CVC2" value="' . $transaction->getCardExpCVV() . '" /><br/>
+cvv: <input type="password" data-encrypt="cvv" maxlength="4" autocomplete="off" placeholder="CVV2/CVC2" value="' . $transaction->getCardCVV() . '" /><br/>
 country_code: <input type="text" name="country_code" value="360" /><br/>
 <hr>
 <input type="submit" name="submit" id="submit" value="Submit" />

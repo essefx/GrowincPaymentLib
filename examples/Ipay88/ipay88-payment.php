@@ -6,13 +6,14 @@
 
 	require_once __DIR__ . '/../../vendor/autoload.php';
 
-	$init = new \Growinc\Payment\Init('ID01676', '0XScE2NdvU');
+	// $init = new \Growinc\Payment\Init('ID01676', '0XScE2NdvU'); // Selaras
+	$init = new \Growinc\Payment\Init('ID01625', '1gUbnGkdKA'); // Growinc
 
 	$init->setBaseURI('https://sandbox.ipay88.co.id');
 	$init->setPaymentURL('https://sandbox.ipay88.co.id');
 
-	$init->setCallbackURL('https://a.g-dev.io/secure/callback/demo');
-	$init->setReturnURL('https://a.g-dev.io/secure/callback/demo');
+	$init->setCallbackURL('http://sandbox.sec2pay.com/secure/callback/demo');
+	$init->setReturnURL('http://sandbox.sec2pay.com/secure/callback/demo');
 
 	$transaction = new \Growinc\Payment\Transaction();
 	$transaction->setCustomerName('LOREM');
@@ -58,7 +59,7 @@
 			Akulaku = 71
 			Indodana = 70
 	*/
-	$transaction->setPaymentMethod('26');
+	$transaction->setPaymentMethod('63');
 	// $transaction->setPaymentMethod('31');
 	// $transaction->setPaymentMethod('75');
 
@@ -68,6 +69,28 @@
 		$result = $vendor->SecurePayment($transaction); // return payment URL
 		print_r($result);
 		/*
+		// BNI VA
+		{
+			"status": "000",
+			"data": {
+				"Status": "6",
+				"ErrDesc": "",
+				"MerchantCode": "ID01676",
+				"PaymentId": "26",
+				"Currency": "IDR",
+				"RefNo": "0019065493",
+				"Amount": "700000",
+				"Remark": "Transaction 0019065493",
+				"Signature": "eBSCIBO9Pchf1vyyHsE6sQMC0YA=",
+				"xfield1": "",
+				"TransId": "T0053311300",
+				"AuthCode": "",
+				"VirtualAccountAssigned": "8228024900002215",
+				"TransactionExpiryDate": "4\/23\/2021 11:24:10 AM",
+				"CheckoutURL": "https:\/\/sandbox.ipay88.co.id\/epayment\/entryv3.asp?CheckoutID=171f1680f6dde6e4b2309fd29eb79da1321874a938d11e156f133bd38f07ea0a&Signature=E1YHn1tXaCT9HRYzyixZyy95qgk%3d"
+			}
+		}
+
 		// QRIS ShoopePay
 		{
 			"status": "000",

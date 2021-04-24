@@ -6,12 +6,12 @@ date_default_timezone_set('Asia/Jakarta');
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-$private_key_1 = '000f1f4cb5118390cc2ec79af671d617'; // VG
-$private_key_2 = '19c6f7a74281b16c2e70ba485dcf1750';
-$merchant_key = 'a85b54a715b31119a654928c400c8bb8';
-// $private_key_1 = '49f39e2d576fb76a041c2c0aa5423cc9'; // GTI
-// $private_key_2 = '4dd070051527f2ec185c1df3b97a42ca';
-// $merchant_key = '1666cc26bcbcdb9c371a00d6c1dc1c56';
+// $private_key_1 = '000f1f4cb5118390cc2ec79af671d617'; // VG
+// $private_key_2 = '19c6f7a74281b16c2e70ba485dcf1750';
+// $merchant_key = 'a85b54a715b31119a654928c400c8bb8';
+$private_key_1 = '49f39e2d576fb76a041c2c0aa5423cc9'; // GTI
+$private_key_2 = '4dd070051527f2ec185c1df3b97a42ca';
+$merchant_key = '1666cc26bcbcdb9c371a00d6c1dc1c56';
 
 $init = new \Growinc\Payment\Init(
 		$private_key_1,

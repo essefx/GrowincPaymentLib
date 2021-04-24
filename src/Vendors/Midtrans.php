@@ -190,7 +190,7 @@ class Midtrans extends Requestor implements VendorInterface
 							'card_number' => $this->transaction->getCardNumber(),
 							'card_exp_month' => $this->transaction->getCardExpMonth(),
 							'card_exp_year' => $this->transaction->getCardExpYear(),
-							'card_cvv' => $this->transaction->getCardExpCvv()
+							'card_cvv' => $this->transaction->getCardCVV()
 						]);
 					$this->form['data']['credit_card'] = [
 							'token_id' => $card_token,
@@ -283,7 +283,7 @@ class Midtrans extends Requestor implements VendorInterface
 						'card_number' => $this->transaction->getCardNumber(),
 						'card_exp_month' => $this->transaction->getCardExpMonth(),
 						'card_exp_year' => $this->transaction->gettCardExpYear(),
-						'card_cvv' => $this->transaction->getCardExpCvv()
+						'card_cvv' => $this->transaction->getCardCVV()
 					];
 				$getToken = $this->GetToken($this->form['customer_credit_card']);
 				$this->form['cc_token'] = $getToken;

@@ -43,7 +43,7 @@ $transaction->setDescription('Pembelian Elektronik');
 $transaction->setCardNumber('4811111111111114');
 $transaction->setCardExpMonth('12');
 $transaction->setCardExpYear('24');
-$transaction->setCardExpCvv('123');
+$transaction->setCardCvv('123');
 
 /*	paymentType AKA paymentMethod:
 	bank transfer

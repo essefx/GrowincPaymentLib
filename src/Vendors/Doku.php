@@ -105,9 +105,9 @@ class Doku extends Requestor implements VendorInterface
 				base64_encode(json_encode($this->request['url'])) . '/' .
 				base64_encode(http_build_query($this->request['data']));
 
-print_r(json_encode($this->request['data']));
-// print_r(http_build_query($this->request['data']));
-exit();
+// print_r(json_encode($this->request['data']));
+// // print_r(http_build_query($this->request['data']));
+// exit();
 
 			// Go
 			$get = $this->DoRequest('GET', $this->request);
