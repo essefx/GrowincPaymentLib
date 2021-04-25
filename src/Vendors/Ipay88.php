@@ -151,16 +151,21 @@ class Ipay88 extends Requestor implements VendorInterface
 					// 'BillingAddress' => $this->form['billing_address'],
 					// 'Sellers' => $this->form['seller_detail'],
 				];
+print_r(json_encode($this->request['data']));
+exit();
+			$this->request['form'] = $this->form;
+			$this->request['time'] = $this->transaction->getTime();
 			switch ($this->form['payment_method']) {
 				case '63': // OVO
 					// Go
 					$this->form['payment_url'] =
 							filter_var(
 									$this->init->getPaymentURL() .
-									'/epayment/entry.asp',
+									// '/epayment/entry.asp',
+									'/epayment/entry_v2.asp',
 									FILTER_SANITIZE_URL
 						);
-					$this->request['url'] = 'http://103.5.45.182:13579/parse/' .
+					$this->request['url'] = 'http://103.5.45.182:13571/parse/' .
 						'ipay88' . '/' .
 						'ovo' . '/' .
 						base64_encode($this->form['payment_url']) . '/' .
@@ -171,6 +176,7 @@ class Ipay88 extends Requestor implements VendorInterface
 					$this->request['option'] = [
 							'as_json' => false,
 						];
+					$req = $this->DoRequest('GET', $this->request);
 					break;
 				default: // Others
 					// Go
@@ -179,7 +185,6 @@ class Ipay88 extends Requestor implements VendorInterface
 							filter_var(
 									$this->init->getPaymentURL() .
 									'/ePayment/WebService/PaymentAPI/Checkout',
-									// '/epayment/entry_v2.asp',
 									FILTER_SANITIZE_URL
 						);
 					$this->request['url'] = $this->form['payment_url'];
@@ -192,13 +197,11 @@ class Ipay88 extends Requestor implements VendorInterface
 					$this->request['option'] = [
 							'as_json' => true,
 						];
+					$req = $this->DoRequest('POST', $this->request);
 					break;
 			}
 			// Go
-			$this->request['form'] = $this->form;
-			$this->request['time'] = $this->transaction->getTime();
-			$post = $this->DoRequest('GET', $this->request);
-			$response = (array) $post['response'];
+			$response = (array) $req['response'];
 			extract($response);
 			if (!empty($status_code) && $status_code === 200) {
 				$content = (object) json_decode($content);

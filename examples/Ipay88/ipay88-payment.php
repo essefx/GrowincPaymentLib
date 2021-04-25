@@ -6,13 +6,13 @@
 
 	require_once __DIR__ . '/../../vendor/autoload.php';
 
-	// $init = new \Growinc\Payment\Init('ID01676', '0XScE2NdvU'); // Selaras
-	$init = new \Growinc\Payment\Init('ID01625', '1gUbnGkdKA'); // Growinc
+	$init = new \Growinc\Payment\Init('ID01676', '0XScE2NdvU'); // Selaras
+	// $init = new \Growinc\Payment\Init('ID01625', '1gUbnGkdKA'); // Growinc
 
 	$init->setBaseURI('https://sandbox.ipay88.co.id');
 	$init->setPaymentURL('https://sandbox.ipay88.co.id');
 
-	$init->setCallbackURL('http://sandbox.sec2pay.com/secure/callback/demo');
+	$init->setCallbackURL('http://sandbox.sec2pay.com/secure/callback/callback_ipay88');
 	$init->setReturnURL('http://sandbox.sec2pay.com/secure/callback/demo');
 
 	$transaction = new \Growinc\Payment\Transaction();
@@ -44,7 +44,7 @@
 			BCA Tf = 30
 		Maybank VA = 9
 		Mandiri ATM = 17
-		BCA VA = 25
+		BCA VA = 25 - xxx
 		BNI VA = 26
 		Permata VA = 31
 	4. e-Wallet
@@ -59,8 +59,9 @@
 			Akulaku = 71
 			Indodana = 70
 	*/
-	$transaction->setPaymentMethod('63');
+	// $transaction->setPaymentMethod('26');
 	// $transaction->setPaymentMethod('31');
+	$transaction->setPaymentMethod('63');
 	// $transaction->setPaymentMethod('75');
 
 	$vendor = new \Growinc\Payment\Vendors\Ipay88($init);
