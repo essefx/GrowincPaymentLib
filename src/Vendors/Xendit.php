@@ -145,6 +145,8 @@ class Xendit extends Requestor implements VendorInterface
 					throw new \Exception("Currently Inapplicable", 1);
 					break;
 				case 'ewallet':
+					// updated 5/14/2021 according to Xendit updated API docs
+					/*
 					$this->request['url'] = $this->init->getPaymentURL() . '/ewallets';
 					$this->request['data'] = [
 							'external_id' => $this->form['order_id'],
@@ -175,6 +177,59 @@ class Xendit extends Requestor implements VendorInterface
 										],
 									'callback_url' => $this->init->getCallbackURL(),
 									'redirect_url' => $this->init->getReturnURL(),
+								]);
+							break;
+					}
+					*/
+					$this->request['url'] = $this->init->getPaymentURL() . '/ewallets/charges';
+					$this->request['data'] = [
+							'reference_id' => $this->form['order_id'],
+							'currency' => $this->form['currency'] ?? 'IDR',
+							'amount' => $this->form['amount'],
+							'checkout_method' => 'ONE_TIME_PAYMENT',
+							'basket' => [
+									[
+											'reference_id' => '1',
+											'name' => $this->form['item'] ?? 'PRODUCT',
+											'category' => 'DIGITAL',
+											'currency' => $this->form['currency'] ?? 'IDR',
+											'price' => $this->form['amount'],
+											'quantity' => 1,
+											'type' => 'PRODUCT',
+										],
+								],
+						];
+					switch (strtoupper($payment_channel)) {
+						case 'OVO':
+							$this->request['data'] = array_merge($this->request['data'], [
+									'channel_code' => 'ID_OVO',
+									'channel_properties' => [
+											'mobile_number' => $this->form['customer_phone'],
+										],
+								]);
+							break;
+						case 'DANA':
+							$this->request['data'] = array_merge($this->request['data'], [
+									'channel_code' => 'ID_DANA',
+									'channel_properties' => [
+											'success_redirect_url' => $this->init->getReturnURL(),
+										],
+								]);
+							break;
+						case 'LINKAJA':
+							$this->request['data'] = array_merge($this->request['data'], [
+									'channel_code' => 'ID_LINKAJA',
+									'channel_properties' => [
+											'success_redirect_url' => $this->init->getReturnURL(),
+										],
+								]);
+							break;
+						case 'SHOPEEPAY':
+							$this->request['data'] = array_merge($this->request['data'], [
+									'channel_code' => 'ID_SHOPEEPAY',
+									'channel_properties' => [
+											'success_redirect_url' => $this->init->getReturnURL(),
+										],
 								]);
 							break;
 					}
@@ -243,10 +298,18 @@ class Xendit extends Requestor implements VendorInterface
 			$this->request['option'] = [
 					'as_json' => true,
 				];
+// print_r($this->request);
 			$post = $this->DoRequest('POST', $this->request);
+// print_r($post);
 			$response = (array) $post['response'];
 			extract($response);
-			if (!empty($status_code) && $status_code === 200) {
+			if (!empty($status_code) &&
+				(
+					$status_code === 200
+					||
+					$status_code === 202
+				)
+			) {
 				$content = (object) json_decode($content);
 				// return print_r($content);
 				if (

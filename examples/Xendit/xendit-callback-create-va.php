@@ -2,7 +2,11 @@
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-$init = new \Growinc\Payment\Init('xnd_development_8OoTlgwIthHrTr7R9gg0AIUhH2PAAPjAdReAltPc7yQxzBlRnhAmYwdGqn6vG4Y','e315a071baf6b6c04fbfe2c7bb05abbde7c797c5ce5e781af8ba988fa5972ac5'); // change public_key to verification token
+$init = new \Growinc\Payment\Init(
+		// Growinc
+		'xnd_development_8OoTlgwIthHrTr7R9gg0AIUhH2PAAPjAdReAltPc7yQxzBlRnhAmYwdGqn6vG4Y', // secret_key
+		'xnd_public_development_UmKcL9LSSd96GKqb7ZN3UNZIPNUClJIBd4ndBoqFPRpqslgJ5q7GzCV0lWMOXRZy' // public_key
+	);
 $vendor = new \Growinc\Payment\Vendors\Xendit($init);
 
 try {
