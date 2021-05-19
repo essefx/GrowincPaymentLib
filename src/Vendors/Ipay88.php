@@ -192,7 +192,7 @@ class Ipay88 extends Requestor implements VendorInterface
 					$this->request['url'] = $this->form['payment_url'];
 					$this->request['headers'] = [
 							'Content-Type' => 'application/json',
-							'Accept' => 'application/json',
+							'Accept' => 'applgitication/json',
 							'Authorization' => '',
 							'Content-Length' => strlen(json_encode($this->request['data'])),
 						];
@@ -259,7 +259,9 @@ class Ipay88 extends Requestor implements VendorInterface
 					*/
 					$res = [
 							'status' => '000',
-							'data' => (array) $content,
+							// 'data' => (array) $content,
+							'data' => (array) array_merge((array) $content, ['_real_amount' => (float) $this->form['amount'] / 100]),
+
 						];
 					$result = [
 							'request' => (array) $this->request,
