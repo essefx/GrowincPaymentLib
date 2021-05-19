@@ -151,8 +151,8 @@ class Ipay88 extends Requestor implements VendorInterface
 					// 'BillingAddress' => $this->form['billing_address'],
 					// 'Sellers' => $this->form['seller_detail'],
 				];
-print_r(json_encode($this->request['data']));
-exit();
+// print_r(json_encode($this->request['data']));
+// exit();
 			$this->request['form'] = $this->form;
 			$this->request['time'] = $this->transaction->getTime();
 			switch ($this->form['payment_method']) {
@@ -161,22 +161,24 @@ exit();
 					$this->form['payment_url'] =
 							filter_var(
 									$this->init->getPaymentURL() .
-									// '/epayment/entry.asp',
-									'/epayment/entry_v2.asp',
+									'/epayment/entry.asp',
+									// '/epayment/entry_v2.asp',
 									FILTER_SANITIZE_URL
 						);
-					$this->request['url'] = 'http://103.5.45.182:13571/parse/' .
-						'ipay88' . '/' .
-						'ovo' . '/' .
-						base64_encode($this->form['payment_url']) . '/' .
-						base64_encode(json_encode($this->request['data']));
+					$this->request['url'] = $this->form['payment_url'];
+					// $this->request['url'] = 'http://103.5.45.182:13571/parse/' .
+					// 	'ipay88' . '/' .
+					// 	'ovo' . '/' .
+					// 	base64_encode($this->form['payment_url']) . '/' .
+					// 	base64_encode(json_encode($this->request['data']));
 					$this->request['headers'] = [
 							'Content-Type' => 'application/x-www-form-urlencoded',
+							'Referer' => 'http://sandbox.sec2pay.com/secure/callback/demo',
 						];
 					$this->request['option'] = [
 							'as_json' => false,
 						];
-					$req = $this->DoRequest('GET', $this->request);
+					$req = $this->DoRequest('POST', $this->request);
 					break;
 				default: // Others
 					// Go
