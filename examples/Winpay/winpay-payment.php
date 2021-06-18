@@ -34,6 +34,8 @@ $transaction->setCustomerPhone('088812345678');
 $transaction->setItem('Game 01');
 $transaction->setAmount(rand(5000,10000) * 100);
 $transaction->setDescription('Product Game Baru');
+// $transaction->setOrderID('20210603295621655893');
+// $transaction->setInvoiceNo('inv_20210603295621655893');
 
 /*
 API Redirect Channel

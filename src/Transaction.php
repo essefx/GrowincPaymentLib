@@ -36,6 +36,8 @@ class Transaction extends TransactionExtends
 	protected $cc_card_exp_year;
 	protected $cc_card_cvv;
 	protected $cc_token;
+	// more
+	protected $params;
 
 	public function __construct()
 	{
@@ -56,6 +58,18 @@ class Transaction extends TransactionExtends
 	public function getTime(): ?string
 	{
 		return $this->time;
+	}
+
+	//
+
+	public function setParams(array $params): void
+	{
+		$this->params = $params;
+	}
+
+	public function getParams()
+	{
+		return $this->params;
 	}
 
 	//

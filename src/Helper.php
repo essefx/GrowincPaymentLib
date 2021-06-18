@@ -9,6 +9,16 @@ trait Helper
 
 	/**
 	 *
+	 * Clean URL
+	 *
+	 */
+	public static function CleanURL(string $url) : string
+	{
+		return preg_replace('/([^:])(\/{2,})/', '$1/', $url);
+	}
+
+	/**
+	 *
 	 * Debug show file & line
 	 *
 	 */
