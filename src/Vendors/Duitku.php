@@ -200,16 +200,16 @@ class Duitku extends Requestor implements VendorInterface
 		// Example incoming data
 		/*
         {
-        "merchantCode": "D6677",
-        "amount": "100000",
-        "merchantOrderId": "0001285662",
-        "productDetail": "Payment for order 0001285662",
-        "additionalParam": null,
-        "resultCode": "00",
-        "signature": "439030a6da086ee13558137f07d4a27d",
-        "paymentCode": "VC",
-        "merchantUserId": null,
-        "reference": "D6677JXVYL752HMAV0AD"
+			"merchantCode": "D6677",
+			"amount": "100000",
+			"merchantOrderId": "0001285662",
+			"productDetail": "Payment for order 0001285662",
+			"additionalParam": null,
+			"resultCode": "00",
+			"signature": "439030a6da086ee13558137f07d4a27d",
+			"paymentCode": "VC",
+			"merchantUserId": null,
+			"reference": "D6677JXVYL752HMAV0AD"
         }
          */
 		try {

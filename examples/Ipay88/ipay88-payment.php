@@ -59,10 +59,10 @@
 			Akulaku = 71
 			Indodana = 70
 	*/
-	$transaction->setPaymentMethod('26');
+	// $transaction->setPaymentMethod('26');
 	// $transaction->setPaymentMethod('31');
 	// $transaction->setPaymentMethod('63');
-	// $transaction->setPaymentMethod('75');
+	$transaction->setPaymentMethod('75');
 
 	$vendor = new \Growinc\Payment\Vendors\Ipay88($init);
 

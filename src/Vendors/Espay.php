@@ -52,182 +52,151 @@ class Espay extends Requestor implements VendorInterface
 			$params = $this->transaction->getParams();
 			$this->form['params'] = $params;
 			//
-			// $this->form['billing_address'] = [
-			// 	'first_name' => $this->form['customer_name'],
-			// 	'last_name' => 'IPSUM',
-			// 	'email' => $this->form['customer_email'],
-			// 	'phone' => $this->form['customer_phone'],
-			// 	'address' => 'sudirman',
-			// 	'city' => 'Jakarta',
-			// 	'postal_code' => '12190',
-			// 	'country_code' => $this->form['country_code'],
-			// ];
-			// $this->form['shipping_address'] = [
-			// 	'first_name' => $this->form['customer_name'],
-			// 	'last_name' => 'IPSUM',
-			// 	'email' => $this->form['customer_email'],
-			// 	'phone' => $this->form['customer_phone'],
-			// 	'address' => 'sudirman',
-			// 	'city' => 'Jakarta',
-			// 	'postal_code' => '12190',
-			// 	'country_code' => $this->form['country_code'],
-			// ];
-			// $this->form['customer_details'] = [
-			// 	'first_name' => $this->form['customer_name'],
-			// 	'last_name' => 'IPSUM',
-			// 	'email' => $this->form['customer_email'],
-			// 	'phone' => $this->form['customer_phone'],
-			// 	'billing_address' => $this->form['billing_address'],
-			// 	'shipping_address' => $this->form['shipping_address'],
-			// ];
-			//
-			// $credential = \explode("//", $this->transaction->getCredentialAttr());
-			// $signature_key = $credential[0];
-			// $credential_password = $credential[1];
-			// $comm_code = $credential[2];
-			// $send_invoice = $credential[3];
-			//
-			// $this->form['rq_uuid'] = $this->transaction->getInvoiceNo();
-			// $this->form['rq_datetime'] = $this->transaction->getTime();
-			// $this->form['comm_code'] = $comm_code;
-			// $this->form['remark1'] = $this->transaction->getCustomerPhone(); // optional
-			// $this->form['remark2'] = $this->transaction->getCustomerName(); // optional
-			// $this->form['remark3'] = $this->transaction->getCustomerEmail(); // optional
-			// $this->form['update'] = $this->transaction->getUpdateOrderId(); // optional
-			// $this->form['va_expired'] = $this->transaction->getExpireAt();
-			// $this->form['password'] = $credential_password;
-
-			// item details
-			// $this->form['item_details'] = $this->transaction->getItem();
-			// $amount_total = 0;
-			// foreach ($this->form['item_details'] as $price) {
-			// 	$amount_total += (int) $price['price'] * (int) $price['quantity'];
-			// }
-
-			// $this->form['amount'] = (float) $amount_total . '.00';
-			//
-			$signature = strtoupper(
-				'##' .
-				$params['signature'] .
-				'##' .
-				$transaction->getInvoiceNo() .
-				'##' .
-				$transaction->getTime() .
-				'##' .
-				$transaction->getOrderID() .
-				'##' .
-				$this->form['amount'] .
-				'##' .
-				$transaction->getCurrency() .
-				'##' .
-				$this->init->getMID() .
-				'##' .
-				'SENDINVOICE' .
-				'##'
-			);
+			$arr = explode(',', $this->transaction->getPaymentMethod());
+			$payment_method = strtolower(trim( $arr[0] ?? '' ));
+			$payment_channel = strtolower(trim( $arr[1] ?? '' ));
+			$this->form['payment_channel'] = $arr;
+			switch ($payment_method) {
+				case 'va':
+					$signature = strtoupper(
+						'##' .
+						$params['signature'] . // a. Signature Key(Key)
+						'##' .
+						$transaction->getInvoiceNo() . // b. rq_uuid
+						'##' .
+						$transaction->getTime() . // c. rq_datetime
+						'##' .
+						$transaction->getOrderID() . // d. order_id
+						'##' .
+						$this->form['amount'] . // e. Amount
+						'##' .
+						$transaction->getCurrency() . // f. Ccy
+						'##' .
+						$this->init->getMID() . // g. comm_code
+						'##' .
+						'SENDINVOICE' . // h. Mode
+						'##'
+					);
+					$this->request['data'] = [
+						'rq_uuid' => $this->form['invoice_no'],
+						'rq_datetime' => $transaction->getTime(),
+						'order_id' => $this->form['order_id'],
+						'amount' => $this->form['amount'],
+						'ccy' => $this->form['currency'],
+						'comm_code' => $this->init->getMID(),
+						'remark1' => $this->form['customer_phone'],
+						'remark2' => $this->form['customer_name'],
+						'remark3' => $this->form['customer_email'],
+						'update' => 'N',
+						'bank_code' => $payment_channel,
+						'va_expired' => $this->transaction->getExpireAt() * 60,
+						'password' => $params['password'],
+						'signature' => $signature,
+					];
+					$this->request['url'] =
+						SELF::CleanURL(
+							$this->init->getPaymentURL() .
+							'/rest/merchantpg/sendinvoice'
+						);
+					break;
+				case 'ewallet':
+					// OVO
+					// JENIUS
+					// GOPAY
+					// LINKAJA
+					$signature = strtoupper(
+						'##' .
+						$transaction->getInvoiceNo() . // a. rq_uuid
+						'##' .
+						$this->init->getMID() . // b. comm_code
+						'##' .
+						strtoupper($payment_channel) . // c. Product code
+						'##' .
+						$transaction->getOrderID() . // d. order_id
+						'##' .
+						$this->form['amount'] . // e. Amount
+						'##' .
+						'PUSHTOPAY' . // g. Mode
+						'##' .
+						$params['signature'] . // f. Signature Key(Key)
+						'##'
+					);
+					$this->request['data'] = [
+						'rq_uuid' => $this->form['invoice_no'],
+						'rq_datetime' => $transaction->getTime(),
+						'comm_code' => $this->init->getMID(),
+						'order_id' => $this->form['order_id'],
+						'product_code' => strtoupper($payment_channel),
+						'amount' => $this->form['amount'],
+						'customer_id' => $this->form['customer_phone'],
+						'promo_code' => '',
+						'is_sync' => '0',
+						'branch_id' => '',
+						'pos_id' => '',
+						'description' => $this->form['description'],
+						'signature' => $signature,
+					];
+					$this->request['url'] =
+						SELF::CleanURL(
+							$this->init->getPaymentURL() .
+							'/rest/digitalpay/pushtopay'
+						);
+					break;
+			}
 			$this->form['signature'] = $signature;
 			$signature = hash('sha256', $signature);
 			$this->form['signature_hashed'] = $signature;
-
-			// $this->form['description'] = $this->transaction->getDescription();
-
-			// $_paymentMethode =  explode(',', $this->transaction->getPaymentMethod());
-			// $payment_method = $_paymentMethode[0] ?? '';
-			// $payment_channel = $_paymentMethode[1] ?? '';
-
-			$this->form['payment_channel'] = $this->transaction->getPaymentMethod();
-
-			// $this->form['payment_type'] = $this->getPayId($_paymentMethode);
-
-			$this->form['payment_url'] = $this->init->getPaymentURL();
-			// go
+			// Go
 			$this->request['form'] = $this->form;
 			$this->request['time'] = $this->transaction->getTime();
-			$this->request['url'] =
-				SELF::CleanURL(
-					$this->form['payment_url'] .
-					'/rest/merchantpg/sendinvoice'
-				);
-
-			$this->request['data'] = [
-					'rq_uuid' => $this->form['invoice_no'], // $this->form['rq_uuid']
-					'rq_datetime' => $this->request['time'], // $this->form['rq_datetime'],
-					'order_id' => $this->form['order_id'],
-					'amount' => $this->form['amount'], // $amount_total,
-					'ccy' => $this->form['currency'],
-					'comm_code' => $this->init->getMID(),
-					'remark1' => $this->form['customer_phone'],
-					'remark2' => $this->form['customer_name'],
-					'remark3' => $this->form['customer_email'],
-					'update' => 'N',
-					'bank_code' => $this->form['payment_channel'], // $this->form['payment_type']->id,
-					'va_expired' => $this->transaction->getExpireAt() * 60,
-					'password' => $params['password'],
-					'signature' => $signature,
-				];
-
 			$this->request['headers'] = [
-				'Content-Type' => 'application/x-www-form-urlencoded',
-				'Accept' => 'application/json',
-				'Authorization' => 'Basic ' . base64_encode($this->init->getMID()),
-				'Content-Length' => strlen(json_encode($this->request['data'])),
+				// 'Content-Type' => 'application/x-www-form-urlencoded',
+				// 'Accept' => 'application/json',
+				// 'Authorization' => 'Basic ' . base64_encode($this->init->getMID()),
+				// 'Content-Length' => strlen(json_encode($this->request['data'])),
 			];
 			$this->request['option'] = [
-				// 'request_opt' => 'json',
-				'as_json' => true,
+				// // 'request_opt' => 'json',
+				// 'as_json' => true,
 			];
-
-// print_r($this->request);
-// exit();
-
-
 			$post = $this->DoRequest('POST', $this->request);
-print_r($post);
-exit();
-
+			print_r($post);
 			$response = (array) $post['response'];
-
 			extract($response);
-
-			if (!empty($status_code) && $status_code === 200) {
+			if (!empty($status_code) &&
+				$status_code === 200
+			) {
 				$content = (object) json_decode($content);
-
 				if (
 					!empty($content->error_code)
 					&& $content->error_code !== 0000
 				) {
-					// {
-					//     "rq_uuid": "123ABC-DEF4565",
-					//     "rs_datetime": "2020-11-06 10:01:20",
-					//     "error_code": "0000",
-					//     "error_message": "",
-					//     "va_number": "1609583508570383",
-					//     "expired": "2020-11-06 19:48:58",
-					//     "description": "Order ID = 21315 Remark = IDR",
-					//     "total_amount": "25815.00",
-					//     "amount": "21315",
-					//     "fee": "4500.00",
-					//     "bank_code": "002"
-					// }
-					$content = [
-						'status' => '0000',
-						'data' => (array) $content,
-					];
-
+					/* // Success VA
+					{
+						"rq_uuid": "INV24010741",
+						"rs_datetime": "2021-06-18 17:05:49",
+						"error_code": "0000",
+						"error_message": "",
+						"va_number": "8920800847010889",
+						"expired": "2021-06-18 19:05:48",
+						"description": "Payment",
+						"total_amount": "100000.00",
+						"amount": "100000.00",
+						"fee": "0.00",
+						"bank_code": "008"
+					}
+					*/
+					$res = [
+							'status' => '000',
+							'data' => (array) $content,
+						];
 					$result = [
-						'request' => (array) $this->request,
-						'response' => [
-							'content' => json_encode($content),
-							'status_code' => 200,
-							'va_number' => $content['data']['va_number'],
-							'bank_code' => $content['data']['bank_code'],
-							'amount' => $content['data']['total_amount'],
-							'transaction_id' => '', // vendor transaction_id
-							'order_id' => $this->form['order_id'], // PGA order_id
-							'payment_type' => $payment_method,
-							'transaction_status' => 'In Process',
-						],
-					];
+							'request' => (array) $this->request,
+							'response' => [
+									'content' => json_encode($res),
+									'status_code' => 200,
+								],
+						];
 				} else {
 					throw new \Exception($content->error_message);
 				}
@@ -253,11 +222,25 @@ exit();
 	public function Inquiry(object $request)
 	{
 		try {
-			SELF::Validate($request, ['order_id', 'signature']);
-			// Go
-			// validate in DB
-			$data = "0;Success;$request->order_id;180000.00;IDR;Paymen For $request->order_id;$request->rq_datetime"; //
-			$result = $data;
+			SELF::Validate($request, [
+				'order_id',
+				'signature'
+			]);
+			/*------------------------------v Start of Section v---------- */
+			// Here check the va
+			/*------------------------------^ End of Section ^---------- */
+			// Print result
+			/*
+				$result = "0;Success;$request->order_id;180000.00;IDR;Paymen For $request->order_id;$request->rq_datetime"; //
+			*/
+			$result =
+				"0;" .
+				"Success;" .
+				(isset($request->order_id) ? $request->order_id : 0) . ";" .
+				(isset($request->amount) ? $request->amount : 100000) . ".00;" .
+				(isset($request->currency) ? $request->currency : "IDR") . ";" .
+				(isset($request->description) ? $request->description : "Payment") . ";" .
+				(isset($request->rq_datetime) ? $request->rq_datetime : 0);
 		} catch (\Throwable $e) {
 			throw new \Exception($this->ThrowError($e));
 		}

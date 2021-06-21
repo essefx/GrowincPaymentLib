@@ -1,13 +1,43 @@
 <?php
 
-require_once "../../vendor/autoload.php";
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+date_default_timezone_set('Asia/Jakarta');
 
-$init = new \Growinc\Payment\Init('66a82db380f34bdfa9b1738eacfb1ac6'); /*(server_key , client_key)*/
-$init->setBaseURI('https://sandbox-api.espay.id');
+require_once __DIR__ . '/../../vendor/autoload.php';
+
+// Growinc
+$merchant_code = 'SGWGROWINC';
+$api_key = '66a82db380f34bdfa9b1738eacfb1ac6';
+$signature = 'ces0bu1jh9qrsakq';
+$password = 'Y0F,(5EM=#';
+// Selaras
+// $merchant_code = 'SGWVOGAME';
+// $api_key = 'def4e8b9a7c05937db137488858a5b45';
+// $signature = 'w76g0p75rz07wek7';
+// $password = '6T,Y@0O3^P';
+
+$init = new \Growinc\Payment\Init($merchant_code, $api_key);
+
+$init->setRequestURL('https://sandbox-api.espay.id/');
 
 $vendor = new \Growinc\Payment\Vendors\Espay($init);
 $raw_data = $_REQUEST ? (object) $_REQUEST : '';
-$file = './log/log_notif.txt';
+$file = './log/log_inquiry_' . time() . '.txt';
+
+/*
+{
+    "rq_uuid": "e9b185e4-031d-4794-bc21-1a3282506051",
+    "rq_datetime": "2021-06-18 14:14:39",
+    "sender_id": "SGOPLUS",
+    "receiver_id": "SGWGROWINC",
+    "password": "Y0F,(5EM=#",
+    "comm_code": "SGWGROWINC",
+    "member_code": "",
+    "order_id": "0024000477",
+    "signature": "2163c0d2b0148d37b8c05630fe8bb39e5fbcbb6ad4303c1c25c66ff7db3337bb"
+}
+*/
 
 try {
     if ($raw_data) {

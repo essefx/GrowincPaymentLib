@@ -7,19 +7,14 @@ $init = new \Growinc\Payment\Init(
 		'2FUyjWQWRwAS' // Shared Key
 	);
 $init->setPaymentURL('https://staging.doku.com/Suite/Receive');
-
-/*------------------------------ V V V Start of Required by EWALLET and QRIS ---------- */
-// $init->setCallbackURL('https://a.g-dev.io/callback');
-// $init->setReturnURL('https://a.g-dev.io/callback');
-$init->setCallbackURL('https://a.g-dev.io/secure/callback/demo');
-$init->setReturnURL('https://a.g-dev.io/secure/callback/demo');
-/*------------------------------ A A A End of Required by EWALLET and QRIS ---------- */
+// $init->setRequestURL('http://103.5.45.182:13579/parse/'); // LIVE Server for parser
+$init->setRequestURL('http://localhost:13578/parse/'); // Local DEV parser
 
 $transaction = new \Growinc\Payment\Transaction();
 $transaction->setCustomerName('LOREM IPSUM');
 $transaction->setCustomerEmail('lorem@ipsum.com');
 $transaction->setCustomerPhone('088812345678');
-$transaction->setCountrycode('IDN');
+$transaction->setCountrycode('360'); // ID
 //
 $transaction->setItem('Apple');
 $transaction->setAmount(rand(5000,10000) * 100);
@@ -37,21 +32,22 @@ $transaction->setDescription('Pembelian Elektronik');
 // 	alfamart
 // 	indomaret
 //
-$transaction->setPaymentMethod('bank_transfer,bca');
-// $transaction->setPaymentMethod('bank_transfer,permata');
-// $transaction->setPaymentMethod('bank_transfer,bni');
-// $transaction->setPaymentMethod('bank_transfer,cimb_niaga');
-// $transaction->setPaymentMethod('bank_transfer,atm_bersama');
+// $transaction->setPaymentMethod('va,danamon');
+$transaction->setPaymentMethod('va,bca');
+// $transaction->setPaymentMethod('va,permata');
+// $transaction->setPaymentMethod('va,bni');
+// $transaction->setPaymentMethod('va,cimb_niaga');
+// $transaction->setPaymentMethod('va,atm_bersama');
 
 $vendor = new \Growinc\Payment\Vendors\Doku($init);
 
-// try {
+try {
 	$result = $vendor->SecurePayment($transaction);
 	extract($result);
 	print_r($response);
 	//
 	// print_r($vendor->getRequest());
 	// print_r($vendor->getResponse()); // Get  PSR7 object
-// } catch (\Throwable $e) {
-// 	echo 'Payment failed: ' . $e->getCode();
-// }
+} catch (\Throwable $e) {
+	echo 'Payment failed: ' . $e->getMessage() . ':' . $e->getCode();
+}
