@@ -32,8 +32,8 @@ $transaction->setDescription('Pembelian Elektronik');
 // 	alfamart
 // 	indomaret
 //
-// $transaction->setPaymentMethod('va,danamon');
-$transaction->setPaymentMethod('va,bca');
+$transaction->setPaymentMethod('va,danamon');
+// $transaction->setPaymentMethod('va,bca');
 // $transaction->setPaymentMethod('va,permata');
 // $transaction->setPaymentMethod('va,bni');
 // $transaction->setPaymentMethod('va,cimb_niaga');

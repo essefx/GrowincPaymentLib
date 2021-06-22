@@ -104,7 +104,7 @@ class Doku extends Requestor implements VendorInterface
 			];
 			$this->request['url'] =
 				SELF::CleanURL(
-					$this->init->getPaymentURL() .
+					$this->init->getRequestURL() . '/' .
 					'doku' . '/' .
 					$payment_method . '/' .
 					$payment_channel . '/' .
@@ -142,7 +142,7 @@ class Doku extends Requestor implements VendorInterface
 								],
 						];
 				} else {
-					throw new \Exception($content->error_message);
+					throw new \Exception($content);
 				}
 			} else {
 				throw new \Exception($content);
