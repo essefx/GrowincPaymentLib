@@ -142,10 +142,10 @@ class Doku extends Requestor implements VendorInterface
 								],
 						];
 				} else {
-					throw new \Exception($content);
+					throw new \Exception($content ?? 'Parse unsuccessful');
 				}
 			} else {
-				throw new \Exception($content);
+				throw new \Exception($content ?? 'Parse failed');
 			}
 		} catch (\Throwable $e) {
 			throw new \Exception($this->ThrowError($e));
