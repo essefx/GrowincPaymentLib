@@ -1,1 +1,0 @@
-rq_uuid=2036e5d2-1c98-4d54-888b-4ef4e9060722&rq_datetime=2021-06-18+17%3A02%3A50&sender_id=SGOPLUS&receiver_id=SGWGROWINC&password=Y0F%2C%285EM%3D%23&comm_code=SGWGROWINC&member_code=&order_id=0024010566&signature=5dd4c3ea86e25f8d20a5164499ccc55d3ecdbd8bda7fb0f4abbeb66d54607b09

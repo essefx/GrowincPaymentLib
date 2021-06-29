@@ -18,6 +18,8 @@ class	Init
 	//
 	protected $backend_url;
 	protected $response_url;
+	// more
+	protected $params;
 
 	// merchant code
 	protected $merchant_code;
@@ -134,6 +136,18 @@ class	Init
 	public function getResponseUrl(): ?string
 	{
 		return $this->response_url;
+	}
+
+	//
+
+	public function setParams(array $params): void
+	{
+		$this->params = $params;
+	}
+
+	public function getParams()
+	{
+		return $this->params;
 	}
 
 	// merchant code

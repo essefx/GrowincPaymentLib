@@ -19,13 +19,12 @@ $password = 'Y0F,(5EM=#';
 
 $init = new \Growinc\Payment\Init($merchant_code, $api_key);
 $init->setPaymentURL('https://sandbox-api.espay.id/');
-
-$transaction = new \Growinc\Payment\Transaction();
-$transaction->setParams([
+$init->setParams([
 	'signature' => $signature,
 	'password' => $password,
 ]);
-//
+
+$transaction = new \Growinc\Payment\Transaction();
 $transaction->setCustomerName('LOREM IPSUM');
 $transaction->setCustomerEmail('lorem@ipsum.com');
 $transaction->setCustomerPhone('088812345678');
@@ -36,7 +35,22 @@ $transaction->setAmount(100000);
 $transaction->setDescription('Product Voucher Baru');
 //
 // $transaction->setPaymentMethod('va,008');
-$transaction->setPaymentMethod('ewallet,linkaja');
+//
+$transaction->setPaymentMethod('ibank,014'); // BCA VA Online
+// $transaction->setPaymentMethod('ibank,022'); // VA CIMB Niaga
+// $transaction->setPaymentMethod('ibank,011'); // Danamon Online Banking
+// $transaction->setPaymentMethod('ibank,046'); // DBS VA
+// $transaction->setPaymentMethod('ibank,008'); // Mandiri VA
+// $transaction->setPaymentMethod('ibank,016'); // Maybank VA
+// $transaction->setPaymentMethod('ibank,013'); // Permata VA
+//
+// $transaction->setPaymentMethod('ewallet,ovo');
+// $transaction->setPaymentMethod('ewallet,jenius');
+// $transaction->setPaymentMethod('ewallet,gopay');
+// $transaction->setPaymentMethod('ewallet,linkaja');
+//
+// $transaction->setPaymentMethod('cstore,066'); // indomaret
+// $transaction->setPaymentMethod('cstore,026'); // alfamart
 
 $vendor = new \Growinc\Payment\Vendors\Espay($init);
 

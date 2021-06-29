@@ -5,7 +5,7 @@ namespace Growinc\Payment;
 class TransactionExtends
 {
 
-/*
+/* */
 	protected $seller;
 	protected $is_paymen_notif;
 
@@ -170,6 +170,6 @@ class TransactionExtends
 	{
 		return $this->req_datetime;
 	}
-*/
+/* */
 
 }

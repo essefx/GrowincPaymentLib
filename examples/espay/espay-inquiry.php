@@ -35,8 +35,8 @@ try {
 	// 	"signature": "2163c0d2b0148d37b8c05630fe8bb39e5fbcbb6ad4303c1c25c66ff7db3337bb"
 	// }';
 
-	$file = './log/log_inquiry_' . time() . '_raw.txt';
-	file_put_contents($file, $raw_data, FILE_APPEND | LOCK_EX);
+	$file = '../_log/espay_log_inquiry_' . time();
+	// file_put_contents($file . '_raw.txt', $raw_data, FILE_APPEND | LOCK_EX);
 
 	if (!$raw_data) {
 		print_r('{data:null}');
@@ -45,12 +45,11 @@ try {
 		$raw_data = parse_str($raw_data, $data);
 		$request = (object) $data;
 		//
-		$file = './log/log_inquiry_' . time() . '.txt';
-		file_put_contents($file,
+		file_put_contents($file . '.txt',
 			json_encode($request, JSON_PRETTY_PRINT),
 			FILE_APPEND | LOCK_EX);
 		//
-		$result = $vendor->Inquiry($request);
+		$result = $vendor->IncomingInquiry($request);
 		print_r($result);
 	}
 } catch (\Throwable $e) {

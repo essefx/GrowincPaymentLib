@@ -17,6 +17,7 @@ yarn-error.log
 _/
 cert/
 public/
+examples/_log
 
 # Ignored files #
 #################

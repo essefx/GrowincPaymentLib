@@ -71,6 +71,8 @@ class GuzzleHttpClient
 							$this->effective_uri = $stats->getEffectiveUri();
 						},
 				];
+// print_r([$method, $url, $option]);
+// exit();
 			$response = $this->_guzzle_http->request(
 					(string) $method,
 					(string) $url,
