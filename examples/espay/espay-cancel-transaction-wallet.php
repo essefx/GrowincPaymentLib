@@ -3,7 +3,9 @@
 // require_once __DIR__ . '../../vendor/autoload.php';
 require_once "../../vendor/autoload.php";
 
-$init = new \Growinc\Payment\Init('66a82db380f34bdfa9b1738eacfb1ac6'); /*(server_key , client_key)*/
+$init = new \Growinc\Payment\Init(
+	'66a82db380f34bdfa9b1738eacfb1ac6'
+);
 $init->setBaseURI('https://sandbox-api.espay.id');
 $init->setRequestURL('https://sandbox-api.espay.id/rest/digitalpay/void');
 

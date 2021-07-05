@@ -6,7 +6,8 @@
 
 	require_once __DIR__ . '/../../vendor/autoload.php';
 
-	$init = new \Growinc\Payment\Init('ID01676', '0XScE2NdvU');
+	$init = new \Growinc\Payment\Init('ID01676', '0XScE2NdvU'); // Selaras
+	// $init = new \Growinc\Payment\Init('ID01625', '1gUbnGkdKA'); // Growinc
 
 	$init->setBaseURI('https://sandbox.ipay88.co.id');
 	$init->setRequestURL('https://sandbox.ipay88.co.id');

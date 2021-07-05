@@ -52,38 +52,35 @@ class Doku extends Requestor implements VendorInterface
 			$arr = explode(',', $this->transaction->getPaymentMethod());
 			$payment_method = strtolower(trim( $arr[0] ?? '' ));
 			$payment_channel = strtolower(trim( $arr[1] ?? '' ));
-			// Go
-			$this->request['form'] = $this->form;
-			$this->request['time'] = $this->transaction->getTime();
-			$this->request['url'] = $this->init->getPaymentURL();
+			// Data
+			$this->form['words'] =
+				number_format($this->form['amount'], 2, '.', '') .
+				$this->init->getMID() .
+				$this->init->getSecret() .
+				$this->form['order_id'];
 			$this->request['data'] = [
 				'MALLID' => $this->init->getMID(),
 				'CHAINMERCHANT' => 'NA',
-				'AMOUNT' => $this->form['amount'],
-				'PURCHASEAMOUNT' => $this->form['amount'],
+				'AMOUNT' => $this->form['amount'] . '.00',
+				'PURCHASEAMOUNT' => $this->form['amount'] . '.00',
 				'TRANSIDMERCHANT' => $this->form['order_id'],
 				'PAYMENTTYPE' => 'SALE',
-				'WORDS' => sha1(
-						number_format($this->form['amount'], 2, '.', '') .
-						$this->init->getMID() .
-						$this->init->getSecret() .
-						$this->form['order_id']
-					),
+				'WORDS' => sha1($this->form['words']),
 				'REQUESTDATETIME' => date('YmdHis', $this->transaction->getTime()),
 				'CURRENCY' => '360', // 'ID', 'IDN',
 				'PURCHASECURRENCY' => '360', // 'ID', 'IDN',
-				'SESSIONID' => 'test_session',
+				'SESSIONID' => 'doku_sessid',
 				'NAME' => $this->form['customer_name'],
 				'EMAIL' => $this->form['customer_email'],
-				'ADDITIONALDATA' => '',
+				'ADDITIONALDATA' => $this->transaction->getDescription(),
 				'BASKET' =>
-					'item 1,' .
+					$this->transaction->getItem() . ',' .
 					number_format($this->form['amount'], 2, '.', '') . ',1,' .
 					number_format($this->form['amount'], 2, '.', ''),
-				'SHIPPING_ADDRESS' => '',
+				'SHIPPING_ADDRESS' => $this->form['customer_address'],
 				'SHIPPING_CITY' => '',
 				'SHIPPING_STATE' => '',
-				'SHIPPING_COUNTRY' => '',
+				'SHIPPING_COUNTRY' => $this->form['country_code'],
 				'SHIPPING_ZIPCODE' => '',
 				'PAYMENTCHANNEL' => '',
 				'ADDRESS' => $this->form['customer_address'],
@@ -96,12 +93,17 @@ class Doku extends Requestor implements VendorInterface
 				'WORKPHONE' => '',
 				'BIRTHDATE' => '',
 			];
+			// Go
+			$this->request['form'] = $this->form;
+			$this->request['time'] = $this->transaction->getTime();
+			$this->request['url'] = $this->init->getPaymentURL();
 			$this->request['headers'] = [
 				//
 			];
 			$this->request['option'] = [
 				// 'as_json' => false,
 			];
+// print_r($this->form); exit();
 			$this->request['url'] =
 				SELF::CleanURL(
 					$this->init->getRequestURL() . '/' .
@@ -113,6 +115,7 @@ class Doku extends Requestor implements VendorInterface
 				);
 			// Go
 			$get = $this->DoRequest('GET', $this->request);
+print_r($get);
 			$response = (array) $get['response'];
 			extract($response);
 			if (!empty($status_code) &&

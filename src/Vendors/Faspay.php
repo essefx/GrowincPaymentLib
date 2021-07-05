@@ -56,7 +56,10 @@ class Faspay extends Requestor implements VendorInterface
 			// Go
 			$this->request['form'] = $this->form;
 			$this->request['time'] = $this->transaction->getTime();
-			$this->request['url'] = $this->init->getPaymentURL() . 'cvr/300011/10';
+			$this->request['url'] = SELF::CleanURL(
+				$this->init->getPaymentURL() .
+				'/cvr/300011/10'
+			);
 			$this->request['data'] = [
 					'request' => 'Post Data Transaction',
 					'merchant_id' => explode(' : ', $this->init->getMID())[1],
@@ -185,7 +188,7 @@ class Faspay extends Requestor implements VendorInterface
 			// Go
 			$this->request['form'] = $this->form;
 			$this->request['time'] = $this->transaction->getTime();
-			$this->request['url'] = $payment_url;
+			$this->request['url'] = SELF::CleanURL($payment_url);
 			$this->request['data'] = [];
 			$this->request['headers'] = [];
 			$this->request['option'] = [
@@ -252,10 +255,13 @@ class Faspay extends Requestor implements VendorInterface
 	public function ParsePaymentPage($channel_code, $payment_url, $param = '')
 	{
 		try {
-			$this->request['url'] = 'http://103.5.45.182:13579/parse/' .
+			$this->request['url'] = SELF::CleanURL(
+				$this->init->getRequestURL() .
 				'faspay' . '/' .
 				$channel_code . '/' .
-				base64_encode($payment_url) . '/' . $param;
+				base64_encode($payment_url) . '/' .
+				base64_encode($param)
+			);
 			// Go
 			$get = $this->DoRequest('GET', $this->request);
 			$response = (array) $get['response'];
@@ -312,7 +318,10 @@ class Faspay extends Requestor implements VendorInterface
 		try {
 			// Go
 			$this->request['time'] = time();
-			$this->request['url'] = $this->init->getRequestURL() . 'cvr/100001/10';
+			$this->request['url'] = SELF::CleanURL(
+				$this->init->getRequestURL() .
+				'/cvr/100001/10'
+			);
 			$this->request['signature'] =
 					explode(' : ', $this->init->getSecret())[0] .
 					explode(' : ', $this->init->getSecret())[1]
@@ -511,7 +520,10 @@ class Faspay extends Requestor implements VendorInterface
 					]);
 				// Go
 				$this->request['time'] = time();
-				$this->request['url'] = $this->init->getRequestURL() . 'cvr/100004/10';
+				$this->request['url'] = SELF::CleanURL(
+					$this->init->getRequestURL() .
+					'/cvr/100004/10'
+				);
 				$this->request['data'] = [
 						'request' => 'Inquiry Status Payment',
 						'trx_id' => $request->trx_id,

@@ -3,17 +3,12 @@
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 // DEV
-// $init = new \Growinc\Payment\Init('D8014', '28231019d86b773f94d30f503bd041c1'); // DuitkuGTIDev
-// $init->setBaseURI('https://sandbox.duitku.com/webapi/api/merchant');
-// $init->setPaymentURL('https://sandbox.duitku.com/webapi/api/merchant');
-// $init->setCallbackURL('https://a.g-dev.io/secure/callback/demo');
-// $init->setReturnURL('https://a.g-dev.io/secure/callback/demo');
-
-// PROD
-// $init = new \Growinc\Payment\Init('D6677', '9180265c1850e3ec2286f3b139d4c260');
-$init = new \Growinc\Payment\Init('D5126', '85d4f1e881f4e602d5b8d52705746ee2'); // DuitkuGTI
-$init->setBaseURI('https://passport.duitku.com/webapi/api/merchant');
-$init->setPaymentURL('https://passport.duitku.com/webapi/api/merchant');
+$init = new \Growinc\Payment\Init(
+	'D8014',
+	'28231019d86b773f94d30f503bd041c1'
+); // DuitkuGTIDev
+$init->setBaseURI('https://sandbox.duitku.com/webapi/api/merchant');
+$init->setPaymentURL('https://sandbox.duitku.com/webapi/api/merchant');
 $init->setCallbackURL('https://a.g-dev.io/secure/callback/demo');
 $init->setReturnURL('https://a.g-dev.io/secure/callback/demo');
 
@@ -37,7 +32,13 @@ $transaction->setAmount(100000);
 // SA	Shopee Pay Apps
 // AG	Bank Artha Graha
 // S1	Bank Sahabat Sampoerna
-$transaction->setPaymentMethod('M2');
+$transaction->setPaymentMethod('VC');
+
+// Pre-set Credit Card information
+$transaction->setCardNumber('4811111111111114');
+$transaction->setCardExpMonth('12');
+$transaction->setCardExpYear('24');
+$transaction->setCardCvv('123');
 
 $vendor = new \Growinc\Payment\Vendors\Duitku($init);
 

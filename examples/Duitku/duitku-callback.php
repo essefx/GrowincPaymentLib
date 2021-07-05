@@ -2,7 +2,10 @@
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-$init = new \Growinc\Payment\Init('D6677', '9180265c1850e3ec2286f3b139d4c260');
+$init = new \Growinc\Payment\Init(
+	'D6677',
+	'9180265c1850e3ec2286f3b139d4c260'
+);
 $vendor = new \Growinc\Payment\Vendors\Duitku($init);
 
 try {

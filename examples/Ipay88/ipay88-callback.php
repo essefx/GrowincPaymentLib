@@ -3,7 +3,9 @@
 	ini_set('display_errors', 1);
 	require_once __DIR__ . '/../../vendor/autoload.php';
 
-	$init = new \Growinc\Payment\Init('ID01676', '0XScE2NdvU');
+	$init = new \Growinc\Payment\Init('ID01676', '0XScE2NdvU'); // Selaras
+	// $init = new \Growinc\Payment\Init('ID01625', '1gUbnGkdKA'); // Growinc
+
 	$vendor = new \Growinc\Payment\Vendors\Ipay88($init);
 
 	try {

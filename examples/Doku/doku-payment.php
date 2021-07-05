@@ -4,21 +4,23 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 
 $init = new \Growinc\Payment\Init(
 		'11847610', // Store ID
-		'2FUyjWQWRwAS' // Shared Key
+		// '2FUyjWQWRwAS' // Shared Key Devel
+		'XpbCOVxrLWby' // Shared Key Prod
 	);
-$init->setPaymentURL('https://staging.doku.com/Suite/Receive');
+// $init->setPaymentURL('https://staging.doku.com/Suite/Receive');
+$init->setPaymentURL('https://pay.doku.com/Suite/Receive');
 // $init->setRequestURL('http://103.5.45.182:13579/parse/'); // LIVE Server for parser
 $init->setRequestURL('http://localhost:13578/parse/'); // Local DEV parser
 
 $transaction = new \Growinc\Payment\Transaction();
-$transaction->setCustomerName('LOREM IPSUM');
+$transaction->setCustomerName('Lorem Ipsum');
 $transaction->setCustomerEmail('lorem@ipsum.com');
-$transaction->setCustomerPhone('088812345678');
+$transaction->setCustomerPhone('081212345678');
 $transaction->setCountrycode('360'); // ID
 //
-$transaction->setItem('Apple');
+$transaction->setItem('Item Name');
 $transaction->setAmount(rand(5000,10000) * 100);
-$transaction->setDescription('Pembelian Elektronik');
+$transaction->setDescription('Product Description');
 //
 // Payment Method Supported:
 // 1. bank_transfer (VA) ----------- CURRENTLY ONLY THIS SUPPORTED
@@ -32,9 +34,9 @@ $transaction->setDescription('Pembelian Elektronik');
 // 	alfamart
 // 	indomaret
 //
-$transaction->setPaymentMethod('va,danamon');
+// $transaction->setPaymentMethod('va,danamon');
 // $transaction->setPaymentMethod('va,bca');
-// $transaction->setPaymentMethod('va,permata');
+$transaction->setPaymentMethod('va,permata');
 // $transaction->setPaymentMethod('va,bni');
 // $transaction->setPaymentMethod('va,cimb_niaga');
 // $transaction->setPaymentMethod('va,atm_bersama');

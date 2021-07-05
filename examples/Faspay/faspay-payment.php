@@ -4,24 +4,16 @@ date_default_timezone_set('Asia/Jakarta');
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-/*
-Merchant name: VoGame Indonesia
-Merchant id: 33660
-User id: bot33660
-Password: p@ssw0rd
-*/
 $init = new \Growinc\Payment\Init(
-		// 'VoGame Indonesia : 33660', // Name & MID
-		// 'bot33660 : p@ssw0rd' // UserID & Pass
-		'VoGame Indonesia : 33660', // Name & MID
-		'bot33660 : dtehsbsB' // UserID & Pass
-		// 'PT Growinc Teknologi Indonesia : 33495', // Name & MID
-		// 'bot33495 : p@ssw0rd' // UserID & Pass
+		'PT Growinc Teknologi Indonesia : 33495', // Name & MID
+		'bot33495 : p@ssw0rd' // UserID & Pass
 	);
 // Dev URL
 // $init->setPaymentURL('https://dev.faspay.co.id/'); // Post Data Transaction
 // Live URL
 $init->setPaymentURL('https://web.faspay.co.id/'); // Post Data Transaction
+// $init->setRequestURL('http://103.5.45.182:13579/parse/');
+$init->setRequestURL('http://localhost:14002/parse/');
 
 $order_id = time();
 $invoice_no = 'INV' . $order_id;
@@ -157,7 +149,7 @@ try {
 		if (!empty($content->data->redirect_url)) {
 			$payment_url = $content->data->redirect_url;
 			$result = $vendor->ParsePaymentPage(
-					'ovo',
+					'ewallet/ovo',
 					$payment_url,
 					$transaction->getCustomerPhone()
 				);
@@ -169,13 +161,21 @@ try {
 				"status": "000",
 				"data": {
 					"payment_url": "https:\/\/dev.faspay.co.id\/pws\/100003\/0830000010100000\/468c236cea48601a3b0b4c512e830ae7215060aa?trx_id=3366081200000281&merchant_id=33660&bill_no=1612789528",
-					"phone_number": "082298438769"
+					"pay_code": "082298438769"
+				}
+			}
+			{
+				"status": "000",
+				"data": {
+					"payment_url": "https:\/\/web.faspay.co.id\/pws\/100003\/2830000010100000\/57b05ef9129ffe7cf13d320165078f2a98fffc0d?trx_id=3366081247879377&merchant_id=33660&bill_no=1625314799",
+					"channel": "ovo",
+					"pay_code": "082298438769"
 				}
 			}
 			*/
 			$content = (object) json_decode($result['response']['content']);
-			$phone_number = $content->data->phone_number;
-			print_r($phone_number);
+			$pay_code  = $content->data->pay_code;
+			print_r($pay_code);
 		}
 	}
 

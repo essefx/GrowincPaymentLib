@@ -4,17 +4,7 @@ date_default_timezone_set('Asia/Jakarta');
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-/*
-Merchant name: VoGame Indonesia
-Merchant id: 33660
-User id: bot33660
-Password: p@ssw0rd
-*/
 $init = new \Growinc\Payment\Init(
-		// 'VoGame Indonesia : 33660', // Name & MID
-		// 'bot33660 : p@ssw0rd' // UserID & Pass
-		// 'VoGame Indonesia : 33660', // Name & MID
-		// 'bot33660 : dtehsbsB' // UserID & Pass
 		'PT Growinc Teknologi Indonesia : 33495', // Name & MID
 		'bot33495 : p@ssw0rd' // UserID & Pass
 	);
