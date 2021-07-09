@@ -247,15 +247,22 @@ class Midtrans extends Requestor implements VendorInterface
 					}
 					break;
 			}
+			$this->form['merchant_code'] = [
+				'client_key' => $this->init->getMID(),
+				'server_key' => $this->init->getSecret(),
+			];
+			$authorization = $this->init->getSecret() . ':';
+			$this->form['authorization'] = $authorization;
+			$this->form['authorization_base64_encode'] = base64_encode($authorization);
 			// Go
-			$this->request['data'] = $this->form['data'];
 			$this->request['form'] = $this->form;
 			$this->request['time'] = $this->transaction->getTime();
 			$this->request['url'] = $this->form['payment_url'];
+			$this->request['data'] = $this->form['data'];
 			$this->request['headers'] = [
 				'Content-Type' => 'application/json',
 				'Accept' => 'application/json',
-				'Authorization' => 'Basic ' . base64_encode($this->init->getSecret() . ':'),
+				'Authorization' => 'Basic ' . base64_encode($authorization),
 				'Content-Length' => strlen(json_encode($this->request['data'])),
 			];
 			$this->request['option'] = [
@@ -349,25 +356,15 @@ class Midtrans extends Requestor implements VendorInterface
 						'data' => (array) $content,
 					];
 				} else {
-					$res = [
-						'status' => $content->status_message ?? 999,
-						'data' => (array) $content,
-					];
+					throw new \Exception($content->status_message, 901);
 				}
-				$result = [
-					'request' => (array) $this->request,
-					'response' => [
-						'content' => json_encode($res),
-						'status_code' => 200,
-					],
-				];
 			} else {
-				throw new \Exception($content);
+				throw new \Exception($content, 902);
 			}
 		} catch (\Throwable $e) {
-			throw new \Exception($this->ThrowError($e));
+			return SELF::JSONError($e, 400);
 		}
-		return $result ?? [];
+		return SELF::JSONResult($this->request, $res, $status_code);
 	}
 
 	public function Callback(object $request)
@@ -404,20 +401,13 @@ class Midtrans extends Requestor implements VendorInterface
 					'status' => '000',
 					'data' => (array) $request,
 				];
-				$result = [
-					'request' => (array) $request,
-					'response' => [
-						'content' => json_encode($res),
-						'status_code' => 200,
-					],
-				];
 			} else {
-				throw new \Exception('Signature check failed');
+				throw new \Exception('Signature check failed', 902);
 			}
 		} catch (\Throwable $e) {
-			throw new \Exception($this->ThrowError($e));
+			return SELF::JSONError($e, 400);
 		}
-		return $result ?? [];
+		return SELF::JSONResult($request, $res, 200);
 	}
 
 	public function CallbackAlt(object $request)
@@ -499,23 +489,16 @@ class Midtrans extends Requestor implements VendorInterface
 						'status' => '000',
 						'data' => (array) $content,
 					];
-					$result = [
-						'request' => (array) $request,
-						'response' => [
-							'content' => json_encode($res),
-							'status_code' => 200,
-						],
-					];
 				} else {
-					throw new \Exception($content->status_message);
+					throw new \Exception($content->status_message, 901);
 				}
 			} else {
-				throw new \Exception($content);
+				throw new \Exception($content, 902);
 			}
 		} catch (\Throwable $e) {
-			throw new \Exception($this->ThrowError($e));
+			return SELF::JSONError($e, 400);
 		}
-		return $result ?? [];
+		return SELF::JSONResult($request, $res, 200);
 	}
 
 	public function Cancel(object $request)

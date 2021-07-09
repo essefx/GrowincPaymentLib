@@ -12,13 +12,10 @@ $init = new \Growinc\Payment\Init(
 	'Mid-client-sspTptaqbt2Xyq_q', // Client Key
 	'Mid-server-nraF1k8otJqrXLwnL7pus1eB' // Server Key
 );
-// Devel
-// $host = 'https://api.sandbox.midtrans.com/';
-// Prod
-$host = 'https://api.midtrans.com/';
-
+// $host = 'https://api.sandbox.midtrans.com/'; // Devel
+$host = 'https://api.midtrans.com/'; // Prod
 $init->setPaymentURL($host);
-$init->setTokenURL($host . 'v2/token');
+
 // For Gopay
 $init->setCallbackURL('https://a.g-dev.io/secure/callback/demo');
 
@@ -32,11 +29,12 @@ $transaction->setItem('Apple');
 $transaction->setAmount(100000);
 $transaction->setDescription('Pembelian Elektronik');
 
-// credit card
+// Credit card
 $transaction->setCardNumber('4811111111111114');
 $transaction->setCardExpMonth('12');
 $transaction->setCardExpYear('24');
 $transaction->setCardCvv('123');
+$init->setTokenURL($host . 'v2/token');
 
 /*	paymentType AKA paymentMethod:
 	bank transfer
@@ -64,7 +62,7 @@ $transaction->setCardCvv('123');
 */
 
 /*------------------------------ V V V Start of Bank transfer ---------- */
-$transaction->setPaymentMethod('bank_transfer,permata');
+// $transaction->setPaymentMethod('bank_transfer,permata');
 // $transaction->setPaymentMethod('bank_transfer,bni');
 // $transaction->setPaymentMethod('bank_transfer,bca');
 // $transaction->setPaymentMethod('bank_transfer,bri');
@@ -73,7 +71,7 @@ $transaction->setPaymentMethod('bank_transfer,permata');
 
 /*------------------------------ V V V Start of E-wallet ---------- */
 // $transaction->setPaymentMethod('qris'); // Payment channel is not activated
-// $transaction->setPaymentMethod('gopay');
+$transaction->setPaymentMethod('gopay');
 // $transaction->setPaymentMethod('shopeepay'); // Payment channel is not activated
 /*------------------------------ A A A End of E-wallet ---------- */
 

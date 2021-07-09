@@ -25,9 +25,29 @@ trait Helper
 	public static function ThrowError($e) : string
 	{
 		if ($e instanceof \Exception) {
-			return implode(':', [$e->getMessage(), basename($e->getFile()), $e->getLine()]);
+			return implode(':', [
+				$e->getMessage(),
+				basename($e->getFile()),
+				$e->getLine()]
+			);
 		}
 		return $e;
+	}
+
+	/**
+	 *
+	 * Return response
+	 *
+	 */
+	public static function JSONResult($request, $response, $status_code = 200) : array
+	{
+		return [
+			'request' => (array) $request,
+			'response' => [
+				'content' => json_encode($response),
+				'status_code' => $status_code,
+			],
+		];
 	}
 
 	/**
@@ -35,17 +55,19 @@ trait Helper
 	 * Debug show file & line as JSON
 	 *
 	 */
-	public static function JSONError($e) : string
+	public static function JSONError($e, $status_code = 200) : array
 	{
-		return json_encode([
+		return [
+			'response' => [
 				'content' => json_encode([
-						'error_message' => $e->getMessage(),
-						'error_file' => $e->getFile(),
-						'error_line' => $e->getLine(),
-					]),
-				'status_code' => (int) $e->getResponse()->getStatusCode(),
-				'headers' => $e->getResponse()->getHeaders(),
-			]);
+					'status' => $e->getCode(),
+					'error_message' => $e->getMessage(),
+					'error_file' => basename($e->getFile()),
+					'error_line' => $e->getLine(),
+				]),
+				'status_code' => $status_code,
+			]
+		];
 	}
 
 	/**

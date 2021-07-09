@@ -7,15 +7,15 @@ date_default_timezone_set('Asia/Jakarta');
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 // Growinc
-$merchant_code = 'SGWGROWINC';
-$api_key = '66a82db380f34bdfa9b1738eacfb1ac6';
-$signature = 'ces0bu1jh9qrsakq';
-$password = 'Y0F,(5EM=#';
+// $merchant_code = 'SGWGROWINC';
+// $api_key = '66a82db380f34bdfa9b1738eacfb1ac6';
+// $signature = 'ces0bu1jh9qrsakq';
+// $password = 'Y0F,(5EM=#';
 // Selaras
-// $merchant_code = 'SGWVOGAME';
-// $api_key = 'def4e8b9a7c05937db137488858a5b45';
-// $signature = 'w76g0p75rz07wek7';
-// $password = '6T,Y@0O3^P';
+$merchant_code = 'SGWVOGAME';
+$api_key = 'def4e8b9a7c05937db137488858a5b45';
+$signature = 'w76g0p75rz07wek7';
+$password = '6T,Y@0O3^P';
 
 $init = new \Growinc\Payment\Init($merchant_code, $api_key);
 $init->setRequestURL('https://sandbox-api.espay.id/');

@@ -344,11 +344,11 @@ class Espay extends Requestor implements VendorInterface
 			$this->request['option'] = [
 				// 'as_json' => true,
 			];
-// print_r($this->request);
-// exit();
+			// print_r($this->request);
+			// exit();
 			$post = $this->DoRequest('POST', $this->request);
-// print_r($post);
-// exit();
+			// print_r($post);
+			// exit();
 			$response = (array) $post['response'];
 			extract($response);
 			if (!empty($status_code) &&
@@ -386,26 +386,19 @@ class Espay extends Requestor implements VendorInterface
 					}
 					*/
 					$res = [
-							'status' => '000',
-							'data' => (array) $content,
-						];
-					$result = [
-							'request' => (array) $this->request,
-							'response' => [
-									'content' => json_encode($res),
-									'status_code' => 200,
-								],
-						];
+						'status' => '000',
+						'data' => (array) $content,
+					];
 				} else {
-					throw new \Exception($content->error_message);
+					throw new \Exception($content->error_message, 901);
 				}
 			} else {
-				throw new \Exception($content);
+				throw new \Exception($content, 902);
 			}
 		} catch (\Throwable $e) {
-			throw new \Exception($this->ThrowError($e));
+			return SELF::JSONError($e, 400);
 		}
-		return $result ?? [];
+		return SELF::JSONResult($this->request, $res, $status_code);
 	}
 
 	public function Callback(object $request)
@@ -473,11 +466,11 @@ class Espay extends Requestor implements VendorInterface
 			$this->request['option'] = [
 				// 'as_json' => true,
 			];
-// print_r($this->request);
-// exit();
+			// print_r($this->request);
+			// exit();
 			$post = $this->DoRequest('POST', $this->request);
-// print_r($post);
-// exit();
+			// print_r($post);
+			// exit();
 			$response = (array) $post['response'];
 			extract($response);
 			if (!empty($status_code) && $status_code === 200) {
@@ -527,26 +520,19 @@ class Espay extends Requestor implements VendorInterface
 					// SP = Suspect
 					// IP = In Process
 					$res = [
-							'status' => '000',
-							'data' => (array) $content,
-						];
-					$result = [
-							'request' => (array) $request,
-							'response' => [
-									'content' => json_encode($res),
-									'status_code' => 200,
-								],
-						];
+						'status' => '000',
+						'data' => (array) $content,
+					];
 				} else {
-					throw new \Exception($content->error_message);
+					throw new \Exception($content->error_message, 901);
 				}
 			} else {
-				throw new \Exception($content);
+				throw new \Exception($content, 902);
 			}
 		} catch (\Throwable $e) {
-			throw new \Exception($this->ThrowError($e));
+			return SELF::JSONError($e, 400);
 		}
-		return $result ?? [];
+		return SELF::JSONResult($this->request, $res, $status_code);
 	}
 
 	public function Cancel(object $request)
@@ -579,92 +565,92 @@ class Espay extends Requestor implements VendorInterface
 
 	public function CancelTransaction(\Growinc\Payment\Transaction $transaction)
 	{
-		try {
-			$this->transaction = $transaction;
-			//
-			$credential = \explode("//", $this->transaction->getCredentialAttr());
-			$signature_key = $credential[0];
-			$credential_password = $credential[1];
-			$comm_code = $credential[2];
-			$expire_transaction = $credential[3];
-			//
-			$this->form['rq_uuid'] = $this->transaction->getRuuid();
-			$this->form['rq_datetime'] = $this->transaction->getReqDateTime();
-			$this->form['comm_code'] = $comm_code;
-			$this->form['order_id'] = $this->transaction->getOrderID();
-			$this->form['tx_remark'] = $this->transaction->getTransactionRemak();
+		// try {
+		// 	$this->transaction = $transaction;
+		// 	//
+		// 	$credential = \explode("//", $this->transaction->getCredentialAttr());
+		// 	$signature_key = $credential[0];
+		// 	$credential_password = $credential[1];
+		// 	$comm_code = $credential[2];
+		// 	$expire_transaction = $credential[3];
+		// 	//
+		// 	$this->form['rq_uuid'] = $this->transaction->getRuuid();
+		// 	$this->form['rq_datetime'] = $this->transaction->getReqDateTime();
+		// 	$this->form['comm_code'] = $comm_code;
+		// 	$this->form['order_id'] = $this->transaction->getOrderID();
+		// 	$this->form['tx_remark'] = $this->transaction->getTransactionRemak();
 
-			$uppercase = strtoupper('##' . $signature_key . '##' .
-				$transaction->getReqDateTime() . '##' . $transaction->getOrderID() . '##' .
-				$expire_transaction . '##');
-			$signature = hash('sha256', $uppercase);
+		// 	$uppercase = strtoupper('##' . $signature_key . '##' .
+		// 		$transaction->getReqDateTime() . '##' . $transaction->getOrderID() . '##' .
+		// 		$expire_transaction . '##');
+		// 	$signature = hash('sha256', $uppercase);
 
-			$this->form['signature'] = $signature;
-			//
-			$this->form['request_url'] = $this->init->getRequestURL();
-			// go
-			$this->request['form'] = $this->form;
-			$this->request['time'] = $this->transaction->getTime();
-			$this->request['url'] = $this->form['request_url'];
+		// 	$this->form['signature'] = $signature;
+		// 	//
+		// 	$this->form['request_url'] = $this->init->getRequestURL();
+		// 	// go
+		// 	$this->request['form'] = $this->form;
+		// 	$this->request['time'] = $this->transaction->getTime();
+		// 	$this->request['url'] = $this->form['request_url'];
 
-			$this->request['data'] = [
-				'uuid' => $this->form['rq_uuid'],
-				'rq_datetime' => $this->form['rq_datetime'],
-				'comm_code' => $this->form['comm_code'],
-				'order_id' => $this->form['order_id'],
-				'tx_remark' => $this->form['tx_remark'],
-				'signature' => $this->form['signature'],
-			];
+		// 	$this->request['data'] = [
+		// 		'uuid' => $this->form['rq_uuid'],
+		// 		'rq_datetime' => $this->form['rq_datetime'],
+		// 		'comm_code' => $this->form['comm_code'],
+		// 		'order_id' => $this->form['order_id'],
+		// 		'tx_remark' => $this->form['tx_remark'],
+		// 		'signature' => $this->form['signature'],
+		// 	];
 
-			$this->request['headers'] = [
-				'Content-Type' => 'application/x-www-form-urlencoded',
-				// 'Content-Type' => 'application/json',
-				'Accept' => 'application/json',
-				'Authorization' => 'Basic ' . base64_encode($this->init->getMID()),
-				'Content-Length' => strlen(json_encode($this->request['data'])),
-			];
+		// 	$this->request['headers'] = [
+		// 		'Content-Type' => 'application/x-www-form-urlencoded',
+		// 		// 'Content-Type' => 'application/json',
+		// 		'Accept' => 'application/json',
+		// 		'Authorization' => 'Basic ' . base64_encode($this->init->getMID()),
+		// 		'Content-Length' => strlen(json_encode($this->request['data'])),
+		// 	];
 
-			$this->request['option'] = [
-				'request_opt' => 'json',
-			];
+		// 	$this->request['option'] = [
+		// 		'request_opt' => 'json',
+		// 	];
 
-			$post = $this->DoRequest('POST', $this->request);
+		// 	$post = $this->DoRequest('POST', $this->request);
 
-			$response = (array) $post['response'];
-			extract($response);
-			$content = (object) json_decode($content);
+		// 	$response = (array) $post['response'];
+		// 	extract($response);
+		// 	$content = (object) json_decode($content);
 
-			if (!empty($status_code) && $status_code === 200) {
-				if (!empty($content->error_code) && ($content->error_code == 0000)) {
+		// 	if (!empty($status_code) && $status_code === 200) {
+		// 		if (!empty($content->error_code) && ($content->error_code == 0000)) {
 
-					// "rq_uuid": "INV07937085",
-					// "rs_datetime": "2020-12-14 18:02:00",
-					// "error_code": "0000",
-					// "error_message": "",
-					// "tx_id": "ESP1607937091F0RA"
+		// 			// "rq_uuid": "INV07937085",
+		// 			// "rs_datetime": "2020-12-14 18:02:00",
+		// 			// "error_code": "0000",
+		// 			// "error_message": "",
+		// 			// "tx_id": "ESP1607937091F0RA"
 
-					$content = [
-						'status' => '0000',
-						'data' => (array) $content,
-					];
+		// 			$content = [
+		// 				'status' => '0000',
+		// 				'data' => (array) $content,
+		// 			];
 
-					$result = [
-						'request' => (array) $this->request,
-						'response' => [
-							'content' => json_encode($content),
-							'status_code' => 200,
-						],
-					];
-				} else {
-					throw new \Exception($content->error_message);
-				}
-			} else {
-				throw new \Exception($content);
-			}
-		} catch (\Throwable $e) {
-			throw new \Exception($this->ThrowError($e));
-		}
-		return $result ?? [];
+		// 			$result = [
+		// 				'request' => (array) $this->request,
+		// 				'response' => [
+		// 					'content' => json_encode($content),
+		// 					'status_code' => 200,
+		// 				],
+		// 			];
+		// 		} else {
+		// 			throw new \Exception($content->error_message);
+		// 		}
+		// 	} else {
+		// 		throw new \Exception($content);
+		// 	}
+		// } catch (\Throwable $e) {
+		// 	throw new \Exception($this->ThrowError($e));
+		// }
+		// return $result ?? [];
 	}
 
 	// public function SecurePaymentWallet(\Growinc\Payment\Transaction $transaction)
@@ -865,96 +851,96 @@ class Espay extends Requestor implements VendorInterface
 
 	public function CancelTransactionWallet(\Growinc\Payment\Transaction $transaction)
 	{
-		try {
-			$this->transaction = $transaction;
-			// credential
-			$credential = \explode("//", $this->transaction->getCredentialAttr());
-			$signature_key = $credential[0];
-			$credential_password = $credential[1];
-			$comm_code = $credential[2];
-			$_void = $credential[3];
-			// signature
-			$uppercase = strtoupper('##' . $transaction->getRuuid() . '##' . $comm_code . '##' .  $transaction->getProductCode()
-				. '##' .  $transaction->getOrderID() . '##' . $transaction->getAmount() . '##' . $_void . '##' . $signature_key . '##');
-			$signature = hash('sha256', $uppercase);
-			//
-			$this->form['rq_uuid'] = $this->transaction->getRuuid();
-			$this->form['rq_datetime'] = $this->transaction->getReqDateTime();
-			$this->form['comm_code'] = $comm_code;
-			$this->form['order_id'] = $this->transaction->getOrderID();
-			$this->form['trx_id'] = $this->transaction->getTransactionID();
-			$this->form['product_code'] = $this->transaction->getProductCode();
-			$this->form['amount'] = $this->transaction->getAmount();
-			$this->form['signature'] = $signature;
-			//
-			$this->form['request_url'] = $this->init->getRequestURL();
-			// go
-			$this->request['form'] = $this->form;
-			$this->request['time'] = $this->transaction->getTime();
-			$this->request['url'] = $this->form['request_url'];
+		// try {
+		// 	$this->transaction = $transaction;
+		// 	// credential
+		// 	$credential = \explode("//", $this->transaction->getCredentialAttr());
+		// 	$signature_key = $credential[0];
+		// 	$credential_password = $credential[1];
+		// 	$comm_code = $credential[2];
+		// 	$_void = $credential[3];
+		// 	// signature
+		// 	$uppercase = strtoupper('##' . $transaction->getRuuid() . '##' . $comm_code . '##' .  $transaction->getProductCode()
+		// 		. '##' .  $transaction->getOrderID() . '##' . $transaction->getAmount() . '##' . $_void . '##' . $signature_key . '##');
+		// 	$signature = hash('sha256', $uppercase);
+		// 	//
+		// 	$this->form['rq_uuid'] = $this->transaction->getRuuid();
+		// 	$this->form['rq_datetime'] = $this->transaction->getReqDateTime();
+		// 	$this->form['comm_code'] = $comm_code;
+		// 	$this->form['order_id'] = $this->transaction->getOrderID();
+		// 	$this->form['trx_id'] = $this->transaction->getTransactionID();
+		// 	$this->form['product_code'] = $this->transaction->getProductCode();
+		// 	$this->form['amount'] = $this->transaction->getAmount();
+		// 	$this->form['signature'] = $signature;
+		// 	//
+		// 	$this->form['request_url'] = $this->init->getRequestURL();
+		// 	// go
+		// 	$this->request['form'] = $this->form;
+		// 	$this->request['time'] = $this->transaction->getTime();
+		// 	$this->request['url'] = $this->form['request_url'];
 
-			$this->request['data'] = [
-				'rq_uuid' => $this->form['rq_uuid'],
-				'rq_datetime' => $this->form['rq_datetime'],
-				'comm_code' => $this->form['comm_code'],
-				'order_id' => $this->form['order_id'],
-				'trx_id' => $this->form['trx_id'],
-				'product_code' => $this->form['product_code'],
-				'amount' => $this->form['amount'],
-				'signature' => $this->form['signature'],
-			];
+		// 	$this->request['data'] = [
+		// 		'rq_uuid' => $this->form['rq_uuid'],
+		// 		'rq_datetime' => $this->form['rq_datetime'],
+		// 		'comm_code' => $this->form['comm_code'],
+		// 		'order_id' => $this->form['order_id'],
+		// 		'trx_id' => $this->form['trx_id'],
+		// 		'product_code' => $this->form['product_code'],
+		// 		'amount' => $this->form['amount'],
+		// 		'signature' => $this->form['signature'],
+		// 	];
 
-			$this->request['headers'] = [
-				'Content-Type' => 'application/x-www-form-urlencoded',
-				// 'Content-Type' => 'application/json',
-				'Accept' => 'application/json',
-				'Authorization' => 'Basic ' . base64_encode("GROWINC:$credential_password"),
-				'Content-Length' => strlen(json_encode($this->request['data'])),
-			];
+		// 	$this->request['headers'] = [
+		// 		'Content-Type' => 'application/x-www-form-urlencoded',
+		// 		// 'Content-Type' => 'application/json',
+		// 		'Accept' => 'application/json',
+		// 		'Authorization' => 'Basic ' . base64_encode("GROWINC:$credential_password"),
+		// 		'Content-Length' => strlen(json_encode($this->request['data'])),
+		// 	];
 
-			$this->request['option'] = [
-				'request_opt' => 'json',
-			];
+		// 	$this->request['option'] = [
+		// 		'request_opt' => 'json',
+		// 	];
 
-			$post = $this->DoRequest('POST', $this->request);
+		// 	$post = $this->DoRequest('POST', $this->request);
 
-			$response = (array) $post['response'];
-			extract($response);
-			$content = (object) json_decode($content);
+		// 	$response = (array) $post['response'];
+		// 	extract($response);
+		// 	$content = (object) json_decode($content);
 
-			if (!empty($status_code) && $status_code === 200) {
-				if (!empty($content->error_code) && ($content->error_code == 0000)) {
+		// 	if (!empty($status_code) && $status_code === 200) {
+		// 		if (!empty($content->error_code) && ($content->error_code == 0000)) {
 
-					// "rq_uuid": "INV08101194",
-					// "rs_datetime": "2020-12-16 14:28:48",
-					// "error_code": "0000",
-					// "error_message": "",
-					// "order_id": "0008101194",
-					// "trx_id": "ESP1608101205KMY7",
-					// "trx_status": "V"
+		// 			// "rq_uuid": "INV08101194",
+		// 			// "rs_datetime": "2020-12-16 14:28:48",
+		// 			// "error_code": "0000",
+		// 			// "error_message": "",
+		// 			// "order_id": "0008101194",
+		// 			// "trx_id": "ESP1608101205KMY7",
+		// 			// "trx_status": "V"
 
-					$content = [
-						'status' => '0000',
-						'data' => (array) $content,
-					];
+		// 			$content = [
+		// 				'status' => '0000',
+		// 				'data' => (array) $content,
+		// 			];
 
-					$result = [
-						'request' => (array) $this->request,
-						'response' => [
-							'content' => json_encode($content),
-							'status_code' => 200,
-						],
-					];
-				} else {
-					throw new \Exception($content->error_desc);
-				}
-			} else {
-				throw new \Exception($content);
-			}
-		} catch (\Throwable $e) {
-			throw new \Exception($this->ThrowError($e));
-		}
-		return $result ?? [];
+		// 			$result = [
+		// 				'request' => (array) $this->request,
+		// 				'response' => [
+		// 					'content' => json_encode($content),
+		// 					'status_code' => 200,
+		// 				],
+		// 			];
+		// 		} else {
+		// 			throw new \Exception($content->error_desc);
+		// 		}
+		// 	} else {
+		// 		throw new \Exception($content);
+		// 	}
+		// } catch (\Throwable $e) {
+		// 	throw new \Exception($this->ThrowError($e));
+		// }
+		// return $result ?? [];
 	}
 
 	// //

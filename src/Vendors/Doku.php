@@ -103,7 +103,7 @@ class Doku extends Requestor implements VendorInterface
 			$this->request['option'] = [
 				// 'as_json' => false,
 			];
-// print_r($this->form); exit();
+			// print_r($this->form); exit();
 			$this->request['url'] =
 				SELF::CleanURL(
 					$this->init->getRequestURL() . '/' .
@@ -115,7 +115,7 @@ class Doku extends Requestor implements VendorInterface
 				);
 			// Go
 			$get = $this->DoRequest('GET', $this->request);
-print_r($get);
+			// print_r($get);
 			$response = (array) $get['response'];
 			extract($response);
 			if (!empty($status_code) &&
@@ -137,23 +137,20 @@ print_r($get);
 					}
 					*/
 					$res = $content;
-					$result = [
-							'request' => (array) $this->request,
-							'response' => [
-									'content' => json_encode($res),
-									'status_code' => 200,
-								],
-						];
+					$res = [
+						'status' => '000',
+						'data' => (array) $content,
+					];
 				} else {
-					throw new \Exception($content ?? 'Parse unsuccessful');
+					throw new \Exception('Parse unsuccessful', 901);
 				}
 			} else {
-				throw new \Exception($content ?? 'Parse failed');
+				throw new \Exception('Parse failed', 902);
 			}
 		} catch (\Throwable $e) {
-			throw new \Exception($this->ThrowError($e));
+			return SELF::JSONError($e, 400);
 		}
-		return $result ?? [];
+		return SELF::JSONResult($this->request, $res, $status_code);
 	}
 
 	public function Callback(object $request)
