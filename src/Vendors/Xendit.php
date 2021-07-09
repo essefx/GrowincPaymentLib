@@ -181,23 +181,34 @@ class Xendit extends Requestor implements VendorInterface
 							break;
 					}
 					*/
-					$this->request['url'] = $this->init->getPaymentURL() . '/ewallets/charges';
+					$this->request['url'] = SELF::CleanURL(
+							$this->init->getPaymentURL() .
+							'/ewallets/charges'
+					);
 					$this->request['data'] = [
 							'reference_id' => $this->form['order_id'],
 							'currency' => $this->form['currency'] ?? 'IDR',
-							'amount' => $this->form['amount'],
+							'amount' => (float) $this->form['amount'],
 							'checkout_method' => 'ONE_TIME_PAYMENT',
-							'basket' => [
-									[
-											'reference_id' => '1',
-											'name' => $this->form['item'] ?? 'PRODUCT',
-											'category' => 'DIGITAL',
-											'currency' => $this->form['currency'] ?? 'IDR',
-											'price' => $this->form['amount'],
-											'quantity' => 1,
-											'type' => 'PRODUCT',
-										],
-								],
+							// 'basket' => [
+							// 	'reference_id' => $this->form['order_id'],
+							// 	'name' => $this->form['item'] ?? 'PRODUCT',
+							// 	'category' => 'DIGITAL',
+							// 	'currency' => $this->form['currency'] ?? 'IDR',
+							// 	'price' => $this->form['amount'],
+							// 	'quantity' => 1,
+							// 	'type' => 'PRODUCT',
+							// 	// 'url' => '',
+							// 	// 'description' => '',
+							// 	// 'sub_category' => '',
+							// 	// 'metadata' => null,
+							// ],
+							// 'payment_method_id' => '',
+							// 'customer_id' => '',
+							// 'metadata' => [
+							// 	'branch_area' => 'Jakarta',
+							// 	'branch_city' => 'Jakarta',
+							// ],
 						];
 					switch (strtoupper($payment_channel)) {
 						case 'OVO':
@@ -288,7 +299,7 @@ class Xendit extends Requestor implements VendorInterface
 
 			$this->request['form'] = $this->form;
 			$this->request['time'] = $this->transaction->getTime();
-			$this->request['url'] = preg_replace('#/+#','/', $this->request['url']);
+			// $this->request['url'] = preg_replace('#/+#','/', $this->request['url']);
 			$this->request['headers'] = [
 					'Content-Type' => 'application/json',
 					'Accept' => 'application/json',
@@ -298,9 +309,9 @@ class Xendit extends Requestor implements VendorInterface
 			$this->request['option'] = [
 					'as_json' => true,
 				];
-// print_r($this->request);
+			// print_r($this->request);
 			$post = $this->DoRequest('POST', $this->request);
-// print_r($post);
+			// print_r($post);
 			$response = (array) $post['response'];
 			extract($response);
 			if (!empty($status_code) &&
@@ -354,33 +365,19 @@ class Xendit extends Requestor implements VendorInterface
 					}
 					*/
 					$res = [
-							'status' => '000',
-							'data' => (array) $content,
-						];
-					$result = [
-							'request' => (array) $this->request,
-							'response' => [
-									'content' => json_encode($res),
-									'status_code' => 200,
-									// 'va_number' => $content['data']['account_number'],
-									// 'bank_code' => $payment_channel,
-									// 'amount' => $content['data']['expected_amount'],
-									// 'transaction_id' => $content['data']['owner_id'], // vendor transaction_id
-									// 'order_id' => $content['data']['external_id'], // PGA order_id
-									// 'payment_type' => $payment_method,
-									// 'transaction_status' => $content['data']['status'],
-								],
-						];
+						'status' => '000',
+						'data' => (array) $content,
+					];
 				} else {
-					throw new \Exception($content->status);
+					throw new \Exception($content->status, 901);
 				}
 			} else {
-				throw new \Exception($content);
+				throw new \Exception($content, 902);
 			}
 		} catch (\Throwable $e) {
-			throw new \Exception($this->ThrowError($e));
+			return SELF::JSONError($e, 400);
 		}
-		return $result ?? [];
+		return SELF::JSONResult($this->request, $res, $status_code);
 	}
 
 	public function Callback(object $request)

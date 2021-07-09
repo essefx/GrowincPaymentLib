@@ -137,10 +137,6 @@ class Doku extends Requestor implements VendorInterface
 					}
 					*/
 					$res = $content;
-					$res = [
-						'status' => '000',
-						'data' => (array) $content,
-					];
 				} else {
 					throw new \Exception('Parse unsuccessful', 901);
 				}
