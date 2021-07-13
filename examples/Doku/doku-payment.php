@@ -9,8 +9,7 @@ $init = new \Growinc\Payment\Init(
 	);
 // $init->setPaymentURL('https://staging.doku.com/Suite/Receive');
 $init->setPaymentURL('https://pay.doku.com/Suite/Receive');
-// $init->setRequestURL('http://103.5.45.182:13579/parse/'); // LIVE Server for parser
-$init->setRequestURL('http://localhost:13578/parse/'); // Local DEV parser
+$init->setRequestURL('http://103.5.45.182:15000/parse/'); // LIVE Server for parser
 
 $transaction = new \Growinc\Payment\Transaction();
 $transaction->setCustomerName('Lorem Ipsum');

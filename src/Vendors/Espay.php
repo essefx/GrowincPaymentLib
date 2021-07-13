@@ -396,7 +396,8 @@ class Espay extends Requestor implements VendorInterface
 				throw new \Exception($content, 902);
 			}
 		} catch (\Throwable $e) {
-			return SELF::JSONError($e, 400);
+			// return SELF::JSONError($e, 400);
+			throw new \Exception($this->ThrowError($e));
 		}
 		return SELF::JSONResult($this->request, $res, $status_code);
 	}
@@ -530,7 +531,8 @@ class Espay extends Requestor implements VendorInterface
 				throw new \Exception($content, 902);
 			}
 		} catch (\Throwable $e) {
-			return SELF::JSONError($e, 400);
+			// return SELF::JSONError($e, 400);
+			throw new \Exception($this->ThrowError($e));
 		}
 		return SELF::JSONResult($this->request, $res, $status_code);
 	}

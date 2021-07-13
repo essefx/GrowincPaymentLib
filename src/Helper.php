@@ -27,7 +27,9 @@ trait Helper
 		if ($e instanceof \Exception) {
 			return implode(':', [
 				$e->getMessage(),
-				basename($e->getFile()),
+				// basename($e->getFile()),
+				'/' . basename(dirname($e->getFile())) .
+				'/' . basename($e->getFile()),
 				$e->getLine()]
 			);
 		}
@@ -62,7 +64,9 @@ trait Helper
 				'content' => json_encode([
 					'status' => $e->getCode(),
 					'error_message' => $e->getMessage(),
-					'error_file' => basename($e->getFile()),
+					'error_file' =>
+						'/' . basename(dirname($e->getFile())) .
+						'/' . basename($e->getFile()),
 					'error_line' => $e->getLine(),
 				]),
 				'status_code' => $status_code,
